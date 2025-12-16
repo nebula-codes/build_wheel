@@ -8,7 +8,7 @@ function BuildBrowser({ game }) {
   const [selectedSource, setSelectedSource] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedBuild, setExpandedBuild] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: 'dps', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
 
   const allBuilds = useMemo(() => {
     const builds = [];
@@ -62,8 +62,22 @@ function BuildBrowser({ game }) {
 
     // Sort builds
     builds.sort((a, b) => {
-      const aVal = a[sortConfig.key] || 0;
-      const bVal = b[sortConfig.key] || 0;
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+
+      // Handle string vs number sorting
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = (bVal || '').toLowerCase();
+        if (sortConfig.direction === 'asc') {
+          return aVal.localeCompare(bVal);
+        }
+        return bVal.localeCompare(aVal);
+      }
+
+      // Number sorting
+      aVal = aVal || 0;
+      bVal = bVal || 0;
       if (sortConfig.direction === 'asc') {
         return aVal - bVal;
       }
@@ -78,13 +92,6 @@ function BuildBrowser({ game }) {
       key,
       direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc'
     }));
-  };
-
-  const formatNumber = (num) => {
-    if (!num) return '-';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
-    return num.toString();
   };
 
   const tiers = ['S', 'A', 'B', 'C'];
@@ -265,47 +272,44 @@ function BuildBrowser({ game }) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-800 bg-[#0f0f17]">
+                    <th
+                      className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('name')}
+                    >
+                      <span className="flex items-center gap-1">
+                        Build
+                        {sortConfig.key === 'name' && (
+                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </span>
+                    </th>
+                    <th
+                      className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('className')}
+                    >
+                      <span className="flex items-center gap-1">
+                        Class
+                        {sortConfig.key === 'className' && (
+                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </span>
+                    </th>
+                    <th
+                      className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('difficulty')}
+                    >
+                      <span className="flex items-center justify-center gap-1">
+                        Difficulty
+                        {sortConfig.key === 'difficulty' && (
+                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </span>
+                    </th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Build
-                    </th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Class
-                    </th>
-                    <th
-                      className="text-right px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                      onClick={() => handleSort('dps')}
-                    >
-                      <span className="flex items-center justify-end gap-1">
-                        DPS
-                        {sortConfig.key === 'dps' && (
-                          <span>{sortConfig.direction === 'desc' ? '↓' : '↑'}</span>
-                        )}
-                      </span>
-                    </th>
-                    <th
-                      className="text-right px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                      onClick={() => handleSort('ehp')}
-                    >
-                      <span className="flex items-center justify-end gap-1">
-                        EHP
-                        {sortConfig.key === 'ehp' && (
-                          <span>{sortConfig.direction === 'desc' ? '↓' : '↑'}</span>
-                        )}
-                      </span>
-                    </th>
-                    <th
-                      className="text-right px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                      onClick={() => handleSort('popularity')}
-                    >
-                      <span className="flex items-center justify-end gap-1">
-                        Pop %
-                        {sortConfig.key === 'popularity' && (
-                          <span>{sortConfig.direction === 'desc' ? '↓' : '↑'}</span>
-                        )}
-                      </span>
+                      Tags
                     </th>
                     <th className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Links
+                      poe.ninja
                     </th>
                   </tr>
                 </thead>
@@ -328,20 +332,27 @@ function BuildBrowser({ game }) {
                         <div className="text-sm text-gray-300">{build.className}</div>
                         <div className="text-xs text-gray-500">{build.baseClass}</div>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className={`text-sm font-medium ${build.dps ? 'text-green-400' : 'text-gray-600'}`}>
-                          {formatNumber(build.dps)}
-                        </span>
+                      <td className="px-4 py-3 text-center">
+                        {build.difficulty && (
+                          <span
+                            className="text-xs px-2 py-1 rounded font-medium"
+                            style={{
+                              backgroundColor: `${getUniversalDifficultyColor(build.difficulty, game.id)}20`,
+                              color: getUniversalDifficultyColor(build.difficulty, game.id)
+                            }}
+                          >
+                            {build.difficulty}
+                          </span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className={`text-sm font-medium ${build.ehp ? 'text-blue-400' : 'text-gray-600'}`}>
-                          {formatNumber(build.ehp)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className={`text-sm ${build.popularity ? 'text-purple-400' : 'text-gray-600'}`}>
-                          {build.popularity ? `${build.popularity}%` : '-'}
-                        </span>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {build.tags?.filter(t => t !== 'Off-Meta').slice(0, 3).map((tag, idx) => (
+                            <span key={idx} className="text-xs px-1.5 py-0.5 bg-gray-700/50 text-gray-400 rounded">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-center">
                         {build.guideUrl && (
@@ -354,7 +365,7 @@ function BuildBrowser({ game }) {
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
-                            poe.ninja
+                            View Builds
                           </a>
                         )}
                       </td>
@@ -372,7 +383,7 @@ function BuildBrowser({ game }) {
 
             <div className="px-4 py-3 border-t border-gray-800 bg-[#0f0f17]">
               <p className="text-xs text-gray-500">
-                Stats from poe.ninja ladder data. Click column headers to sort. DPS and EHP are approximate averages from top players.
+                Off-meta builds from poe.ninja ladder. Click "View Builds" to see player profiles, DPS, and EHP stats on poe.ninja.
               </p>
             </div>
           </div>
