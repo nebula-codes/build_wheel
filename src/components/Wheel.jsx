@@ -18,15 +18,33 @@ const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete }, ref) {
     return `hsl(${hue}, 60%, 40%)`;
   };
 
+  // Calculate font size based on number of items
+  const getFontSize = () => {
+    if (items.length > 20) return "9";
+    if (items.length > 15) return "10";
+    if (items.length > 10) return "11";
+    if (items.length > 6) return "12";
+    return "14";
+  };
+
+  // Truncate name based on available space
+  const truncateName = (name) => {
+    const maxLen = items.length > 15 ? 10 : items.length > 10 ? 12 : 16;
+    if (name.length > maxLen) {
+      return name.substring(0, maxLen - 2) + '…';
+    }
+    return name;
+  };
+
   return (
     <div className="flex flex-col items-center">
-      <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">{title}</h3>
+      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">{title}</h3>
       <div className="relative">
         {/* Pointer */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[16px] border-l-transparent border-r-transparent border-t-diablo-orange" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-diablo-orange drop-shadow-lg" />
 
         <svg
-          className="w-56 h-56"
+          className="w-80 h-80 lg:w-96 lg:h-96"
           viewBox="-150 -150 300 300"
           style={{
             transform: `rotate(${rotation}deg)`,
@@ -35,9 +53,19 @@ const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete }, ref) {
         >
           <defs>
             <filter id={`shadow-${title}`}>
-              <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor="#000" floodOpacity="0.5" />
+              <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#000" floodOpacity="0.8" />
+            </filter>
+            <filter id={`glow-${title}`}>
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
             </filter>
           </defs>
+
+          {/* Outer ring */}
+          <circle r="148" fill="none" stroke="#ff6b35" strokeWidth="3" opacity="0.3" />
 
           {/* Background */}
           <circle r="145" fill="#0f0f17" stroke="#2a2a3a" strokeWidth="2" />
@@ -64,21 +92,21 @@ const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete }, ref) {
                 d={pathD}
                 fill={getSegmentColor(index, item)}
                 stroke="#0f0f17"
-                strokeWidth="1"
-                opacity="0.9"
+                strokeWidth="1.5"
+                opacity="0.95"
               />
             );
           })}
 
-          {/* Center */}
-          <circle r="18" fill="#0f0f17" stroke="#2a2a3a" strokeWidth="2" />
-          <circle r="6" fill="#ff6b35" />
+          {/* Center circle */}
+          <circle r="22" fill="#0f0f17" stroke="#2a2a3a" strokeWidth="2" />
+          <circle r="8" fill="#ff6b35" filter={`url(#glow-${title})`} />
 
           {/* Labels */}
           {items.map((item, index) => {
             const angle = index * segmentAngle + segmentAngle / 2 - 90;
             const rad = (angle * Math.PI) / 180;
-            const textRadius = 85;
+            const textRadius = items.length > 15 ? 90 : 85;
             const x = Math.cos(rad) * textRadius;
             const y = Math.sin(rad) * textRadius;
 
@@ -95,23 +123,31 @@ const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete }, ref) {
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="white"
-                fontSize={items.length > 10 ? "7" : items.length > 6 ? "8" : "10"}
-                fontWeight="500"
+                fontSize={getFontSize()}
+                fontWeight="600"
                 filter={`url(#shadow-${title})`}
                 transform={`rotate(${textRotation}, ${x}, ${y})`}
+                style={{ textShadow: '0 0 4px rgba(0,0,0,0.9)' }}
               >
-                {item.name.length > 12 ? item.name.substring(0, 10) + '...' : item.name}
+                {truncateName(item.name)}
               </text>
             );
           })}
         </svg>
       </div>
 
-      {selectedItem && !isSpinning && (
-        <div className="mt-4 text-center">
-          <span className="text-white font-medium text-sm">{selectedItem.name}</span>
-        </div>
-      )}
+      {/* Selected item display */}
+      <div className="mt-4 h-12 flex items-center justify-center">
+        {selectedItem && !isSpinning ? (
+          <div className="bg-gradient-to-r from-diablo-orange/20 to-diablo-gold/20 border border-diablo-orange/30 rounded-lg px-4 py-2">
+            <span className="text-white font-semibold text-lg">{selectedItem.name}</span>
+          </div>
+        ) : (
+          <div className="text-gray-600 text-sm">
+            {isSpinning ? 'Spinning...' : 'Spin to select'}
+          </div>
+        )}
+      </div>
     </div>
   );
 });
