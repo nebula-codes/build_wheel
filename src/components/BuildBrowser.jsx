@@ -133,7 +133,7 @@ function BuildBrowser({ game }) {
                 <span className="text-xs text-gray-600">({builds.length})</span>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
                 {builds.map(build => (
                   <BuildCard
                     key={build.id}
@@ -155,7 +155,7 @@ function BuildBrowser({ game }) {
               <span className="text-xs text-gray-600">({buildsByTier.other.length})</span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
               {buildsByTier.other.map(build => (
                 <BuildCard
                   key={build.id}
