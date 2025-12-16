@@ -79,8 +79,21 @@ function App() {
   const availableDifficulties = ['Easy', 'Medium', 'Hard'];
 
   const availableClasses = useMemo(() => {
-    return currentGame.classes.filter(cls => !excludedClasses.includes(cls.id));
-  }, [currentGame.classes, excludedClasses]);
+    return currentGame.classes.filter(cls => {
+      // First check if class is excluded
+      if (excludedClasses.includes(cls.id)) return false;
+
+      // Then check if class has any skills matching the current filters
+      const hasMatchingSkills = cls.skills.some(skill => {
+        if (excludedSkills.includes(skill.id)) return false;
+        if (difficultyFilter !== 'all' && skill.difficulty !== difficultyFilter) return false;
+        if (playstyleFilter !== 'all' && skill.playstyle !== playstyleFilter) return false;
+        return true;
+      });
+
+      return hasMatchingSkills;
+    });
+  }, [currentGame.classes, excludedClasses, excludedSkills, difficultyFilter, playstyleFilter]);
 
   const getSkillsForClass = useCallback((classData) => {
     if (!classData) return [];
