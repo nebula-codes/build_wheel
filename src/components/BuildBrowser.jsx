@@ -320,6 +320,9 @@ function BuildBrowser({ game }) {
                       Tags
                     </th>
                     <th className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      League
+                    </th>
+                    <th className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
                       poe.ninja
                     </th>
                   </tr>
@@ -392,6 +395,13 @@ function BuildBrowser({ game }) {
                               ))}
                             </div>
                           </td>
+                          <td className="px-4 py-3 text-center">
+                            {build.league && (
+                              <span className="text-xs text-gray-400">
+                                {build.league.split(' ')[0]}
+                              </span>
+                            )}
+                          </td>
                           <td className="px-4 py-3 text-center" onClick={e => e.stopPropagation()}>
                             {build.guideUrl && (
                               <a
@@ -411,7 +421,7 @@ function BuildBrowser({ game }) {
                         {/* Expansion Panel */}
                         {isExpanded && (
                           <tr>
-                            <td colSpan={6} className="bg-[#0f0f17] border-t border-gray-800">
+                            <td colSpan={7} className="bg-[#0f0f17] border-t border-gray-800">
                               <div className="px-6 py-4 space-y-4">
                                 {/* Description */}
                                 {build.description && (
@@ -581,6 +591,11 @@ function BuildCard({ build, gameId, isExpanded, onToggle }) {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          {build.league && (
+            <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400">
+              {build.league.split(' ')[0]}
+            </span>
+          )}
           {build.source && (
             <span className={`text-xs px-1.5 py-0.5 rounded ${
               build.source === 'Maxroll'
@@ -643,11 +658,6 @@ function BuildCard({ build, gameId, isExpanded, onToggle }) {
                   </span>
                 ))}
               </div>
-              {build.league && (
-                <div className="mt-2 text-xs text-gray-500">
-                  League: {build.league}
-                </div>
-              )}
             </div>
           )}
 
