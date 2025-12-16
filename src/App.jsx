@@ -7,7 +7,7 @@ import { games, gameList } from './data/games';
 function App() {
   const [selectedGameId, setSelectedGameId] = useState('poe1');
   const [activeView, setActiveView] = useState('wheel'); // 'wheel' or 'browser'
-  const [excludedClasses, setExcludedClasses] = useState([]);
+  const [excludedClasses, setExcludedClasses] = useState(['raider']); // Raider disabled by default (no longer active)
   const [excludedSkills, setExcludedSkills] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedSkill, setSelectedSkill] = useState(null);
@@ -89,7 +89,8 @@ function App() {
 
   const handleGameChange = useCallback((gameId) => {
     setSelectedGameId(gameId);
-    setExcludedClasses([]);
+    // Set default excluded classes per game
+    setExcludedClasses(gameId === 'poe1' ? ['raider'] : []);
     setExcludedSkills([]);
     setSelectedClass(null);
     setSelectedSkill(null);
