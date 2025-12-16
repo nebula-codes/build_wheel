@@ -1,16 +1,55 @@
-# React + Vite
+# Build Wheel - Gaming Build Randomizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web app for randomizing game builds with an animated spinning wheel. Perfect for challenge runs, trying new playstyles, or when you can't decide what to play next.
 
-Currently, two official plugins are available:
+**Live Demo:** [https://nebula-codes.github.io/build_wheel/](https://nebula-codes.github.io/build_wheel/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Dual Wheel System** - Spin for class and build simultaneously
+- **Build Browser** - Browse all builds with tier ratings, filters, and search
+- **Guide Links** - Direct links to Maxroll.gg guides and PoB planners
+- **Dark Gaming Theme** - Sleek UI designed for gamers
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Supported Games
 
-## Expanding the ESLint configuration
+### Diablo 4
+- All 6 classes (Barbarian, Druid, Necromancer, Rogue, Sorcerer, Spiritborn)
+- 40+ endgame builds with tier ratings
+- Skills, key items, paragon glyphs, and gameplay tips
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Path of Exile 1
+- All 19 ascendancy classes
+- 60+ builds from Maxroll.gg
+- League starter and endgame builds
+- Direct links to build guides and PoB planners
+
+## Tech Stack
+
+- React 18 + Vite
+- Tailwind CSS v4
+- SVG-based wheel animations
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run dev server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Adding More Games
+
+Game data is stored in `src/data/games/`. Each game exports:
+- Game metadata (id, name, classes)
+- Class data with builds/skills
+- Tier and difficulty color functions
+
+## License
+
+MIT
