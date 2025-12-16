@@ -5,7 +5,7 @@ import BuildBrowser from './components/BuildBrowser';
 import { games, gameList } from './data/games';
 
 function App() {
-  const [selectedGameId, setSelectedGameId] = useState('diablo4');
+  const [selectedGameId, setSelectedGameId] = useState('poe1');
   const [activeView, setActiveView] = useState('wheel'); // 'wheel' or 'browser'
   const [excludedClasses, setExcludedClasses] = useState([]);
   const [excludedSkills, setExcludedSkills] = useState([]);

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { getUniversalTierColor, getUniversalDifficultyColor } from '../data/games';
 
 function BuildBrowser({ game }) {
@@ -305,6 +305,17 @@ function BuildBrowser({ game }) {
                         )}
                       </span>
                     </th>
+                    <th
+                      className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('popularity')}
+                    >
+                      <span className="flex items-center justify-center gap-1">
+                        Pop%
+                        {sortConfig.key === 'popularity' && (
+                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </span>
+                    </th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
                       Tags
                     </th>
@@ -314,63 +325,217 @@ function BuildBrowser({ game }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
-                  {filteredOffMetaBuilds.map(build => (
-                    <tr key={build.id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="w-2 h-2 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: build.classColor }}
-                          />
-                          <div>
-                            <div className="font-medium text-white text-sm">{build.name}</div>
-                            <div className="text-xs text-gray-500">{build.playstyle} • {build.damageType}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-sm text-gray-300">{build.className}</div>
-                        <div className="text-xs text-gray-500">{build.baseClass}</div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {build.difficulty && (
-                          <span
-                            className="text-xs px-2 py-1 rounded font-medium"
-                            style={{
-                              backgroundColor: `${getUniversalDifficultyColor(build.difficulty, game.id)}20`,
-                              color: getUniversalDifficultyColor(build.difficulty, game.id)
-                            }}
-                          >
-                            {build.difficulty}
-                          </span>
+                  {filteredOffMetaBuilds.map(build => {
+                    const isExpanded = expandedBuild === build.id;
+                    return (
+                      <React.Fragment key={build.id}>
+                        <tr
+                          className={`hover:bg-white/5 transition-colors cursor-pointer ${isExpanded ? 'bg-white/5' : ''}`}
+                          onClick={() => setExpandedBuild(isExpanded ? null : build.id)}
+                        >
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <svg
+                                className={`w-4 h-4 text-gray-500 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                              <span
+                                className="w-2 h-2 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: build.classColor }}
+                              />
+                              <div>
+                                <div className="font-medium text-white text-sm">{build.name}</div>
+                                <div className="text-xs text-gray-500">{build.playstyle} • {build.damageType}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="text-sm text-gray-300">{build.className}</div>
+                            <div className="text-xs text-gray-500">{build.baseClass}</div>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {build.difficulty && (
+                              <span
+                                className="text-xs px-2 py-1 rounded font-medium"
+                                style={{
+                                  backgroundColor: `${getUniversalDifficultyColor(build.difficulty, game.id)}20`,
+                                  color: getUniversalDifficultyColor(build.difficulty, game.id)
+                                }}
+                              >
+                                {build.difficulty}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {build.popularity && (
+                              <span
+                                className={`text-xs px-2 py-1 rounded font-medium ${
+                                  build.popularity >= 3 ? 'bg-green-500/20 text-green-400' :
+                                  build.popularity >= 1 ? 'bg-yellow-500/20 text-yellow-400' :
+                                  'bg-gray-500/20 text-gray-400'
+                                }`}
+                              >
+                                {build.popularity}%
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              {build.tags?.filter(t => t !== 'Off-Meta').slice(0, 3).map((tag, idx) => (
+                                <span key={idx} className="text-xs px-1.5 py-0.5 bg-gray-700/50 text-gray-400 rounded">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-center" onClick={e => e.stopPropagation()}>
+                            {build.guideUrl && (
+                              <a
+                                href={build.guideUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1 bg-blue-500/10 rounded"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                View Builds
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                        {/* Expansion Panel */}
+                        {isExpanded && (
+                          <tr>
+                            <td colSpan={6} className="bg-[#0f0f17] border-t border-gray-800">
+                              <div className="px-6 py-4 space-y-4">
+                                {/* Description */}
+                                {build.description && (
+                                  <p className="text-sm text-gray-400">{build.description}</p>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {/* Keystones */}
+                                  {build.keystones && build.keystones.length > 0 && (
+                                    <div>
+                                      <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Keystones</h4>
+                                      <div className="flex flex-wrap gap-1">
+                                        {build.keystones.map((keystone, idx) => (
+                                          <span key={idx} className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded">
+                                            {keystone}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Skills */}
+                                  {build.skills && build.skills.length > 0 && (
+                                    <div>
+                                      <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Main Skills</h4>
+                                      <div className="flex flex-wrap gap-1">
+                                        {build.skills.map((skill, idx) => (
+                                          <span key={idx} className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded">
+                                            {skill}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Key Items */}
+                                  {build.keyItems && build.keyItems.length > 0 && (
+                                    <div>
+                                      <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Key Items</h4>
+                                      <div className="flex flex-wrap gap-1">
+                                        {build.keyItems.map((item, idx) => (
+                                          <span key={idx} className="text-xs px-2 py-1 bg-amber-500/20 text-amber-400 rounded">
+                                            {item}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Ascendancy */}
+                                {build.ascendancy && build.ascendancy.length > 0 && (
+                                  <div>
+                                    <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Ascendancy Order</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {build.ascendancy.map((node, idx) => (
+                                        <span key={idx} className="text-xs px-2 py-1 bg-cyan-500/10 text-cyan-400 rounded flex items-center gap-1">
+                                          <span className="text-cyan-600">{idx + 1}.</span> {node}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Gameplay */}
+                                {build.gameplay && (
+                                  <div>
+                                    <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Gameplay</h4>
+                                    <p className="text-sm text-gray-400">{build.gameplay}</p>
+                                  </div>
+                                )}
+
+                                {/* Top Builds from poe.ninja */}
+                                {build.topBuilds && build.topBuilds.length > 0 && (
+                                  <div className="pt-3 border-t border-gray-800">
+                                    <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Top Builds on poe.ninja</h4>
+                                    <div className="flex flex-col gap-2">
+                                      {build.topBuilds.slice(0, 3).map((topBuild, idx) => (
+                                        <a
+                                          key={idx}
+                                          href={topBuild.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center justify-between gap-4 px-4 py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded transition-colors"
+                                        >
+                                          <div className="flex items-center gap-3">
+                                            <span className="text-xs text-gray-500">#{idx + 1}</span>
+                                            <span className="text-blue-400 font-medium">{topBuild.name}</span>
+                                          </div>
+                                          <div className="flex items-center gap-4 text-xs">
+                                            {topBuild.dps && (
+                                              <span className="text-green-400" title="DPS">
+                                                <span className="text-gray-500 mr-1">DPS:</span>
+                                                {topBuild.dps}
+                                              </span>
+                                            )}
+                                            {topBuild.life && (
+                                              <span className="text-red-400" title="Life">
+                                                <span className="text-gray-500 mr-1">Life:</span>
+                                                {topBuild.life}
+                                              </span>
+                                            )}
+                                            {topBuild.es && (
+                                              <span className="text-purple-400" title="Energy Shield">
+                                                <span className="text-gray-500 mr-1">ES:</span>
+                                                {topBuild.es}
+                                              </span>
+                                            )}
+                                            <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                          </div>
+                                        </a>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
                         )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {build.tags?.filter(t => t !== 'Off-Meta').slice(0, 3).map((tag, idx) => (
-                            <span key={idx} className="text-xs px-1.5 py-0.5 bg-gray-700/50 text-gray-400 rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {build.guideUrl && (
-                          <a
-                            href={build.guideUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1 bg-blue-500/10 rounded"
-                          >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            View Builds
-                          </a>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                      </React.Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

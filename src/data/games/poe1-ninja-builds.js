@@ -1,0 +1,5092 @@
+// Auto-generated PoE 1 builds from poe.ninja data
+// Generated on: 2025-12-16T06:22:38.649Z
+// Total builds: 119
+
+export const poe1NinjaBuilds = {
+  id: 'poe1-ninja',
+  name: 'Path of Exile (poe.ninja)',
+  classes: [
+  {
+    id: "deadeye",
+    name: "Deadeye",
+    baseClass: "Ranger",
+    color: "#2ecc71",
+    skills: [
+      {
+        id: "elemental-hit-deadeye",
+        name: "Elemental Hit",
+        tier: "S",
+        description: "A ranged attack build dealing elemental damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Elemental",
+        difficulty: "Medium",
+        popularity: 3.2,
+        tags: [
+          "Bow",
+          "Endgame",
+          "Trinity"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Elemental%20Hit&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Avatar of Fire",
+          "Elemental Equilibrium"
+        ],
+        skills: [
+          "Elemental Hit",
+          "Frenzy",
+          "Dash",
+          "Grace",
+          "Anger",
+          "Herald of Ash"
+        ],
+        keyItems: [
+          "Combat Focus",
+          "Frostferno",
+          "Xoph's Blood"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Focal Point",
+          "Endless Munitions",
+          "Ricochet"
+        ],
+        gameplay: "Fire-converted Ele Hit with Combat Focus jewels. Massive single hits with great clear."
+      },
+      {
+        id: "kinetic-blast-deadeye",
+        name: "Kinetic Blast",
+        tier: "S",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 2.8,
+        tags: [
+          "Wand",
+          "Mapping",
+          "Explosions"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Kinetic%20Blast&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Kinetic Blast",
+          "Power Siphon",
+          "Dash",
+          "Grace",
+          "Hatred",
+          "Herald of Ice"
+        ],
+        keyItems: [
+          "Piscator's Vigil",
+          "Thunderfist",
+          "Asenath's Gentle Touch"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Ricochet",
+          "Endless Munitions",
+          "Focal Point"
+        ],
+        gameplay: "Wand skill that explodes on terrain for massive AoE. Use Power Siphon for single target."
+      },
+      {
+        id: "tornado-shot-deadeye",
+        name: "Tornado Shot",
+        tier: "A",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Hard",
+        popularity: 2.5,
+        tags: [
+          "Bow",
+          "Expensive",
+          "Mapping"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Tornado%20Shot&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Tornado Shot",
+          "Barrage",
+          "Dash",
+          "Grace",
+          "Hatred",
+          "Precision"
+        ],
+        keyItems: [
+          "Rigwald's Quills",
+          "Dying Sun",
+          "Hyrri's Ire"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Ricochet",
+          "Endless Munitions",
+          "Focal Point"
+        ],
+        gameplay: "Fire an arrow that releases secondary projectiles. Requires heavy investment but clears entire screens."
+      },
+      {
+        id: "ice-shot-deadeye",
+        name: "Ice Shot",
+        tier: "A",
+        description: "A ranged attack build dealing cold damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Cold",
+        difficulty: "Medium",
+        popularity: 2.2,
+        tags: [
+          "Freeze",
+          "Mapping",
+          "Projectile"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ice%20Shot&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Ice Shot",
+          "Barrage",
+          "Dash",
+          "Grace",
+          "Hatred",
+          "Herald of Ice"
+        ],
+        keyItems: [
+          "Death's Opus",
+          "Hyrri's Ire",
+          "Mark of the Elder"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Focal Point",
+          "Endless Munitions",
+          "Ricochet"
+        ],
+        gameplay: "Pierce through enemies with freezing arrows. Herald of Ice chains explosions for satisfying clear."
+      },
+      {
+        id: "lightning-arrow-deadeye",
+        name: "Lightning Arrow",
+        tier: "A",
+        description: "A ranged attack build dealing lightning damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 1.8,
+        tags: [
+          "Bow",
+          "Chain"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Lightning%20Arrow&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Lightning Arrow",
+          "Barrage",
+          "Dash",
+          "Grace",
+          "Wrath",
+          "Herald of Thunder"
+        ],
+        keyItems: [
+          "Tempest",
+          "Hyrri's Ire",
+          "Yoke of Suffering"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Ricochet",
+          "Endless Munitions",
+          "Focal Point"
+        ],
+        gameplay: "Lightning bow skill with inherent chain. Excellent clear with shocking proliferation."
+      },
+      {
+        id: "power-siphon-deadeye",
+        name: "Power Siphon",
+        tier: "A",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.6,
+        tags: [
+          "Wand",
+          "Single Target"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Power%20Siphon&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Power Siphon",
+          "Kinetic Blast",
+          "Dash",
+          "Grace",
+          "Hatred",
+          "Precision"
+        ],
+        keyItems: [
+          "Piscator's Vigil",
+          "Crown of Eyes",
+          "Asenath's Gentle Touch"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Ricochet",
+          "Endless Munitions",
+          "Focal Point"
+        ],
+        gameplay: "Power Siphon for single target, Kinetic Blast for clear. Generates power charges for crit."
+      },
+      {
+        id: "toxic-rain-deadeye",
+        name: "Toxic Rain",
+        tier: "B",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 0.9,
+        tags: [
+          "DoT",
+          "Projectile"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Toxic%20Rain&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Toxic Rain",
+          "Mirage Archer",
+          "Dash",
+          "Grace",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Dying Sun",
+          "The Embalmer"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Focal Point",
+          "Occupying Force",
+          "Endless Munitions"
+        ],
+        gameplay: "Extra projectiles from Deadeye make for denser pod coverage. Mirage Archer helps with clear."
+      },
+      {
+        id: "split-arrow-deadeye",
+        name: "Split Arrow",
+        tier: "B",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 0.9,
+        tags: [
+          "Bow",
+          "League Starter"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Split%20Arrow&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Split Arrow",
+          "Puncture",
+          "Dash",
+          "Grace",
+          "Pride",
+          "Herald of Purity"
+        ],
+        keyItems: [
+          "Lioneye's Glare",
+          "Drillneck",
+          "Hyrri's Ire"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Endless Munitions",
+          "Ricochet",
+          "Focal Point"
+        ],
+        gameplay: "Simple bow skill that fires multiple arrows. Good league starter before transitioning."
+      },
+      {
+        id: "rain-of-arrows-deadeye",
+        name: "Rain of Arrows",
+        tier: "B",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 0.8,
+        tags: [
+          "Bow",
+          "AoE"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Rain%20of%20Arrows&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Rain of Arrows",
+          "Barrage",
+          "Dash",
+          "Grace",
+          "Pride",
+          "Herald of Purity"
+        ],
+        keyItems: [
+          "Lioneye's Glare",
+          "Drillneck",
+          "Hyrri's Ire"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Endless Munitions",
+          "Focal Point",
+          "Ricochet"
+        ],
+        gameplay: "Area attack that rains arrows. Good clear with no aim required."
+      },
+      {
+        id: "barrage-deadeye",
+        name: "Barrage",
+        tier: "B",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Bow",
+          "Single Target"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Barrage&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Barrage",
+          "Split Arrow",
+          "Dash",
+          "Grace",
+          "Hatred",
+          "Precision"
+        ],
+        keyItems: [
+          "Death's Opus",
+          "Dying Sun",
+          "Hyrri's Ire"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Endless Munitions",
+          "Focal Point",
+          "Ricochet"
+        ],
+        gameplay: "Fire multiple arrows in sequence. Excellent single target DPS for bossing."
+      },
+      {
+        id: "shrapnel-ballista-deadeye",
+        name: "Shrapnel Ballista",
+        tier: "C",
+        description: "A totem build that places shrapnel ballista totems to deal damage automatically.",
+        playstyle: "Totem",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.4,
+        tags: [
+          "Totem",
+          "Bow"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Shrapnel%20Ballista&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank",
+          "Iron Grip"
+        ],
+        skills: [
+          "Shrapnel Ballista",
+          "Barrage",
+          "Dash",
+          "Grace",
+          "Pride",
+          "Precision"
+        ],
+        keyItems: [
+          "Iron Commander",
+          "Hyrri's Ire",
+          "Drillneck"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Endless Munitions",
+          "Focal Point",
+          "Ricochet"
+        ],
+        gameplay: "Place ballista totems that fire shrapnel. Scale with dexterity for more totems."
+      },
+      {
+        id: "spectral-throw-deadeye",
+        name: "Spectral Throw",
+        tier: "C",
+        description: "A ranged attack build dealing elemental damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Elemental",
+        difficulty: "Hard",
+        popularity: 0.3,
+        tags: [
+          "Nostalgia",
+          "Expensive",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Spectral%20Throw&class=Deadeye",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Spectral Throw",
+          "Whirling Blades",
+          "Grace",
+          "Wrath",
+          "Anger",
+          "Precision"
+        ],
+        keyItems: [
+          "Hand of Wisdom and Action",
+          "Hyrri's Ire",
+          "Mark of the Elder"
+        ],
+        ascendancy: [
+          "Gathering Winds",
+          "Far Shot",
+          "Endless Munitions",
+          "Ricochet"
+        ],
+        gameplay: "Classic returning projectile skill. Requires heavy investment but nostalgic."
+      }
+    ]
+  },
+  {
+    id: "pathfinder",
+    name: "Pathfinder",
+    baseClass: "Ranger",
+    color: "#27ae60",
+    skills: [
+      {
+        id: "poisonous-concoction-pathfinder",
+        name: "Poisonous Concoction",
+        tier: "S",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Easy",
+        popularity: 4.5,
+        tags: [
+          "League Starter",
+          "Unarmed",
+          "Poison"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Poisonous%20Concoction&class=Pathfinder",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        skills: [
+          "Poisonous Concoction",
+          "Plague Bearer",
+          "Withering Step",
+          "Grace",
+          "Determination",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Replica Mistwall",
+          "Despair on Hit Ring",
+          "Dendrobate"
+        ],
+        ascendancy: [
+          "Nature's Reprisal",
+          "Master Toxicist",
+          "Nature's Adrenaline",
+          "Nature's Boon"
+        ],
+        gameplay: "Throw poison flasks without needing a weapon. Build up Plague Bearer then unleash. Great league starter."
+      },
+      {
+        id: "toxic-rain-pathfinder",
+        name: "Toxic Rain",
+        tier: "S",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Easy",
+        popularity: 4.2,
+        tags: [
+          "League Starter",
+          "DoT",
+          "Mapping"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Toxic%20Rain&class=Pathfinder",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        skills: [
+          "Toxic Rain",
+          "Caustic Arrow",
+          "Dash",
+          "Grace",
+          "Malevolence",
+          "Wither Totems"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Carcass Jack",
+          "Darkscorn"
+        ],
+        ascendancy: [
+          "Nature's Reprisal",
+          "Nature's Adrenaline",
+          "Master Toxicist",
+          "Nature's Boon"
+        ],
+        gameplay: "Fire TR pods that slow and deal chaos DoT. Flask uptime is permanent thanks to Pathfinder. Great for all content."
+      },
+      {
+        id: "viper-strike-pathfinder",
+        name: "Viper Strike",
+        tier: "B",
+        description: "A melee build focusing on chaos damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 1.1,
+        tags: [
+          "Poison",
+          "Melee"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Viper%20Strike&class=Pathfinder",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Viper Strike",
+          "Ancestral Protector",
+          "Whirling Blades",
+          "Grace",
+          "Malevolence",
+          "Herald of Agony"
+        ],
+        keyItems: [
+          "Wasp Nest",
+          "Coralito's Signature",
+          "Dendrobate"
+        ],
+        ascendancy: [
+          "Nature's Reprisal",
+          "Master Toxicist",
+          "Nature's Adrenaline",
+          "Nature's Boon"
+        ],
+        gameplay: "Strike build that stacks poisons rapidly. Uses claws for fast attacks and poison proliferation."
+      },
+      {
+        id: "plague-bearer-pathfinder",
+        name: "Plague Bearer",
+        tier: "B",
+        description: "An aura-based build providing chaos damage through buffs.",
+        playstyle: "Aura",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "Poison",
+          "Clear"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Plague%20Bearer&class=Pathfinder",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        skills: [
+          "Plague Bearer",
+          "Poisonous Concoction",
+          "Withering Step",
+          "Grace",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Dendrobate",
+          "Circle of Nostalgia",
+          "Replica Mistwall"
+        ],
+        ascendancy: [
+          "Nature's Reprisal",
+          "Master Toxicist",
+          "Nature's Adrenaline",
+          "Nature's Boon"
+        ],
+        gameplay: "Maximize Plague Bearer damage for autopilot mapping. Charge up with poison skills then run through packs."
+      },
+      {
+        id: "caustic-arrow-pathfinder",
+        name: "Caustic Arrow",
+        tier: "C",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Easy",
+        popularity: 0.6,
+        tags: [
+          "Bow",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Caustic%20Arrow&class=Pathfinder",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Caustic Arrow",
+          "Toxic Rain",
+          "Dash",
+          "Grace",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Darkscorn",
+          "Carcass Jack"
+        ],
+        ascendancy: [
+          "Nature's Reprisal",
+          "Master Toxicist",
+          "Nature's Adrenaline",
+          "Nature's Boon"
+        ],
+        gameplay: "Creates chaos DoT ground. Simple and effective for league start."
+      },
+      {
+        id: "scourge-arrow-pathfinder",
+        name: "Scourge Arrow",
+        tier: "C",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Hard",
+        popularity: 0.5,
+        tags: [
+          "Bow",
+          "Channel",
+          "Poison"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Scourge%20Arrow&class=Pathfinder",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Scourge Arrow",
+          "Dash",
+          "Grace",
+          "Malevolence",
+          "Herald of Agony",
+          "Despair"
+        ],
+        keyItems: [
+          "Darkscorn",
+          "Coralito's Signature",
+          "Dendrobate"
+        ],
+        ascendancy: [
+          "Nature's Reprisal",
+          "Master Toxicist",
+          "Nature's Adrenaline",
+          "Nature's Boon"
+        ],
+        gameplay: "Channel to create poison pods. Release for big poison burst. High skill ceiling."
+      }
+    ]
+  },
+  {
+    id: "raider",
+    name: "Raider",
+    baseClass: "Ranger",
+    color: "#1abc9c",
+    skills: [
+      {
+        id: "toxic-rain-raider",
+        name: "Toxic Rain",
+        tier: "A",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Easy",
+        popularity: 1.8,
+        tags: [
+          "League Starter",
+          "Fast"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Toxic%20Rain&class=Raider",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        skills: [
+          "Toxic Rain",
+          "Dash",
+          "Grace",
+          "Malevolence",
+          "Haste",
+          "Wither Totems"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Darkscorn",
+          "The Embalmer"
+        ],
+        ascendancy: [
+          "Way of the Poacher",
+          "Avatar of the Slaughter",
+          "Quartz Infusion",
+          "Avatar of the Veil"
+        ],
+        gameplay: "Speed-focused TR with permanent Onslaught and Phasing. Great mapper with high evasion and dodge."
+      },
+      {
+        id: "elemental-hit-raider",
+        name: "Elemental Hit",
+        tier: "A",
+        description: "A ranged attack build dealing elemental damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Elemental",
+        difficulty: "Medium",
+        popularity: 1.5,
+        tags: [
+          "Fast",
+          "Frenzy"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Elemental%20Hit&class=Raider",
+        plannerUrl: null,
+        keystones: [
+          "Avatar of Fire"
+        ],
+        skills: [
+          "Elemental Hit",
+          "Dash",
+          "Grace",
+          "Anger",
+          "Herald of Ash",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Combat Focus",
+          "Xoph's Blood",
+          "Darkray Vectors"
+        ],
+        ascendancy: [
+          "Way of the Poacher",
+          "Avatar of the Slaughter",
+          "Quartz Infusion",
+          "Avatar of the Veil"
+        ],
+        gameplay: "Speed-focused Ele Hit with permanent Onslaught and Phasing. Stack frenzy charges for more damage."
+      },
+      {
+        id: "lightning-strike-raider",
+        name: "Lightning Strike",
+        tier: "A",
+        description: "A melee build focusing on lightning damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 1.5,
+        tags: [
+          "Hybrid",
+          "Fast",
+          "Projectile"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Lightning%20Strike&class=Raider",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Lightning Strike",
+          "Whirling Blades",
+          "Grace",
+          "Wrath",
+          "Precision",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Omni Amulet",
+          "Touch of Anguish",
+          "Perseverance"
+        ],
+        ascendancy: [
+          "Way of the Poacher",
+          "Avatar of the Slaughter",
+          "Quartz Infusion",
+          "Avatar of the Veil"
+        ],
+        gameplay: "Melee strike that releases lightning projectiles. Can clear from range or hit bosses in melee."
+      },
+      {
+        id: "frost-blades-raider",
+        name: "Frost Blades",
+        tier: "B",
+        description: "A melee build focusing on cold damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Cold",
+        difficulty: "Medium",
+        popularity: 1,
+        tags: [
+          "Projectile",
+          "Fast"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Frost%20Blades&class=Raider",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Frost Blades",
+          "Whirling Blades",
+          "Grace",
+          "Hatred",
+          "Herald of Ice",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Touch of Anguish",
+          "The Pandemonius",
+          "Hyrri's Ire"
+        ],
+        ascendancy: [
+          "Way of the Poacher",
+          "Avatar of the Slaughter",
+          "Quartz Infusion",
+          "Avatar of the Veil"
+        ],
+        gameplay: "Strike that releases cold projectiles. Great clear with chain. Shatter effects everywhere."
+      },
+      {
+        id: "flicker-strike-raider",
+        name: "Flicker Strike",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Hard",
+        popularity: 1,
+        tags: [
+          "Teleport",
+          "Fast",
+          "Fun"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Flicker%20Strike&class=Raider",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Flicker Strike",
+          "Whirling Blades",
+          "Grace",
+          "Pride",
+          "Blood Rage",
+          "Precision"
+        ],
+        keyItems: [
+          "Oro's Sacrifice",
+          "Terminus Est",
+          "Farrul's Fur"
+        ],
+        ascendancy: [
+          "Way of the Poacher",
+          "Avatar of the Slaughter",
+          "Quartz Infusion",
+          "Avatar of the Veil"
+        ],
+        gameplay: "Teleport between enemies uncontrollably. Fun but chaotic. Need frenzy sustain."
+      },
+      {
+        id: "wild-strike-raider",
+        name: "Wild Strike",
+        tier: "C",
+        description: "A melee build focusing on elemental damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Elemental",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Random",
+          "Fun"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Wild%20Strike&class=Raider",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Wild Strike",
+          "Whirling Blades",
+          "Grace",
+          "Wrath",
+          "Anger",
+          "Herald of Ice"
+        ],
+        keyItems: [
+          "The Tempestuous Steel",
+          "Hyrri's Ire",
+          "Yoke of Suffering"
+        ],
+        ascendancy: [
+          "Way of the Poacher",
+          "Avatar of the Slaughter",
+          "Quartz Infusion",
+          "Avatar of the Veil"
+        ],
+        gameplay: "Random element attack each hit. Fun but inconsistent. Trinity support helps."
+      }
+    ]
+  },
+  {
+    id: "necromancer",
+    name: "Necromancer",
+    baseClass: "Witch",
+    color: "#9b59b6",
+    skills: [
+      {
+        id: "summon-raging-spirit-necromancer",
+        name: "Summon Raging Spirit",
+        tier: "S",
+        description: "A summoner build that commands spirits to fight for you.",
+        playstyle: "Minion",
+        damageType: "Fire",
+        difficulty: "Easy",
+        popularity: 5.1,
+        tags: [
+          "League Starter",
+          "Minion",
+          "Mapping"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Summon%20Raging%20Spirit&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Minion Instability"
+        ],
+        skills: [
+          "Summon Raging Spirit",
+          "Raise Zombie",
+          "Desecrate",
+          "Flame Dash",
+          "Determination",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "The Covenant",
+          "United in Dream",
+          "Fleshcrafter"
+        ],
+        ascendancy: [
+          "Mindless Aggression",
+          "Unnatural Strength",
+          "Bone Barrier",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Spam SRS skulls that swarm enemies. Minion Instability makes them explode for ignite. Very league start friendly."
+      },
+      {
+        id: "summon-skeletons-necromancer",
+        name: "Summon Skeletons",
+        tier: "S",
+        description: "A summoner build that commands skeletons to fight for you.",
+        playstyle: "Minion",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 3.8,
+        tags: [
+          "League Starter",
+          "Minion",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Summon%20Skeletons&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Equilibrium"
+        ],
+        skills: [
+          "Vaal Summon Skeletons",
+          "Raise Zombie",
+          "Flame Dash",
+          "Pride",
+          "Determination",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Fleshcrafter",
+          "Dead Reckoning",
+          "Alberon's Warpath"
+        ],
+        ascendancy: [
+          "Mindless Aggression",
+          "Unnatural Strength",
+          "Bone Barrier",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Summon skeletons that demolish bosses. Use Dead Reckoning for Skeleton Mages if preferred. Very tanky playstyle."
+      },
+      {
+        id: "detonate-dead-necromancer",
+        name: "Detonate Dead",
+        tier: "A",
+        description: "A fire spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 2.4,
+        tags: [
+          "Corpse",
+          "Ignite"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Detonate%20Dead&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Detonate Dead",
+          "Desecrate",
+          "Flame Dash",
+          "Determination",
+          "Bone Offering",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Searing Touch",
+          "Ashes of the Stars",
+          "Corpsewalker"
+        ],
+        ascendancy: [
+          "Plaguebringer",
+          "Corpse Pact",
+          "Essence Glutton",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Corpse-focused DD with enhanced corpse creation. Plaguebringer provides huge damage boost when consuming corpses."
+      },
+      {
+        id: "raise-zombie-necromancer",
+        name: "Raise Zombie",
+        tier: "A",
+        description: "A summoner build that commands zombies to fight for you.",
+        playstyle: "Minion",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 2.2,
+        tags: [
+          "Minion",
+          "Tanky"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Raise%20Zombie&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Equilibrium"
+        ],
+        skills: [
+          "Raise Zombie",
+          "Raise Spectre",
+          "Flame Dash",
+          "Pride",
+          "Determination",
+          "Feeding Frenzy"
+        ],
+        keyItems: [
+          "The Baron",
+          "Mon'tregul's Grasp",
+          "Geofri's Sanctuary"
+        ],
+        ascendancy: [
+          "Mindless Aggression",
+          "Unnatural Strength",
+          "Bone Barrier",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Classic zombie army build. Stack strength with Baron for huge zombie count and life leech. Very tanky."
+      },
+      {
+        id: "raise-spectre-necromancer",
+        name: "Raise Spectre",
+        tier: "A",
+        description: "A summoner build that commands minions to fight for you.",
+        playstyle: "Minion",
+        damageType: "Mixed",
+        difficulty: "Medium",
+        popularity: 1.5,
+        tags: [
+          "Minion",
+          "Endgame"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Raise%20Spectre&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Equilibrium"
+        ],
+        skills: [
+          "Raise Spectre",
+          "Raise Zombie",
+          "Convocation",
+          "Desecrate",
+          "Pride",
+          "Hatred"
+        ],
+        keyItems: [
+          "Victario's Influence",
+          "Bones of Ullr",
+          "Vis Mortis"
+        ],
+        ascendancy: [
+          "Mindless Aggression",
+          "Unnatural Strength",
+          "Bone Barrier",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Use powerful monster spectres like Syndicate Operatives or Redemption Sentries. Spectre choice defines the build."
+      },
+      {
+        id: "absolution-necromancer",
+        name: "Absolution",
+        tier: "A",
+        description: "A hybrid spell/minion build using Absolution to summon and deal damage.",
+        playstyle: "Minion/Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.3,
+        tags: [
+          "Minion",
+          "Hybrid"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Absolution&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Absolution",
+          "Convocation",
+          "Flame Dash",
+          "Determination",
+          "Wrath",
+          "Zealotry"
+        ],
+        keyItems: [
+          "Malachai's Loop",
+          "Badge of the Brotherhood",
+          "Ashes of the Stars"
+        ],
+        ascendancy: [
+          "Mindless Aggression",
+          "Unnatural Strength",
+          "Mistress of Sacrifice",
+          "Plaguebringer"
+        ],
+        gameplay: "Cast Absolution to create Sentinel minions. Hybrid spell/minion build that scales both your damage and minion damage."
+      },
+      {
+        id: "cremation-necromancer",
+        name: "Cremation",
+        tier: "B",
+        description: "A fire spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 1.1,
+        tags: [
+          "Corpse",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Cremation&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Cremation",
+          "Desecrate",
+          "Bone Offering",
+          "Determination",
+          "Malevolence",
+          "Zealotry"
+        ],
+        keyItems: [
+          "Searing Touch",
+          "Corpsewalker",
+          "Ashes of the Stars"
+        ],
+        ascendancy: [
+          "Plaguebringer",
+          "Corpse Pact",
+          "Essence Glutton",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Create geysers from corpses that deal fire damage. Good for stationary boss fights."
+      },
+      {
+        id: "reap-necromancer",
+        name: "Reap",
+        tier: "C",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Life Cost",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Reap&class=Necromancer",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Reap",
+          "Exsanguinate",
+          "Flame Dash",
+          "Pride",
+          "Determination",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Cold Iron Point",
+          "Prism Guardian",
+          "Skin of the Loyal"
+        ],
+        ascendancy: [
+          "Plaguebringer",
+          "Corpse Pact",
+          "Essence Glutton",
+          "Mistress of Sacrifice"
+        ],
+        gameplay: "Physical DoT that stacks blood charges for more damage. Pair with Exsanguinate."
+      }
+    ]
+  },
+  {
+    id: "occultist",
+    name: "Occultist",
+    baseClass: "Witch",
+    color: "#8e44ad",
+    skills: [
+      {
+        id: "vortex-occultist",
+        name: "Vortex",
+        tier: "A",
+        description: "A cold spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Easy",
+        popularity: 2,
+        tags: [
+          "DoT",
+          "Tanky",
+          "Cold"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Vortex&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Wicked Ward"
+        ],
+        skills: [
+          "Vortex",
+          "Cold Snap",
+          "Frost Bomb",
+          "Discipline",
+          "Malevolence",
+          "Zealotry"
+        ],
+        keyItems: [
+          "Presence of Chayula",
+          "Aegis Aurora",
+          "Prism Guardian"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Instant cast Vortex for cold DoT. Layer with Cold Snap. Very tanky with ES and freeze. Easy to play."
+      },
+      {
+        id: "essence-drain-occultist",
+        name: "Essence Drain",
+        tier: "A",
+        description: "A chaos spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 1.8,
+        tags: [
+          "DoT",
+          "League Starter",
+          "Contagion"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Essence%20Drain&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Wicked Ward"
+        ],
+        skills: [
+          "Essence Drain",
+          "Contagion",
+          "Bane",
+          "Discipline",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Cane of Kulemak",
+          "Breath of the Council",
+          "Skin of the Loyal"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Withering Presence",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Cast Contagion then ED. DoT spreads through packs. Classic league starter."
+      },
+      {
+        id: "ice-spear-occultist",
+        name: "Ice Spear",
+        tier: "A",
+        description: "A cold spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Hard",
+        popularity: 1.5,
+        tags: [
+          "Crit",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ice%20Spear&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Ice Spear",
+          "Hydrosphere",
+          "Frost Bomb",
+          "Hatred",
+          "Zealotry",
+          "Discipline"
+        ],
+        keyItems: [
+          "Void Battery",
+          "Badge of the Brotherhood",
+          "Shavronne's Wrappings"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Profane Bloom",
+          "Malediction"
+        ],
+        gameplay: "Long-range Ice Spears gain massive crit in second form. Excellent boss killer with proper positioning."
+      },
+      {
+        id: "forbidden-rite-occultist",
+        name: "Forbidden Rite",
+        tier: "A",
+        description: "A Cast on Crit build triggering Forbidden Rite with Cyclone attacks.",
+        playstyle: "CoC",
+        damageType: "Chaos",
+        difficulty: "Hard",
+        popularity: 1.5,
+        tags: [
+          "CoC",
+          "Life Cost"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Forbidden%20Rite&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Chaos Inoculation"
+        ],
+        skills: [
+          "Forbidden Rite",
+          "Cyclone",
+          "Cast on Critical Strike",
+          "Discipline",
+          "Zealotry",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Mageblood",
+          "Ashes of the Stars",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Withering Presence",
+          "Profane Bloom",
+          "Malediction"
+        ],
+        gameplay: "Spin to cast chaos projectiles. ES-based to handle life cost. Very expensive endgame build."
+      },
+      {
+        id: "cold-snap-occultist",
+        name: "Cold Snap",
+        tier: "B",
+        description: "A cold spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Easy",
+        popularity: 1.2,
+        tags: [
+          "DoT",
+          "Frenzy"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Cold%20Snap&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Cold Snap",
+          "Vortex",
+          "Flame Dash",
+          "Discipline",
+          "Malevolence",
+          "Bonechill"
+        ],
+        keyItems: [
+          "Rime Gaze",
+          "Breath of the Council",
+          "The Pandemonius"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Cold DoT build using Cold Snap's frenzy charge bypass. Often paired with Vortex for layered damage."
+      },
+      {
+        id: "bane-occultist",
+        name: "Bane",
+        tier: "B",
+        description: "A chaos spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Chaos",
+        difficulty: "Easy",
+        popularity: 1.1,
+        tags: [
+          "Curse",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Bane&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Wicked Ward"
+        ],
+        skills: [
+          "Bane",
+          "Despair",
+          "Temporal Chains",
+          "Discipline",
+          "Malevolence",
+          "Determination"
+        ],
+        keyItems: [
+          "Cane of Kulemak",
+          "Breath of the Council",
+          "Vixen's Entrapment"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Withering Presence",
+          "Vile Bastion",
+          "Malediction"
+        ],
+        gameplay: "Apply multiple curses through Bane. DoT damage scales with linked curses."
+      },
+      {
+        id: "creeping-frost-occultist",
+        name: "Creeping Frost",
+        tier: "B",
+        description: "A cold spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Medium",
+        popularity: 0.9,
+        tags: [
+          "DoT",
+          "Projectile"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Creeping%20Frost&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Creeping Frost",
+          "Vortex",
+          "Cold Snap",
+          "Discipline",
+          "Malevolence",
+          "Zealotry"
+        ],
+        keyItems: [
+          "Breath of the Council",
+          "The Pandemonius",
+          "Rime Gaze"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Projectile cold DoT that chills ground. Synergizes with Vortex and Cold Snap for triple DoT layering."
+      },
+      {
+        id: "eye-of-winter-occultist",
+        name: "Eye of Winter",
+        tier: "B",
+        description: "A cold spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Hard",
+        popularity: 0.9,
+        tags: [
+          "Projectile",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Eye%20of%20Winter&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Eye of Winter",
+          "Hydrosphere",
+          "Frost Bomb",
+          "Hatred",
+          "Zealotry",
+          "Discipline"
+        ],
+        keyItems: [
+          "Snakepit",
+          "Void Battery",
+          "Shavronne's Wrappings"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Profane Bloom",
+          "Malediction"
+        ],
+        gameplay: "Projectile that releases shards outward then inward. Use with Hydrosphere for shotgunning."
+      },
+      {
+        id: "blade-vortex-occultist",
+        name: "Blade Vortex",
+        tier: "B",
+        description: "A cold spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Hard",
+        popularity: 0.8,
+        tags: [
+          "Cold Conversion",
+          "Explode"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Blade%20Vortex&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Chaos Inoculation"
+        ],
+        skills: [
+          "Blade Vortex",
+          "Discipline",
+          "Hatred",
+          "Zealotry",
+          "Flame Dash",
+          "Vaal Grace"
+        ],
+        keyItems: [
+          "Hateforge",
+          "Badge of the Brotherhood",
+          "Aegis Aurora"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Profane Bloom",
+          "Malediction"
+        ],
+        gameplay: "Cold-converted BV with Profane Bloom explosions. ES-based for endgame."
+      },
+      {
+        id: "soulrend-occultist",
+        name: "Soulrend",
+        tier: "B",
+        description: "A chaos spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "Projectile",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Soulrend&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Wicked Ward"
+        ],
+        skills: [
+          "Soulrend",
+          "Essence Drain",
+          "Flame Dash",
+          "Discipline",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Cane of Kulemak",
+          "Breath of the Council",
+          "Skin of the Loyal"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Withering Presence",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Homing chaos projectile with DoT and ES on hit. Good for mapping."
+      },
+      {
+        id: "wintertide-brand-occultist",
+        name: "Wintertide Brand",
+        tier: "B",
+        description: "A brand build that attaches cold brands to enemies.",
+        playstyle: "Brand",
+        damageType: "Cold",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Brand",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Wintertide%20Brand&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Runebinder",
+          "Elemental Overload"
+        ],
+        skills: [
+          "Wintertide Brand",
+          "Brand Recall",
+          "Flame Dash",
+          "Malevolence",
+          "Discipline",
+          "Frostbite"
+        ],
+        keyItems: [
+          "Breath of the Council",
+          "The Pandemonius",
+          "Rime Gaze"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Frigid Wake",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Cold DoT brands that stack exposure. Very safe ES-based playstyle."
+      },
+      {
+        id: "death-aura-occultist",
+        name: "Death Aura",
+        tier: "C",
+        description: "An aura-based build providing chaos damage through buffs.",
+        playstyle: "Aura",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 0.5,
+        tags: [
+          "Deaths Oath",
+          "Unique"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Death%20Aura&class=Occultist",
+        plannerUrl: null,
+        keystones: [
+          "Chaos Inoculation"
+        ],
+        skills: [
+          "Death Aura",
+          "Blight",
+          "Flame Dash",
+          "Discipline",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Death's Oath",
+          "Breath of the Council",
+          "Allelopathy"
+        ],
+        ascendancy: [
+          "Void Beacon",
+          "Withering Presence",
+          "Vile Bastion",
+          "Profane Bloom"
+        ],
+        gameplay: "Death's Oath grants Death Aura. Walk around as enemies die. Very relaxed playstyle."
+      }
+    ]
+  },
+  {
+    id: "elementalist",
+    name: "Elementalist",
+    baseClass: "Witch",
+    color: "#e74c3c",
+    skills: [
+      {
+        id: "detonate-dead-elementalist",
+        name: "Detonate Dead",
+        tier: "S",
+        description: "A fire spell build with strong meta performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 6.8,
+        tags: [
+          "Ignite",
+          "Mapping",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Detonate%20Dead&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Ghost Reaver"
+        ],
+        skills: [
+          "Detonate Dead",
+          "Desecrate",
+          "Flame Dash",
+          "Determination",
+          "Defiance Banner",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Blackflame",
+          "Replica Emberwake",
+          "Searing Touch"
+        ],
+        ascendancy: [
+          "Shaper of Flames",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Cast Desecrate to create corpses, then Detonate Dead for massive ignite proliferation. Scales with corpse life."
+      },
+      {
+        id: "arc-elementalist",
+        name: "Arc",
+        tier: "A",
+        description: "A lightning spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 2.8,
+        tags: [
+          "Chain",
+          "Mapping",
+          "Clear"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Arc&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Arc",
+          "Orb of Storms",
+          "Flame Dash",
+          "Wrath",
+          "Determination",
+          "Conductivity"
+        ],
+        keyItems: [
+          "Agnerod",
+          "Doryanis Catalyst",
+          "Inpulsa's Broken Heart"
+        ],
+        ascendancy: [
+          "Shaper of Storms",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Chain lightning that clears entire screens. Shocks proliferate for extra damage. Great mapper."
+      },
+      {
+        id: "fireball-elementalist",
+        name: "Fireball",
+        tier: "A",
+        description: "A fire spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 2,
+        tags: [
+          "Ignite",
+          "Projectile"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Fireball&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Fireball",
+          "Flame Surge",
+          "Flame Dash",
+          "Malevolence",
+          "Determination",
+          "Flammability"
+        ],
+        keyItems: [
+          "Searing Touch",
+          "Blackflame",
+          "The Covenant"
+        ],
+        ascendancy: [
+          "Shaper of Flames",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Classic ignite Fireball. Proliferates massive ignites across packs. Good for mapping and bossing."
+      },
+      {
+        id: "armageddon-brand-elementalist",
+        name: "Armageddon Brand",
+        tier: "B",
+        description: "A brand build that attaches fire brands to enemies.",
+        playstyle: "Brand",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.9,
+        tags: [
+          "Brand",
+          "Ignite"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Armageddon%20Brand&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Runebinder",
+          "Elemental Overload"
+        ],
+        skills: [
+          "Armageddon Brand",
+          "Brand Recall",
+          "Flame Dash",
+          "Malevolence",
+          "Determination",
+          "Flammability"
+        ],
+        keyItems: [
+          "Searing Touch",
+          "Blackflame",
+          "Ashes of the Stars"
+        ],
+        ascendancy: [
+          "Shaper of Flames",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Brands call down fire meteors. Good for ignite proliferation builds."
+      },
+      {
+        id: "flame-wall-elementalist",
+        name: "Flame Wall",
+        tier: "C",
+        description: "A fire spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Support",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Flame%20Wall&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Flame Wall",
+          "Kinetic Blast",
+          "Spellslinger",
+          "Grace",
+          "Determination",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Searing Touch",
+          "Ashes of the Stars",
+          "Skin of the Loyal"
+        ],
+        ascendancy: [
+          "Shaper of Flames",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Projectiles passing through Flame Wall gain added fire damage. Usually paired with a projectile skill."
+      },
+      {
+        id: "explosive-arrow-elementalist",
+        name: "Explosive Arrow",
+        tier: "B",
+        description: "A ranged attack build dealing fire damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Totem",
+          "Ignite",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Explosive%20Arrow&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Explosive Arrow",
+          "Ballista Totem",
+          "Flame Dash",
+          "Grace",
+          "Determination",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Dyadian Dawn",
+          "Rain of Splinters"
+        ],
+        ascendancy: [
+          "Shaper of Flames",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Fire arrows that stack fuses then explode. Use ballista totems to stack faster."
+      },
+      {
+        id: "discharge-elementalist",
+        name: "Discharge",
+        tier: "C",
+        description: "A elemental spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Elemental",
+        difficulty: "Hard",
+        popularity: 0.5,
+        tags: [
+          "Charge",
+          "Ignite",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Discharge&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Discharge",
+          "Enduring Cry",
+          "Flame Dash",
+          "Anger",
+          "Malevolence",
+          "Flammability"
+        ],
+        keyItems: [
+          "Voll's Devotion",
+          "Voll's Protector",
+          "Inpulsa's Broken Heart"
+        ],
+        ascendancy: [
+          "Shaper of Flames",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Consume all charges for massive elemental explosion. Requires charge generation."
+      },
+      {
+        id: "herald-of-thunder-elementalist",
+        name: "Herald of Thunder",
+        tier: "C",
+        description: "An autobomber build that clears screens automatically with herald effects.",
+        playstyle: "Autobomber",
+        damageType: "Lightning",
+        difficulty: "Hard",
+        popularity: 0.4,
+        tags: [
+          "Autobomber",
+          "Herald",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Herald%20of%20Thunder&class=Elementalist",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Herald of Thunder",
+          "Storm Brand",
+          "Flame Dash",
+          "Wrath",
+          "Grace",
+          "Conductivity"
+        ],
+        keyItems: [
+          "Storm's Gift",
+          "Inpulsa's Broken Heart",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Shaper of Storms",
+          "Mastermind of Discord",
+          "Heart of Destruction",
+          "Bastion of Elements"
+        ],
+        gameplay: "Herald of Thunder chains through packs automatically. Just run and collect loot."
+      }
+    ]
+  },
+  {
+    id: "slayer",
+    name: "Slayer",
+    baseClass: "Duelist",
+    color: "#e74c3c",
+    skills: [
+      {
+        id: "cyclone-slayer",
+        name: "Cyclone",
+        tier: "S",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 3.5,
+        tags: [
+          "League Starter",
+          "Leech",
+          "Melee"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Cyclone&class=Slayer",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique",
+          "Call to Arms"
+        ],
+        skills: [
+          "Cyclone",
+          "Blood and Sand",
+          "Pride",
+          "Ancestral Warchief",
+          "Leap Slam",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Starforge",
+          "Atziri's Disfavour",
+          "Daresso's Salute"
+        ],
+        ascendancy: [
+          "Endless Hunger",
+          "Brutal Fervour",
+          "Headsman",
+          "Bane of Legends"
+        ],
+        gameplay: "Spin to win with massive leech and overleech. Cull bosses at 20% life. Simple and effective for all content."
+      },
+      {
+        id: "earthquake-slayer",
+        name: "Earthquake",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.3,
+        tags: [
+          "AoE",
+          "Aftershock"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Earthquake&class=Slayer",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Earthquake",
+          "Pride",
+          "Blood and Sand",
+          "War Banner",
+          "Leap Slam",
+          "Ancestral Warchief"
+        ],
+        keyItems: [
+          "Marohi Erqi",
+          "Atziri's Disfavour",
+          "Kaom's Heart"
+        ],
+        ascendancy: [
+          "Endless Hunger",
+          "Brutal Fervour",
+          "Headsman",
+          "Bane of Legends"
+        ],
+        gameplay: "Slam that creates aftershocks. Less Duration makes aftershocks hit faster. Big AoE coverage."
+      },
+      {
+        id: "flicker-strike-slayer",
+        name: "Flicker Strike",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Hard",
+        popularity: 0.7,
+        tags: [
+          "Teleport",
+          "Leech"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Flicker%20Strike&class=Slayer",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Flicker Strike",
+          "Leap Slam",
+          "Pride",
+          "Blood and Sand",
+          "Blood Rage",
+          "Ancestral Warchief"
+        ],
+        keyItems: [
+          "Oro's Sacrifice",
+          "Terminus Est",
+          "Atziri's Disfavour"
+        ],
+        ascendancy: [
+          "Endless Hunger",
+          "Brutal Fervour",
+          "Headsman",
+          "Bane of Legends"
+        ],
+        gameplay: "Flicker with massive leech and overleech. More sustainable but still chaotic."
+      }
+    ]
+  },
+  {
+    id: "gladiator",
+    name: "Gladiator",
+    baseClass: "Duelist",
+    color: "#c0392b",
+    skills: [
+      {
+        id: "lacerate-gladiator",
+        name: "Lacerate",
+        tier: "A",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 2.1,
+        tags: [
+          "Bleed",
+          "Block",
+          "League Starter"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Lacerate&class=Gladiator",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Lacerate",
+          "Blood and Sand",
+          "Pride",
+          "Ancestral Protector",
+          "Leap Slam",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Jack, the Axe",
+          "The Surrender",
+          "Ryslatha's Coil"
+        ],
+        ascendancy: [
+          "Blood in the Eyes",
+          "Gratuitous Violence",
+          "Arena Challenger",
+          "Violent Retaliation"
+        ],
+        gameplay: "Dual-wield or sword and shield bleed Lacerate. Gratuitous Violence makes bleeds explode."
+      },
+      {
+        id: "bladestorm-gladiator",
+        name: "Bladestorm",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.4,
+        tags: [
+          "Bleed",
+          "AoE"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Bladestorm&class=Gladiator",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Bladestorm",
+          "Blood and Sand",
+          "Pride",
+          "Ancestral Protector",
+          "Leap Slam",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Jack, the Axe",
+          "Haemophilia",
+          "Ryslatha's Coil"
+        ],
+        ascendancy: [
+          "Blood in the Eyes",
+          "Gratuitous Violence",
+          "Arena Challenger",
+          "Violent Retaliation"
+        ],
+        gameplay: "Create bladestorms that persist and bleed enemies. Good for stationary boss fights."
+      },
+      {
+        id: "corrupting-fever-gladiator",
+        name: "Corrupting Fever",
+        tier: "B",
+        description: "A buff-focused build that enhances damage through Corrupting Fever.",
+        playstyle: "Buff",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.9,
+        tags: [
+          "DoT",
+          "Kinetic Blast"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Corrupting%20Fever&class=Gladiator",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Corrupting Fever",
+          "Kinetic Blast",
+          "Power Siphon",
+          "Grace",
+          "Pride",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Poet's Pen",
+          "Haemophilia",
+          "Asenath's Gentle Touch"
+        ],
+        ascendancy: [
+          "Blood in the Eyes",
+          "Gratuitous Violence",
+          "Arena Challenger",
+          "Violent Retaliation"
+        ],
+        gameplay: "Apply Corrupting Blood stacks with fast-hitting skills. Explosions clear packs."
+      },
+      {
+        id: "reave-gladiator",
+        name: "Reave",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "Fast",
+          "AoE"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Reave&class=Gladiator",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Reave",
+          "Vaal Reave",
+          "Blood and Sand",
+          "Pride",
+          "Leap Slam",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Paradoxica",
+          "The Saviour",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "Arena Challenger",
+          "Outmatch and Outlast",
+          "Versatile Combatant",
+          "Violent Retaliation"
+        ],
+        gameplay: "Stack Reave for massive AoE. Vaal Reave instantly maxes stacks. Fast attack speed focused."
+      },
+      {
+        id: "sunder-gladiator",
+        name: "Sunder",
+        tier: "C",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 0.4,
+        tags: [
+          "Slam",
+          "League Starter"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Sunder&class=Gladiator",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Sunder",
+          "Leap Slam",
+          "Pride",
+          "Blood and Sand",
+          "Herald of Purity",
+          "War Banner"
+        ],
+        keyItems: [
+          "Terminus Est",
+          "Haemophilia",
+          "Ryslatha's Coil"
+        ],
+        ascendancy: [
+          "Blood in the Eyes",
+          "Gratuitous Violence",
+          "Arena Challenger",
+          "Outmatch and Outlast"
+        ],
+        gameplay: "Classic leveling skill. Wave travels along ground hitting enemies in a line."
+      }
+    ]
+  },
+  {
+    id: "champion",
+    name: "Champion",
+    baseClass: "Duelist",
+    color: "#d35400",
+    skills: [
+      {
+        id: "double-strike-champion",
+        name: "Double Strike",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.2,
+        tags: [
+          "Impale",
+          "Single Target"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Double%20Strike&class=Champion",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Double Strike",
+          "Ancestral Call",
+          "Pride",
+          "Dread Banner",
+          "Leap Slam",
+          "Blood Rage"
+        ],
+        keyItems: [
+          "Paradoxica",
+          "The Saviour",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "Unstoppable Hero",
+          "Fortitude",
+          "Master of Metal",
+          "Inspirational"
+        ],
+        gameplay: "Fast-hitting strike skill for impale stacking. The Saviour creates mirage copies."
+      },
+      {
+        id: "cyclone-champion",
+        name: "Cyclone",
+        tier: "A",
+        description: "A melee build focusing on physical damage with strong defenses.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1,
+        tags: [
+          "Tanky",
+          "Impale"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Cyclone&class=Champion",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique",
+          "Call to Arms"
+        ],
+        skills: [
+          "Cyclone",
+          "Pride",
+          "Dread Banner",
+          "Blood and Sand",
+          "Ancestral Warchief",
+          "Leap Slam"
+        ],
+        keyItems: [
+          "Paradoxica",
+          "Saviour",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "Unstoppable Hero",
+          "Fortitude",
+          "Master of Metal",
+          "Inspirational"
+        ],
+        gameplay: "Impale-focused Cyclone with permanent Fortify. Tanky and consistent damage scaling."
+      },
+      {
+        id: "spectral-helix-champion",
+        name: "Spectral Helix",
+        tier: "B",
+        description: "A ranged attack build dealing physical damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.9,
+        tags: [
+          "Projectile",
+          "Impale"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Spectral%20Helix&class=Champion",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Spectral Helix",
+          "Whirling Blades",
+          "Grace",
+          "Pride",
+          "Dread Banner",
+          "Precision"
+        ],
+        keyItems: [
+          "Paradoxica",
+          "Perseverance",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "Unstoppable Hero",
+          "Fortitude",
+          "Master of Metal",
+          "Inspirational"
+        ],
+        gameplay: "Spiraling projectile that hits many times. Excellent for leveling and impale stacking."
+      },
+      {
+        id: "lightning-strike-champion",
+        name: "Lightning Strike",
+        tier: "B",
+        description: "A melee build focusing on lightning damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "Impale",
+          "Hybrid"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Lightning%20Strike&class=Champion",
+        plannerUrl: null,
+        keystones: [
+          "Point Blank"
+        ],
+        skills: [
+          "Lightning Strike",
+          "Whirling Blades",
+          "Grace",
+          "Determination",
+          "Precision",
+          "Dread Banner"
+        ],
+        keyItems: [
+          "Perseverance",
+          "Touch of Anguish",
+          "Nightblade"
+        ],
+        ascendancy: [
+          "Unstoppable Hero",
+          "Fortitude",
+          "Master of Metal",
+          "First to Strike, Last to Fall"
+        ],
+        gameplay: "Tanky LS with permanent Fortify. Good balance of damage and defense."
+      },
+      {
+        id: "explosive-arrow-champion",
+        name: "Explosive Arrow",
+        tier: "C",
+        description: "A ranged attack build dealing fire damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Fire",
+        difficulty: "Hard",
+        popularity: 0.5,
+        tags: [
+          "Ballista",
+          "Tanky"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Explosive%20Arrow&class=Champion",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Iron Grip"
+        ],
+        skills: [
+          "Explosive Arrow",
+          "Ballista Totem",
+          "Flame Dash",
+          "Grace",
+          "Determination",
+          "Precision"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Dyadian Dawn",
+          "Kaom's Heart"
+        ],
+        ascendancy: [
+          "Unstoppable Hero",
+          "Fortitude",
+          "Inspirational",
+          "First to Strike, Last to Fall"
+        ],
+        gameplay: "Tanky EA ballista build with permanent Fortify. Slower but safer."
+      }
+    ]
+  },
+  {
+    id: "juggernaut",
+    name: "Juggernaut",
+    baseClass: "Marauder",
+    color: "#e67e22",
+    skills: [
+      {
+        id: "righteous-fire-juggernaut",
+        name: "Righteous Fire",
+        tier: "S",
+        description: "A damage over time build dealing fire damage that burns enemies continuously.",
+        playstyle: "DoT",
+        damageType: "Fire",
+        difficulty: "Easy",
+        popularity: 8.5,
+        tags: [
+          "League Starter",
+          "Tanky",
+          "Endgame"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Righteous%20Fire&class=Juggernaut",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Resolute Technique"
+        ],
+        skills: [
+          "Righteous Fire",
+          "Fire Trap",
+          "Shield Charge",
+          "Purity of Fire",
+          "Determination",
+          "Vitality"
+        ],
+        keyItems: [
+          "Rise of the Phoenix",
+          "Saffell's Frame",
+          "Legacy of Fury"
+        ],
+        ascendancy: [
+          "Unstoppable",
+          "Unflinching",
+          "Unbreakable",
+          "Unyielding"
+        ],
+        gameplay: "Walk through enemies as RF burns them. Use Fire Trap for extra single target. Stack life regen and fire res to sustain RF."
+      },
+      {
+        id: "boneshatter-juggernaut",
+        name: "Boneshatter",
+        tier: "A",
+        description: "A melee build focusing on physical damage with strong defenses.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.8,
+        tags: [
+          "Stun",
+          "Tanky",
+          "Trauma"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Boneshatter&class=Juggernaut",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique",
+          "Unwavering Stance"
+        ],
+        skills: [
+          "Boneshatter",
+          "Pride",
+          "Determination",
+          "War Banner",
+          "Leap Slam",
+          "Berserk"
+        ],
+        keyItems: [
+          "Brain Rattler",
+          "Voidforge",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "Unstoppable",
+          "Unflinching",
+          "Unbreakable",
+          "Unyielding"
+        ],
+        gameplay: "Stack Trauma for more damage, sustained by Juggernaut tankiness. Great stun build."
+      },
+      {
+        id: "earthshatter-juggernaut",
+        name: "Earthshatter",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.9,
+        tags: [
+          "Slam",
+          "Warcry"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Earthshatter&class=Juggernaut",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique",
+          "Call to Arms"
+        ],
+        skills: [
+          "Earthshatter",
+          "Seismic Cry",
+          "Intimidating Cry",
+          "Pride",
+          "Determination",
+          "Leap Slam"
+        ],
+        keyItems: [
+          "Marohi Erqi",
+          "Ryslatha's Coil",
+          "Kaom's Heart"
+        ],
+        ascendancy: [
+          "Unstoppable",
+          "Unflinching",
+          "Unbreakable",
+          "Unyielding"
+        ],
+        gameplay: "Create spikes that explode with warcries. Big burst damage with proper cry rotation."
+      },
+      {
+        id: "molten-strike-juggernaut",
+        name: "Molten Strike",
+        tier: "C",
+        description: "A melee build focusing on fire damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Projectile",
+          "Single Target"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Molten%20Strike&class=Juggernaut",
+        plannerUrl: null,
+        keystones: [
+          "Avatar of Fire",
+          "Resolute Technique"
+        ],
+        skills: [
+          "Molten Strike",
+          "Anger",
+          "Determination",
+          "Herald of Ash",
+          "Leap Slam",
+          "Ancestral Protector"
+        ],
+        keyItems: [
+          "Grelwood Shank",
+          "Wildfire",
+          "Xoph's Blood"
+        ],
+        ascendancy: [
+          "Unstoppable",
+          "Unflinching",
+          "Unbreakable",
+          "Unyielding"
+        ],
+        gameplay: "Melee strike that releases fire projectiles. Excellent single target with enough balls."
+      }
+    ]
+  },
+  {
+    id: "berserker",
+    name: "Berserker",
+    baseClass: "Marauder",
+    color: "#d35400",
+    skills: [
+      {
+        id: "cyclone-berserker",
+        name: "Cyclone",
+        tier: "A",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.2,
+        tags: [
+          "Rage",
+          "Damage"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Cyclone&class=Berserker",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique",
+          "Call to Arms"
+        ],
+        skills: [
+          "Cyclone",
+          "Berserk",
+          "Pride",
+          "Blood and Sand",
+          "Ancestral Warchief",
+          "Leap Slam"
+        ],
+        keyItems: [
+          "Starforge",
+          "Rigwald's Savagery",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "War Bringer",
+          "Crave the Slaughter",
+          "Aspect of Carnage",
+          "Blitz"
+        ],
+        gameplay: "Maximum damage Cyclone with Rage stacking and Berserk. Glass cannon playstyle with huge burst."
+      },
+      {
+        id: "ground-slam-berserker",
+        name: "Ground Slam",
+        tier: "B",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 1,
+        tags: [
+          "Stun",
+          "AoE"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ground%20Slam&class=Berserker",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Ground Slam",
+          "Vaal Ground Slam",
+          "Pride",
+          "Blood and Sand",
+          "Leap Slam",
+          "Berserk"
+        ],
+        keyItems: [
+          "Marohi Erqi",
+          "Kongor's Undying Rage",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "War Bringer",
+          "Crave the Slaughter",
+          "Aspect of Carnage",
+          "Blitz"
+        ],
+        gameplay: "Classic slam skill with wave AoE. Vaal version has massive range. Good league starter."
+      },
+      {
+        id: "ice-crash-berserker",
+        name: "Ice Crash",
+        tier: "C",
+        description: "A melee build focusing on cold damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Cold",
+        difficulty: "Easy",
+        popularity: 0.6,
+        tags: [
+          "Slam",
+          "AoE"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ice%20Crash&class=Berserker",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Ice Crash",
+          "Seismic Cry",
+          "Leap Slam",
+          "Hatred",
+          "Determination",
+          "Herald of Ice"
+        ],
+        keyItems: [
+          "Hrimburn",
+          "Ryslatha's Coil",
+          "The Pandemonius"
+        ],
+        ascendancy: [
+          "War Bringer",
+          "Crave the Slaughter",
+          "Aspect of Carnage",
+          "Blitz"
+        ],
+        gameplay: "Cold slam in three stages. Good freeze potential with high damage."
+      }
+    ]
+  },
+  {
+    id: "chieftain",
+    name: "Chieftain",
+    baseClass: "Marauder",
+    color: "#c0392b",
+    skills: [
+      {
+        id: "righteous-fire-chieftain",
+        name: "Righteous Fire",
+        tier: "S",
+        description: "A damage over time build dealing fire damage that burns enemies continuously.",
+        playstyle: "DoT",
+        damageType: "Fire",
+        difficulty: "Easy",
+        popularity: 3.2,
+        tags: [
+          "League Starter",
+          "Tanky",
+          "Fire"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Righteous%20Fire&class=Chieftain",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Resolute Technique"
+        ],
+        skills: [
+          "Righteous Fire",
+          "Fire Trap",
+          "Leap Slam",
+          "Purity of Fire",
+          "Determination",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Rise of the Phoenix",
+          "Cloak of Flame",
+          "Legacy of Fury"
+        ],
+        ascendancy: [
+          "Tasalio",
+          "Hinekora",
+          "Valako",
+          "Ramako"
+        ],
+        gameplay: "Fire-focused RF with added leech and fire damage. Totems benefit from ascendancy fire bonuses."
+      },
+      {
+        id: "ancestral-warchief-chieftain",
+        name: "Ancestral Warchief",
+        tier: "A",
+        description: "A totem build that places ancestral warchief totems to deal damage automatically.",
+        playstyle: "Totem",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 1.5,
+        tags: [
+          "Totem",
+          "Melee",
+          "League Starter"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ancestral%20Warchief&class=Chieftain",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond",
+          "Iron Will"
+        ],
+        skills: [
+          "Ancestral Warchief",
+          "Ancestral Protector",
+          "Leap Slam",
+          "Pride",
+          "Determination",
+          "War Banner"
+        ],
+        keyItems: [
+          "Tukohama's Fortress",
+          "Facebreaker",
+          "Abyssus"
+        ],
+        ascendancy: [
+          "Tawhoa",
+          "Hinekora",
+          "Valako",
+          "Ramako"
+        ],
+        gameplay: "Slam totems that deal melee damage. Place and let them do the work. Very safe playstyle."
+      },
+      {
+        id: "ancestral-protector-chieftain",
+        name: "Ancestral Protector",
+        tier: "B",
+        description: "A totem build that places ancestral protector totems to deal damage automatically.",
+        playstyle: "Totem",
+        damageType: "Physical",
+        difficulty: "Easy",
+        popularity: 0.9,
+        tags: [
+          "Totem",
+          "Support"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ancestral%20Protector&class=Chieftain",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Ancestral Protector",
+          "Ancestral Warchief",
+          "Leap Slam",
+          "Pride",
+          "War Banner",
+          "Determination"
+        ],
+        keyItems: [
+          "Tukohama's Fortress",
+          "Facebreaker",
+          "Great Old One's Tentacles"
+        ],
+        ascendancy: [
+          "Tawhoa",
+          "Hinekora",
+          "Valako",
+          "Ramako"
+        ],
+        gameplay: "Fast-attacking totem. Usually paired with Warchief for buff stacking."
+      },
+      {
+        id: "incinerate-chieftain",
+        name: "Incinerate",
+        tier: "B",
+        description: "A fire spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "Channel",
+          "Fire"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Incinerate&class=Chieftain",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Iron Will"
+        ],
+        skills: [
+          "Incinerate",
+          "Infernal Cry",
+          "Flame Dash",
+          "Determination",
+          "Purity of Fire",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Sire of Shards",
+          "Searing Touch",
+          "Cloak of Flame"
+        ],
+        ascendancy: [
+          "Tasalio",
+          "Hinekora",
+          "Valako",
+          "Ramako"
+        ],
+        gameplay: "Channel Incinerate for ramping fire damage. Release for big burst. Tanky with fire leech."
+      },
+      {
+        id: "tectonic-slam-chieftain",
+        name: "Tectonic Slam",
+        tier: "C",
+        description: "A melee build focusing on fire damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Slam",
+          "Conversion"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Tectonic%20Slam&class=Chieftain",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique",
+          "Call to Arms"
+        ],
+        skills: [
+          "Tectonic Slam",
+          "Seismic Cry",
+          "Leap Slam",
+          "Pride",
+          "Determination",
+          "Herald of Ash"
+        ],
+        keyItems: [
+          "Marohi Erqi",
+          "Ryslatha's Coil",
+          "Xoph's Blood"
+        ],
+        ascendancy: [
+          "Tawhoa",
+          "Hinekora",
+          "Valako",
+          "Ramako"
+        ],
+        gameplay: "Fire-converted slam with chance to burst. Consumes endurance charges for big hits."
+      },
+      {
+        id: "infernal-blow-chieftain",
+        name: "Infernal Blow",
+        tier: "C",
+        description: "A melee build focusing on fire damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.3,
+        tags: [
+          "Explosion",
+          "Melee",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Infernal%20Blow&class=Chieftain",
+        plannerUrl: null,
+        keystones: [
+          "Avatar of Fire",
+          "Resolute Technique"
+        ],
+        skills: [
+          "Infernal Blow",
+          "Ancestral Protector",
+          "Leap Slam",
+          "Pride",
+          "Anger",
+          "Herald of Ash"
+        ],
+        keyItems: [
+          "Oro's Sacrifice",
+          "Xoph's Blood",
+          "Kaom's Heart"
+        ],
+        ascendancy: [
+          "Tawhoa",
+          "Hinekora",
+          "Valako",
+          "Ramako"
+        ],
+        gameplay: "Melee hits that make enemies explode. Satisfying chain reactions."
+      }
+    ]
+  },
+  {
+    id: "assassin",
+    name: "Assassin",
+    baseClass: "Shadow",
+    color: "#2c3e50",
+    skills: [
+      {
+        id: "ice-nova-assassin",
+        name: "Ice Nova",
+        tier: "A",
+        description: "A Cast on Crit build triggering Ice Nova with Cyclone attacks.",
+        playstyle: "CoC",
+        damageType: "Cold",
+        difficulty: "Hard",
+        popularity: 1.8,
+        tags: [
+          "CoC",
+          "Cyclone",
+          "Expensive"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ice%20Nova&class=Assassin",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Ice Nova",
+          "Cyclone",
+          "Cast on Critical Strike",
+          "Hatred",
+          "Precision",
+          "Herald of Ice"
+        ],
+        keyItems: [
+          "Cospri's Malice",
+          "The Pandemonius",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Mistwalker",
+          "Opportunistic",
+          "Unstable Infusion",
+          "Deadly Infusion"
+        ],
+        gameplay: "Spin with Cyclone to trigger Ice Nova on crits. Also cast Frostbolt from Cospri's for extra Novas."
+      },
+      {
+        id: "blade-vortex-assassin",
+        name: "Blade Vortex",
+        tier: "B",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.2,
+        tags: [
+          "AoE",
+          "Stacking"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Blade%20Vortex&class=Assassin",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Blade Vortex",
+          "Unleash",
+          "Whirling Blades",
+          "Grace",
+          "Hatred",
+          "Herald of Ice"
+        ],
+        keyItems: [
+          "Obliteration",
+          "Inpulsa's Broken Heart",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Noxious Strike",
+          "Toxic Delivery",
+          "Mistwalker",
+          "Opportunistic"
+        ],
+        gameplay: "Maintain 10 blade stacks for constant damage. Pop packs with poison or explosions."
+      },
+      {
+        id: "venom-gyre-assassin",
+        name: "Venom Gyre",
+        tier: "B",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Hard",
+        popularity: 0.7,
+        tags: [
+          "Whirling Blades",
+          "Poison"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Venom%20Gyre&class=Assassin",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Venom Gyre",
+          "Whirling Blades",
+          "Grace",
+          "Malevolence",
+          "Herald of Agony",
+          "Despair"
+        ],
+        keyItems: [
+          "Bino's Kitchen Knife",
+          "Wasp Nest",
+          "Dendrobate"
+        ],
+        ascendancy: [
+          "Noxious Strike",
+          "Toxic Delivery",
+          "Mistwalker",
+          "Opportunistic"
+        ],
+        gameplay: "Throw returning blades that stack poison. Whirling Blades releases all caught blades."
+      },
+      {
+        id: "blade-blast-assassin",
+        name: "Blade Blast",
+        tier: "C",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Hard",
+        popularity: 0.7,
+        tags: [
+          "Combo",
+          "Poison"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Blade%20Blast&class=Assassin",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Blade Blast",
+          "Bladefall",
+          "Whirling Blades",
+          "Grace",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Cold Iron Point",
+          "Obliteration",
+          "Dendrobate"
+        ],
+        ascendancy: [
+          "Noxious Strike",
+          "Toxic Delivery",
+          "Mistwalker",
+          "Opportunistic"
+        ],
+        gameplay: "Cast Bladefall then Blade Blast to detonate. Two-button combo with poison stacking."
+      },
+      {
+        id: "ethereal-knives-assassin",
+        name: "Ethereal Knives",
+        tier: "C",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Projectile",
+          "Poison"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ethereal%20Knives&class=Assassin",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Ethereal Knives",
+          "Whirling Blades",
+          "Grace",
+          "Malevolence",
+          "Herald of Agony",
+          "Despair"
+        ],
+        keyItems: [
+          "Cold Iron Point",
+          "Obliteration",
+          "Dendrobate"
+        ],
+        ascendancy: [
+          "Noxious Strike",
+          "Toxic Delivery",
+          "Mistwalker",
+          "Opportunistic"
+        ],
+        gameplay: "Nova of physical projectiles. Good with poison scaling and projectile supports."
+      },
+      {
+        id: "discharge-assassin",
+        name: "Discharge",
+        tier: "C",
+        description: "A elemental spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Elemental",
+        difficulty: "Very Hard",
+        popularity: 0.4,
+        tags: [
+          "Charge",
+          "CoC"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Discharge&class=Assassin",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Discharge",
+          "Cyclone",
+          "Cast on Critical Strike",
+          "Hatred",
+          "Wrath",
+          "Discipline"
+        ],
+        keyItems: [
+          "Cospri's Malice",
+          "Voll's Devotion",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Unstable Infusion",
+          "Deadly Infusion",
+          "Mistwalker",
+          "Opportunistic"
+        ],
+        gameplay: "CoC Discharge with power charge generation. Very expensive and hard to gear."
+      }
+    ]
+  },
+  {
+    id: "trickster",
+    name: "Trickster",
+    baseClass: "Shadow",
+    color: "#34495e",
+    skills: [
+      {
+        id: "essence-drain-trickster",
+        name: "Essence Drain",
+        tier: "A",
+        description: "A chaos spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 1.2,
+        tags: [
+          "DoT",
+          "League Starter",
+          "Hybrid Defense"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Essence%20Drain&class=Trickster",
+        plannerUrl: null,
+        keystones: [
+          "Ghost Reaver",
+          "Wicked Ward"
+        ],
+        skills: [
+          "Essence Drain",
+          "Contagion",
+          "Flame Dash",
+          "Discipline",
+          "Malevolence",
+          "Grace"
+        ],
+        keyItems: [
+          "Cane of Kulemak",
+          "Breath of the Council",
+          "Skin of the Loyal"
+        ],
+        ascendancy: [
+          "Polymath",
+          "Escape Artist",
+          "Soul Drinker",
+          "One Step Ahead"
+        ],
+        gameplay: "ED/Contagion with Trickster's hybrid defenses. Ghost Shrouds add survivability."
+      },
+      {
+        id: "toxic-rain-trickster",
+        name: "Toxic Rain",
+        tier: "B",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "DoT",
+          "Evasion"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Toxic%20Rain&class=Trickster",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        skills: [
+          "Toxic Rain",
+          "Dash",
+          "Grace",
+          "Malevolence",
+          "Haste",
+          "Despair"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Carcass Jack",
+          "The Embalmer"
+        ],
+        ascendancy: [
+          "Polymath",
+          "Escape Artist",
+          "Soul Drinker",
+          "One Step Ahead"
+        ],
+        gameplay: "TR with Trickster speed and recovery. Ghost Shrouds help survivability."
+      },
+      {
+        id: "blade-vortex-trickster",
+        name: "Blade Vortex",
+        tier: "B",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "AoE",
+          "Ghost Shroud"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Blade%20Vortex&class=Trickster",
+        plannerUrl: null,
+        keystones: [
+          "Ghost Reaver"
+        ],
+        skills: [
+          "Blade Vortex",
+          "Flame Dash",
+          "Grace",
+          "Discipline",
+          "Hatred",
+          "Precision"
+        ],
+        keyItems: [
+          "Obliteration",
+          "Badge of the Brotherhood",
+          "The Devouring Diadem"
+        ],
+        ascendancy: [
+          "Polymath",
+          "Escape Artist",
+          "Soul Drinker",
+          "One Step Ahead"
+        ],
+        gameplay: "BV with Trickster recovery and speed. Can convert to cold or stay physical."
+      },
+      {
+        id: "caustic-arrow-trickster",
+        name: "Caustic Arrow",
+        tier: "C",
+        description: "A ranged attack build dealing chaos damage from a distance.",
+        playstyle: "Ranged",
+        damageType: "Chaos",
+        difficulty: "Easy",
+        popularity: 0.5,
+        tags: [
+          "DoT",
+          "Bow"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Caustic%20Arrow&class=Trickster",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Caustic Arrow",
+          "Toxic Rain",
+          "Dash",
+          "Grace",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Quill Rain",
+          "Carcass Jack",
+          "Drillneck"
+        ],
+        ascendancy: [
+          "Polymath",
+          "Escape Artist",
+          "Soul Drinker",
+          "One Step Ahead"
+        ],
+        gameplay: "Simple chaos DoT bow build. Create pools and move on."
+      },
+      {
+        id: "soulrend-trickster",
+        name: "Soulrend",
+        tier: "C",
+        description: "A chaos spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Chaos",
+        difficulty: "Medium",
+        popularity: 0.4,
+        tags: [
+          "Projectile",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Soulrend&class=Trickster",
+        plannerUrl: null,
+        keystones: [
+          "Ghost Reaver"
+        ],
+        skills: [
+          "Soulrend",
+          "Bane",
+          "Flame Dash",
+          "Discipline",
+          "Malevolence",
+          "Despair"
+        ],
+        keyItems: [
+          "Cane of Kulemak",
+          "Breath of the Council",
+          "The Devouring Diadem"
+        ],
+        ascendancy: [
+          "Polymath",
+          "Escape Artist",
+          "Soul Drinker",
+          "One Step Ahead"
+        ],
+        gameplay: "Homing chaos projectiles with ES on hit. Good recovery with Trickster."
+      },
+      {
+        id: "winter-orb-trickster",
+        name: "Winter Orb",
+        tier: "C",
+        description: "A cold spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Hard",
+        popularity: 0.3,
+        tags: [
+          "Channel",
+          "Mapping",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Winter%20Orb&class=Trickster",
+        plannerUrl: null,
+        keystones: [
+          "Ghost Reaver"
+        ],
+        skills: [
+          "Winter Orb",
+          "Flame Dash",
+          "Discipline",
+          "Hatred",
+          "Zealotry",
+          "Precision"
+        ],
+        keyItems: [
+          "Badge of the Brotherhood",
+          "Void Battery",
+          "The Devouring Diadem"
+        ],
+        ascendancy: [
+          "Polymath",
+          "Escape Artist",
+          "Soul Drinker",
+          "One Step Ahead"
+        ],
+        gameplay: "Channel to build stages, then run while orb fires. Nostalgic mapping playstyle."
+      }
+    ]
+  },
+  {
+    id: "saboteur",
+    name: "Saboteur",
+    baseClass: "Shadow",
+    color: "#7f8c8d",
+    skills: [
+      {
+        id: "seismic-trap-saboteur",
+        name: "Seismic Trap",
+        tier: "A",
+        description: "A trap build that throws seismic trap traps for burst damage.",
+        playstyle: "Trap",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 2.5,
+        tags: [
+          "Trap",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Seismic%20Trap&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Seismic Trap",
+          "Exsanguinate",
+          "Bear Trap",
+          "Grace",
+          "Determination",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Tinkerskin",
+          "Slavedriver's Hand",
+          "Cold Iron Point"
+        ],
+        ascendancy: [
+          "Perfect Crime",
+          "Chain Reaction",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Throw Seismic Traps that repeatedly hit. Excellent boss killer paired with Exsanguinate."
+      },
+      {
+        id: "exsanguinate-saboteur",
+        name: "Exsanguinate",
+        tier: "A",
+        description: "A trap build that throws exsanguinate traps for burst damage.",
+        playstyle: "Trap",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 1.8,
+        tags: [
+          "Trap",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Exsanguinate&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Exsanguinate",
+          "Seismic Trap",
+          "Bear Trap",
+          "Grace",
+          "Determination",
+          "Malevolence"
+        ],
+        keyItems: [
+          "Cold Iron Point",
+          "Tinkerskin",
+          "Slavedriver's Hand"
+        ],
+        ascendancy: [
+          "Perfect Crime",
+          "Chain Reaction",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Physical DoT trap that chains between enemies. Great for mapping alongside Seismic."
+      },
+      {
+        id: "lightning-trap-saboteur",
+        name: "Lightning Trap",
+        tier: "B",
+        description: "A trap build that throws lightning trap traps for burst damage.",
+        playstyle: "Trap",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 1.2,
+        tags: [
+          "Trap",
+          "Crit"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Lightning%20Trap&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Acrobatics"
+        ],
+        skills: [
+          "Lightning Trap",
+          "Wrath",
+          "Grace",
+          "Skitterbots",
+          "Bear Trap",
+          "Dash"
+        ],
+        keyItems: [
+          "Tinkerskin",
+          "Mark of the Shaper",
+          "Choir of the Storm"
+        ],
+        ascendancy: [
+          "Perfect Crime",
+          "Chain Reaction",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Classic crit trap build with shock proliferation. Good clear with chain or pierce."
+      },
+      {
+        id: "pyroclast-mine-saboteur",
+        name: "Pyroclast Mine",
+        tier: "B",
+        description: "A mine build using pyroclast mine mines for high single-target damage.",
+        playstyle: "Mine",
+        damageType: "Fire",
+        difficulty: "Hard",
+        popularity: 1,
+        tags: [
+          "Mine",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Pyroclast%20Mine&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Pyroclast Mine",
+          "High-Impact Mine",
+          "Flame Dash",
+          "Zealotry",
+          "Determination",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Tremor Rod",
+          "Shavronne's Wrappings",
+          "Prism Guardian"
+        ],
+        ascendancy: [
+          "Bomb Specialist",
+          "Demolitions Specialist",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Place mines that release fireballs. Detonation chain for massive burst damage."
+      },
+      {
+        id: "fire-trap-saboteur",
+        name: "Fire Trap",
+        tier: "B",
+        description: "A trap build that throws fire trap traps for burst damage.",
+        playstyle: "Trap",
+        damageType: "Fire",
+        difficulty: "Easy",
+        popularity: 0.8,
+        tags: [
+          "Trap",
+          "Burning Ground"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Fire%20Trap&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Fire Trap",
+          "Flamethrower Trap",
+          "Grace",
+          "Determination",
+          "Malevolence",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Tinkerskin",
+          "Sunblast",
+          "Searing Touch"
+        ],
+        ascendancy: [
+          "Perfect Crime",
+          "Chain Reaction",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Creates burning ground and ignites. Good for league start before transitioning."
+      },
+      {
+        id: "icicle-mine-saboteur",
+        name: "Icicle Mine",
+        tier: "B",
+        description: "A mine build using icicle mine mines for high single-target damage.",
+        playstyle: "Mine",
+        damageType: "Cold",
+        difficulty: "Hard",
+        popularity: 0.7,
+        tags: [
+          "Mine",
+          "Crit"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Icicle%20Mine&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Icicle Mine",
+          "High-Impact Mine",
+          "Flame Dash",
+          "Hatred",
+          "Zealotry",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Tremor Rod",
+          "Shavronne's Wrappings",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Bomb Specialist",
+          "Demolitions Specialist",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Cold mine with high crit potential. Freezes bosses with enough investment."
+      },
+      {
+        id: "ice-trap-saboteur",
+        name: "Ice Trap",
+        tier: "C",
+        description: "A trap build that throws ice trap traps for burst damage.",
+        playstyle: "Trap",
+        damageType: "Cold",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Trap",
+          "Chill"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ice%20Trap&class=Saboteur",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Ice Trap",
+          "Hatred",
+          "Grace",
+          "Skitterbots",
+          "Bear Trap",
+          "Flame Dash"
+        ],
+        keyItems: [
+          "Tinkerskin",
+          "The Pandemonius",
+          "Mark of the Shaper"
+        ],
+        ascendancy: [
+          "Perfect Crime",
+          "Chain Reaction",
+          "Pyromaniac",
+          "Born in the Shadows"
+        ],
+        gameplay: "Cold trap with chilling area. Defensive option with freeze potential."
+      }
+    ]
+  },
+  {
+    id: "inquisitor",
+    name: "Inquisitor",
+    baseClass: "Templar",
+    color: "#3498db",
+    skills: [
+      {
+        id: "righteous-fire-inquisitor",
+        name: "Righteous Fire",
+        tier: "A",
+        description: "A damage over time build dealing fire damage that burns enemies continuously.",
+        playstyle: "DoT",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 2.1,
+        tags: [
+          "Endgame",
+          "Regen"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Righteous%20Fire&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Pain Attunement"
+        ],
+        skills: [
+          "Righteous Fire",
+          "Fire Trap",
+          "Shield Charge",
+          "Purity of Fire",
+          "Purity of Elements",
+          "Vitality"
+        ],
+        keyItems: [
+          "Aegis Aurora",
+          "Melding of the Flesh",
+          "Ashes of the Stars"
+        ],
+        ascendancy: [
+          "Pious Path",
+          "Righteous Providence",
+          "Sanctuary",
+          "Augury of Penitence"
+        ],
+        gameplay: "Consecrated Ground provides massive regen. Can scale crit for bigger Fire Trap hits while RF handles clear."
+      },
+      {
+        id: "spark-inquisitor",
+        name: "Spark",
+        tier: "A",
+        description: "A lightning spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 1.6,
+        tags: [
+          "Projectile",
+          "Duration"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Spark&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Spark",
+          "Wrath",
+          "Zealotry",
+          "Discipline",
+          "Flame Dash",
+          "Conductivity"
+        ],
+        keyItems: [
+          "Ashes of the Stars",
+          "Badge of the Brotherhood",
+          "Shavronne's Wrappings"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Inevitable Judgement",
+          "Augury of Penitence",
+          "Sanctuary"
+        ],
+        gameplay: "Release sparks that bounce around. Great for enclosed spaces and indoor maps."
+      },
+      {
+        id: "ball-lightning-inquisitor",
+        name: "Ball Lightning",
+        tier: "A",
+        description: "A lightning spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Lightning",
+        difficulty: "Hard",
+        popularity: 1.4,
+        tags: [
+          "CoC",
+          "Crit"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ball%20Lightning&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement",
+          "Divine Shield"
+        ],
+        skills: [
+          "Ball Lightning",
+          "Cyclone",
+          "Cast on Critical Strike",
+          "Wrath",
+          "Zealotry",
+          "Determination"
+        ],
+        keyItems: [
+          "Cospri's Malice",
+          "Inpulsa's Broken Heart",
+          "Ashes of the Stars"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Inevitable Judgement",
+          "Augury of Penitence",
+          "Sanctuary"
+        ],
+        gameplay: "Spin with Cyclone to trigger Ball Lightning on crits. Requires high crit chance and attack speed."
+      },
+      {
+        id: "storm-brand-inquisitor",
+        name: "Storm Brand",
+        tier: "A",
+        description: "A brand build that attaches lightning brands to enemies.",
+        playstyle: "Brand",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 1.4,
+        tags: [
+          "Brand",
+          "Clear"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Storm%20Brand&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Runebinder"
+        ],
+        skills: [
+          "Storm Brand",
+          "Brand Recall",
+          "Flame Dash",
+          "Wrath",
+          "Zealotry",
+          "Conductivity"
+        ],
+        keyItems: [
+          "Badge of the Brotherhood",
+          "Void Battery",
+          "Crown of the Inward Eye"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Inevitable Judgement",
+          "Augury of Penitence",
+          "Sanctuary"
+        ],
+        gameplay: "Attach brands to enemies that pulse lightning. Brands jump to new targets on death."
+      },
+      {
+        id: "flame-surge-inquisitor",
+        name: "Flame Surge",
+        tier: "B",
+        description: "A fire spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Hard",
+        popularity: 1.3,
+        tags: [
+          "Burning Ground",
+          "Support"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Flame%20Surge&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Flame Surge",
+          "Armageddon Brand",
+          "Flame Dash",
+          "Zealotry",
+          "Determination",
+          "Flammability"
+        ],
+        keyItems: [
+          "Sceptre with +1 Fire",
+          "Crown of the Inward Eye",
+          "Shaper Gloves"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Augury of Penitence",
+          "Sanctuary",
+          "Pious Path"
+        ],
+        gameplay: "Deals extra damage against burning enemies. Pair with another fire skill to ignite first."
+      },
+      {
+        id: "divine-ire-inquisitor",
+        name: "Divine Ire",
+        tier: "C",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Channel",
+          "Conversion"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Divine%20Ire&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Divine Ire",
+          "Infused Channeling",
+          "Flame Dash",
+          "Zealotry",
+          "Wrath",
+          "Determination"
+        ],
+        keyItems: [
+          "Eternity Shroud",
+          "Badge of the Brotherhood",
+          "Crown of the Inward Eye"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Inevitable Judgement",
+          "Augury of Penitence",
+          "Sanctuary"
+        ],
+        gameplay: "Channel to build stacks then release a massive beam. Good for bossing with timing."
+      },
+      {
+        id: "penance-brand-inquisitor",
+        name: "Penance Brand",
+        tier: "C",
+        description: "A brand build that attaches physical brands to enemies.",
+        playstyle: "Brand",
+        damageType: "Physical",
+        difficulty: "Hard",
+        popularity: 0.5,
+        tags: [
+          "Brand",
+          "Conversion"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Penance%20Brand&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Runebinder"
+        ],
+        skills: [
+          "Penance Brand",
+          "Brand Recall",
+          "Flame Dash",
+          "Zealotry",
+          "Wrath",
+          "Hatred"
+        ],
+        keyItems: [
+          "Badge of the Brotherhood",
+          "Void Battery",
+          "Eternity Shroud"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Inevitable Judgement",
+          "Augury of Penitence",
+          "Sanctuary"
+        ],
+        gameplay: "Brands build up energy then pulse for big damage. Requires timing for optimal burst."
+      },
+      {
+        id: "wave-of-conviction-inquisitor",
+        name: "Wave of Conviction",
+        tier: "C",
+        description: "A physical spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.5,
+        tags: [
+          "Exposure",
+          "Support"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Wave%20of%20Conviction&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload"
+        ],
+        skills: [
+          "Wave of Conviction",
+          "Armageddon Brand",
+          "Flame Dash",
+          "Zealotry",
+          "Determination",
+          "Precision"
+        ],
+        keyItems: [
+          "Sceptre with +1 All",
+          "Crown of the Inward Eye",
+          "Badge of the Brotherhood"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Augury of Penitence",
+          "Sanctuary",
+          "Pious Path"
+        ],
+        gameplay: "Primarily used to apply exposure. Can be main skill with proper investment."
+      },
+      {
+        id: "blazing-salvo-inquisitor",
+        name: "Blazing Salvo",
+        tier: "C",
+        description: "A fire spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.4,
+        tags: [
+          "Projectile",
+          "Mines",
+          "Off-Meta"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Blazing%20Salvo&class=Inquisitor",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Blazing Salvo",
+          "High-Impact Mine",
+          "Flame Dash",
+          "Zealotry",
+          "Determination",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Tremor Rod",
+          "Searing Touch",
+          "Crown of the Inward Eye"
+        ],
+        ascendancy: [
+          "Righteous Providence",
+          "Inevitable Judgement",
+          "Augury of Penitence",
+          "Sanctuary"
+        ],
+        gameplay: "Fire projectiles that shotgun at close range. Good with mines for burst."
+      }
+    ]
+  },
+  {
+    id: "hierophant",
+    name: "Hierophant",
+    baseClass: "Templar",
+    color: "#2980b9",
+    skills: [
+      {
+        id: "ball-lightning-hierophant",
+        name: "Ball Lightning",
+        tier: "A",
+        description: "A lightning spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 2.5,
+        tags: [
+          "Mines",
+          "Bossing"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Ball%20Lightning&class=Hierophant",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Ball Lightning",
+          "High-Impact Mine",
+          "Flame Dash",
+          "Wrath",
+          "Zealotry",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Tremor Rod",
+          "Ashes of the Stars",
+          "Crown of the Inward Eye"
+        ],
+        ascendancy: [
+          "Pursuit of Faith",
+          "Ritual of Awakening",
+          "Illuminated Devotion",
+          "Divine Guidance"
+        ],
+        gameplay: "Place mines that cast Ball Lightning. Slow-moving projectile hits many times. Excellent boss DPS."
+      },
+      {
+        id: "freezing-pulse-hierophant",
+        name: "Freezing Pulse",
+        tier: "A",
+        description: "A cold spell build with strong solid performance.",
+        playstyle: "Spell",
+        damageType: "Cold",
+        difficulty: "Medium",
+        popularity: 1.8,
+        tags: [
+          "Totems",
+          "Freeze"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Freezing%20Pulse&class=Hierophant",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Freezing Pulse",
+          "Spell Totem",
+          "Frost Bomb",
+          "Hatred",
+          "Determination",
+          "Multiple Totems"
+        ],
+        keyItems: [
+          "Soul Mantle",
+          "First Snow",
+          "Rain of Splinters"
+        ],
+        ascendancy: [
+          "Pursuit of Faith",
+          "Ritual of Awakening",
+          "Conviction of Power",
+          "Divine Guidance"
+        ],
+        gameplay: "Totems fire freezing pulses that shatter frozen enemies. Safe totem playstyle with freeze for defense."
+      },
+      {
+        id: "arc-hierophant",
+        name: "Arc",
+        tier: "B",
+        description: "A lightning spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Lightning",
+        difficulty: "Medium",
+        popularity: 1.2,
+        tags: [
+          "Totems",
+          "Chain"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Arc&class=Hierophant",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Arc",
+          "Spell Totem",
+          "Flame Dash",
+          "Wrath",
+          "Conductivity",
+          "Multiple Totems"
+        ],
+        keyItems: [
+          "Soul Mantle",
+          "Self-Flagellation",
+          "Rain of Splinters"
+        ],
+        ascendancy: [
+          "Pursuit of Faith",
+          "Ritual of Awakening",
+          "Conviction of Power",
+          "Divine Guidance"
+        ],
+        gameplay: "Totem build that places Arc totems to chain lightning. Safe and ranged playstyle with good clear."
+      },
+      {
+        id: "holy-flame-totem-hierophant",
+        name: "Holy Flame Totem",
+        tier: "B",
+        description: "A totem build that places holy flame totem totems to deal damage automatically.",
+        playstyle: "Totem",
+        damageType: "Fire",
+        difficulty: "Easy",
+        popularity: 0.8,
+        tags: [
+          "Totem",
+          "League Starter"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Holy%20Flame%20Totem&class=Hierophant",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Holy Flame Totem",
+          "Multiple Totems",
+          "Flame Dash",
+          "Zealotry",
+          "Determination",
+          "Combustion"
+        ],
+        keyItems: [
+          "Soul Mantle",
+          "Self-Flagellation",
+          "Rain of Splinters"
+        ],
+        ascendancy: [
+          "Pursuit of Faith",
+          "Ritual of Awakening",
+          "Illuminated Devotion",
+          "Divine Guidance"
+        ],
+        gameplay: "Fire totems that create consecrated ground. Good league starter with steady damage."
+      },
+      {
+        id: "shockwave-totem-hierophant",
+        name: "Shockwave Totem",
+        tier: "C",
+        description: "A totem build that places shockwave totem totems to deal damage automatically.",
+        playstyle: "Totem",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Totem",
+          "AoE"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Shockwave%20Totem&class=Hierophant",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Shockwave Totem",
+          "Multiple Totems",
+          "Flame Dash",
+          "Pride",
+          "Hatred",
+          "Skitterbots"
+        ],
+        keyItems: [
+          "Soul Mantle",
+          "Self-Flagellation",
+          "Rain of Splinters"
+        ],
+        ascendancy: [
+          "Pursuit of Faith",
+          "Ritual of Awakening",
+          "Conviction of Power",
+          "Divine Guidance"
+        ],
+        gameplay: "Totems pulse physical waves. Good clear but lower single target than spell totems."
+      },
+      {
+        id: "searing-bond-hierophant",
+        name: "Searing Bond",
+        tier: "C",
+        description: "A totem build that places searing bond totems to deal damage automatically.",
+        playstyle: "Totem",
+        damageType: "Fire",
+        difficulty: "Easy",
+        popularity: 0.4,
+        tags: [
+          "Totem",
+          "DoT"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Searing%20Bond&class=Hierophant",
+        plannerUrl: null,
+        keystones: [
+          "Ancestral Bond"
+        ],
+        skills: [
+          "Searing Bond",
+          "Scorching Ray",
+          "Flame Dash",
+          "Determination",
+          "Malevolence",
+          "Purity of Fire"
+        ],
+        keyItems: [
+          "Soul Mantle",
+          "Rise of the Phoenix",
+          "Searing Touch"
+        ],
+        ascendancy: [
+          "Pursuit of Faith",
+          "Ritual of Awakening",
+          "Illuminated Devotion",
+          "Divine Guidance"
+        ],
+        gameplay: "Totems connected by burning beams. Very safe but lower damage ceiling."
+      }
+    ]
+  },
+  {
+    id: "guardian",
+    name: "Guardian",
+    baseClass: "Templar",
+    color: "#1abc9c",
+    skills: [
+      {
+        id: "smite-guardian",
+        name: "Smite",
+        tier: "B",
+        description: "A melee build focusing on lightning damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Lightning",
+        difficulty: "Easy",
+        popularity: 0.9,
+        tags: [
+          "Aura",
+          "Support"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Smite&class=Guardian",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Smite",
+          "Wrath",
+          "Determination",
+          "Purity of Elements",
+          "Shield Charge",
+          "Herald of Purity"
+        ],
+        keyItems: [
+          "Hand of Wisdom and Action",
+          "Nebulis",
+          "Aegis Aurora"
+        ],
+        ascendancy: [
+          "Radiant Crusade",
+          "Unwavering Crusade",
+          "Bastion of Hope",
+          "Harmony of Purpose"
+        ],
+        gameplay: "Lightning melee that grants Smite aura to allies. Can be built as support or damage dealer."
+      },
+      {
+        id: "herald-of-purity-guardian",
+        name: "Herald of Purity",
+        tier: "B",
+        description: "A summoner build that commands minions to fight for you.",
+        playstyle: "Minion",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.8,
+        tags: [
+          "Minion",
+          "Herald"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Herald%20of%20Purity&class=Guardian",
+        plannerUrl: null,
+        keystones: [
+          "Minion Instability"
+        ],
+        skills: [
+          "Herald of Purity",
+          "Dominating Blow",
+          "Shield Charge",
+          "Pride",
+          "Determination",
+          "Purity of Elements"
+        ],
+        keyItems: [
+          "The Coming Calamity",
+          "Speaker's Wreath",
+          "Covenant"
+        ],
+        ascendancy: [
+          "Radiant Crusade",
+          "Unwavering Crusade",
+          "Bastion of Hope",
+          "Time of Need"
+        ],
+        gameplay: "Summon Sentinel minions from Herald. Hit enemies to spawn more and maintain uptime."
+      },
+      {
+        id: "herald-of-agony-guardian",
+        name: "Herald of Agony",
+        tier: "B",
+        description: "A summoner build that commands minions to fight for you.",
+        playstyle: "Minion",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.7,
+        tags: [
+          "Crawler",
+          "Poison"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Herald%20of%20Agony&class=Guardian",
+        plannerUrl: null,
+        keystones: [
+          "Minion Instability"
+        ],
+        skills: [
+          "Herald of Agony",
+          "Cyclone",
+          "Storm Brand",
+          "Grace",
+          "Determination",
+          "Purity of Elements"
+        ],
+        keyItems: [
+          "The Coming Calamity",
+          "Circle of Nostalgia",
+          "Skin of the Loyal"
+        ],
+        ascendancy: [
+          "Radiant Crusade",
+          "Unwavering Crusade",
+          "Bastion of Hope",
+          "Time of Need"
+        ],
+        gameplay: "Keep the Agony Crawler at max virulence with poison hits. Very tanky mana guardian variant."
+      },
+      {
+        id: "dominating-blow-guardian",
+        name: "Dominating Blow",
+        tier: "C",
+        description: "A summoner build that commands minions to fight for you.",
+        playstyle: "Minion",
+        damageType: "Physical",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Minion",
+          "Melee"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Dominating%20Blow&class=Guardian",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Dominating Blow",
+          "Herald of Purity",
+          "Shield Charge",
+          "Pride",
+          "Determination",
+          "War Banner"
+        ],
+        keyItems: [
+          "Speaker's Wreath",
+          "The Scourge",
+          "Covenant"
+        ],
+        ascendancy: [
+          "Radiant Crusade",
+          "Unwavering Crusade",
+          "Bastion of Hope",
+          "Harmony of Purpose"
+        ],
+        gameplay: "Hit enemies to convert them into minions. Requires ramping up the army."
+      }
+    ]
+  },
+  {
+    id: "ascendant",
+    name: "Ascendant",
+    baseClass: "Scion",
+    color: "#95a5a6",
+    skills: [
+      {
+        id: "righteous-fire-ascendant",
+        name: "Righteous Fire",
+        tier: "B",
+        description: "A damage over time build dealing fire damage that burns enemies continuously.",
+        playstyle: "DoT",
+        damageType: "Fire",
+        difficulty: "Medium",
+        popularity: 0.6,
+        tags: [
+          "Hybrid",
+          "Flexible"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Righteous%20Fire&class=Ascendant",
+        plannerUrl: null,
+        keystones: [
+          "Elemental Overload",
+          "Resolute Technique"
+        ],
+        skills: [
+          "Righteous Fire",
+          "Fire Trap",
+          "Shield Charge",
+          "Purity of Fire",
+          "Determination",
+          "Vitality"
+        ],
+        keyItems: [
+          "Rise of the Phoenix",
+          "Aegis Aurora",
+          "Legacy of Fury"
+        ],
+        ascendancy: [
+          "Juggernaut",
+          "Guardian"
+        ],
+        gameplay: "Hybrid RF taking best from multiple ascendancies. Very flexible gearing."
+      },
+      {
+        id: "spark-ascendant",
+        name: "Spark",
+        tier: "C",
+        description: "A lightning spell build with strong viable performance.",
+        playstyle: "Spell",
+        damageType: "Lightning",
+        difficulty: "Hard",
+        popularity: 0.4,
+        tags: [
+          "Aura Stacker",
+          "Expensive"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Spark&class=Ascendant",
+        plannerUrl: null,
+        keystones: [
+          "Pain Attunement"
+        ],
+        skills: [
+          "Spark",
+          "Wrath",
+          "Zealotry",
+          "Discipline",
+          "Grace",
+          "Smite"
+        ],
+        keyItems: [
+          "Nebulis",
+          "Shavronne's Wrappings",
+          "Prism Guardian"
+        ],
+        ascendancy: [
+          "Guardian",
+          "Necromancer"
+        ],
+        gameplay: "Aura stacking Spark with multiple ascendancy benefits. Very expensive endgame build."
+      },
+      {
+        id: "cyclone-ascendant",
+        name: "Cyclone",
+        tier: "C",
+        description: "A melee build focusing on physical damage with good damage.",
+        playstyle: "Melee",
+        damageType: "Physical",
+        difficulty: "Hard",
+        popularity: 0.3,
+        tags: [
+          "Hybrid",
+          "Flexible"
+        ],
+        source: "poe.ninja",
+        league: "3.27",
+        guideUrl: "https://poe.ninja/poe1/builds/keepers?skills=Cyclone&class=Ascendant",
+        plannerUrl: null,
+        keystones: [
+          "Resolute Technique"
+        ],
+        skills: [
+          "Cyclone",
+          "Pride",
+          "Determination",
+          "Blood and Sand",
+          "Dread Banner",
+          "Leap Slam"
+        ],
+        keyItems: [
+          "Starforge",
+          "Atziri's Disfavour",
+          "Kaom's Heart"
+        ],
+        ascendancy: [
+          "Slayer",
+          "Champion"
+        ],
+        gameplay: "Hybrid Cyclone taking leech from Slayer and fortify from Champion."
+      }
+    ]
+  }
+]
+};
