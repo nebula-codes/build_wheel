@@ -64,6 +64,11 @@ function ResultDisplay({ selectedClass, selectedSkill, isSpinning, gameId }) {
               {selectedSkill.difficulty}
             </span>
           )}
+          {selectedSkill?.league && (
+            <span className="text-xs px-2 py-1 rounded bg-gray-700/50 text-gray-400">
+              {selectedSkill.league}
+            </span>
+          )}
           {selectedSkill?.source && (
             <span className={`text-xs px-2 py-1 rounded ${
               selectedSkill.source === 'Maxroll'
@@ -99,11 +104,6 @@ function ResultDisplay({ selectedClass, selectedSkill, isSpinning, gameId }) {
                   </span>
                 ))}
               </div>
-              {selectedSkill.league && (
-                <div className="mt-2 text-xs text-gray-500">
-                  League: {selectedSkill.league}
-                </div>
-              )}
             </div>
           )}
 
