@@ -2,11 +2,13 @@ import { useState, useMemo } from 'react';
 import { getUniversalTierColor, getUniversalDifficultyColor } from '../data/games';
 
 function BuildBrowser({ game }) {
+  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'offmeta'
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedTier, setSelectedTier] = useState('all');
   const [selectedSource, setSelectedSource] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedBuild, setExpandedBuild] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'dps', direction: 'desc' });
 
   const allBuilds = useMemo(() => {
     const builds = [];
@@ -30,15 +32,60 @@ function BuildBrowser({ game }) {
     return Array.from(sourceSet);
   }, [allBuilds]);
 
+  // Separate off-meta (poe.ninja) builds
+  const offMetaBuilds = useMemo(() => {
+    return allBuilds.filter(b => b.source === 'poe.ninja');
+  }, [allBuilds]);
+
+  // Check if this game has off-meta builds
+  const hasOffMetaBuilds = offMetaBuilds.length > 0;
+
   const filteredBuilds = useMemo(() => {
     return allBuilds.filter(build => {
+      // On "all" tab, exclude poe.ninja builds (they have their own tab)
+      if (activeTab === 'all' && build.source === 'poe.ninja') return false;
       if (selectedClass !== 'all' && build.classId !== selectedClass) return false;
       if (selectedTier !== 'all' && build.tier !== selectedTier) return false;
       if (selectedSource !== 'all' && build.source !== selectedSource) return false;
       if (searchQuery && !build.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       return true;
     });
-  }, [allBuilds, selectedClass, selectedTier, selectedSource, searchQuery]);
+  }, [allBuilds, selectedClass, selectedTier, selectedSource, searchQuery, activeTab]);
+
+  // Filtered and sorted off-meta builds for the table
+  const filteredOffMetaBuilds = useMemo(() => {
+    let builds = offMetaBuilds.filter(build => {
+      if (selectedClass !== 'all' && build.classId !== selectedClass) return false;
+      if (searchQuery && !build.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    });
+
+    // Sort builds
+    builds.sort((a, b) => {
+      const aVal = a[sortConfig.key] || 0;
+      const bVal = b[sortConfig.key] || 0;
+      if (sortConfig.direction === 'asc') {
+        return aVal - bVal;
+      }
+      return bVal - aVal;
+    });
+
+    return builds;
+  }, [offMetaBuilds, selectedClass, searchQuery, sortConfig]);
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+  };
+
+  const formatNumber = (num) => {
+    if (!num) return '-';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+    return num.toString();
+  };
 
   const tiers = ['S', 'A', 'B', 'C'];
 
@@ -56,6 +103,35 @@ function BuildBrowser({ game }) {
 
   return (
     <div className="h-full flex flex-col">
+      {/* Tabs (only show if game has off-meta builds) */}
+      {hasOffMetaBuilds && (
+        <div className="flex gap-1 mb-4 border-b border-gray-800">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === 'all'
+                ? 'text-diablo-orange border-b-2 border-diablo-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Meta Builds
+          </button>
+          <button
+            onClick={() => setActiveTab('offmeta')}
+            className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+              activeTab === 'offmeta'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span>Off-Meta</span>
+            <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">
+              poe.ninja
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex items-center gap-4 mb-6 flex-wrap">
         {/* Search */}
@@ -83,95 +159,222 @@ function BuildBrowser({ game }) {
           ))}
         </select>
 
-        {/* Tier Filter */}
-        <select
-          value={selectedTier}
-          onChange={(e) => setSelectedTier(e.target.value)}
-          className="bg-[#1a1a24] border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:border-diablo-orange focus:outline-none"
-        >
-          <option value="all">All Tiers</option>
-          {tiers.map(tier => (
-            <option key={tier} value={tier}>{tier}-Tier</option>
-          ))}
-        </select>
+        {/* Tier Filter (only on main tab) */}
+        {activeTab === 'all' && (
+          <select
+            value={selectedTier}
+            onChange={(e) => setSelectedTier(e.target.value)}
+            className="bg-[#1a1a24] border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:border-diablo-orange focus:outline-none"
+          >
+            <option value="all">All Tiers</option>
+            {tiers.map(tier => (
+              <option key={tier} value={tier}>{tier}-Tier</option>
+            ))}
+          </select>
+        )}
 
-        {/* Source Filter (for PoE) */}
-        {sources.length > 1 && (
+        {/* Source Filter (only on main tab for PoE) */}
+        {activeTab === 'all' && sources.length > 1 && (
           <select
             value={selectedSource}
             onChange={(e) => setSelectedSource(e.target.value)}
             className="bg-[#1a1a24] border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:border-diablo-orange focus:outline-none"
           >
             <option value="all">All Sources</option>
-            {sources.map(source => (
+            {sources.filter(s => s !== 'poe.ninja').map(source => (
               <option key={source} value={source}>{source}</option>
             ))}
           </select>
         )}
 
         <span className="text-sm text-gray-500">
-          {filteredBuilds.length} builds
+          {activeTab === 'all' ? filteredBuilds.length : filteredOffMetaBuilds.length} builds
         </span>
       </div>
 
-      {/* Build List */}
-      <div className="flex-1 overflow-y-auto space-y-6">
-        {tiers.map(tier => {
-          const builds = buildsByTier[tier];
-          if (builds.length === 0) return null;
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Meta Builds Tab */}
+        {activeTab === 'all' && (
+          <div className="space-y-6">
+            {tiers.map(tier => {
+              const builds = buildsByTier[tier];
+              if (builds.length === 0) return null;
 
-          return (
-            <div key={tier}>
-              <div className="flex items-center gap-2 mb-3">
-                <span
-                  className="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white"
-                  style={{ backgroundColor: getUniversalTierColor(tier, game.id) }}
-                >
-                  {tier}
-                </span>
-                <span className="text-sm text-gray-400">{tier}-Tier Builds</span>
-                <span className="text-xs text-gray-600">({builds.length})</span>
+              return (
+                <div key={tier}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span
+                      className="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white"
+                      style={{ backgroundColor: getUniversalTierColor(tier, game.id) }}
+                    >
+                      {tier}
+                    </span>
+                    <span className="text-sm text-gray-400">{tier}-Tier Builds</span>
+                    <span className="text-xs text-gray-600">({builds.length})</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+                    {builds.map(build => (
+                      <BuildCard
+                        key={build.id}
+                        build={build}
+                        gameId={game.id}
+                        isExpanded={expandedBuild === build.id}
+                        onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+            {buildsByTier.other.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm text-gray-400">Other Builds</span>
+                  <span className="text-xs text-gray-600">({buildsByTier.other.length})</span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+                  {buildsByTier.other.map(build => (
+                    <BuildCard
+                      key={build.id}
+                      build={build}
+                      gameId={game.id}
+                      isExpanded={expandedBuild === build.id}
+                      onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
+                    />
+                  ))}
+                </div>
               </div>
+            )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-                {builds.map(build => (
-                  <BuildCard
-                    key={build.id}
-                    build={build}
-                    gameId={game.id}
-                    isExpanded={expandedBuild === build.id}
-                    onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
-                  />
-                ))}
+            {filteredBuilds.length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                No builds found matching your filters
               </div>
-            </div>
-          );
-        })}
-
-        {buildsByTier.other.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-sm text-gray-400">Other Builds</span>
-              <span className="text-xs text-gray-600">({buildsByTier.other.length})</span>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-              {buildsByTier.other.map(build => (
-                <BuildCard
-                  key={build.id}
-                  build={build}
-                  gameId={game.id}
-                  isExpanded={expandedBuild === build.id}
-                  onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
-                />
-              ))}
-            </div>
+            )}
           </div>
         )}
 
-        {filteredBuilds.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No builds found matching your filters
+        {/* Off-Meta Builds Tab - Sortable Table */}
+        {activeTab === 'offmeta' && (
+          <div className="bg-[#1a1a24] border border-gray-800 rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-800 bg-[#0f0f17]">
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      Build
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      Class
+                    </th>
+                    <th
+                      className="text-right px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('dps')}
+                    >
+                      <span className="flex items-center justify-end gap-1">
+                        DPS
+                        {sortConfig.key === 'dps' && (
+                          <span>{sortConfig.direction === 'desc' ? '↓' : '↑'}</span>
+                        )}
+                      </span>
+                    </th>
+                    <th
+                      className="text-right px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('ehp')}
+                    >
+                      <span className="flex items-center justify-end gap-1">
+                        EHP
+                        {sortConfig.key === 'ehp' && (
+                          <span>{sortConfig.direction === 'desc' ? '↓' : '↑'}</span>
+                        )}
+                      </span>
+                    </th>
+                    <th
+                      className="text-right px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleSort('popularity')}
+                    >
+                      <span className="flex items-center justify-end gap-1">
+                        Pop %
+                        {sortConfig.key === 'popularity' && (
+                          <span>{sortConfig.direction === 'desc' ? '↓' : '↑'}</span>
+                        )}
+                      </span>
+                    </th>
+                    <th className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      Links
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {filteredOffMetaBuilds.map(build => (
+                    <tr key={build.id} className="hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: build.classColor }}
+                          />
+                          <div>
+                            <div className="font-medium text-white text-sm">{build.name}</div>
+                            <div className="text-xs text-gray-500">{build.playstyle} • {build.damageType}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="text-sm text-gray-300">{build.className}</div>
+                        <div className="text-xs text-gray-500">{build.baseClass}</div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={`text-sm font-medium ${build.dps ? 'text-green-400' : 'text-gray-600'}`}>
+                          {formatNumber(build.dps)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={`text-sm font-medium ${build.ehp ? 'text-blue-400' : 'text-gray-600'}`}>
+                          {formatNumber(build.ehp)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={`text-sm ${build.popularity ? 'text-purple-400' : 'text-gray-600'}`}>
+                          {build.popularity ? `${build.popularity}%` : '-'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {build.guideUrl && (
+                          <a
+                            href={build.guideUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1 bg-blue-500/10 rounded"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            poe.ninja
+                          </a>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredOffMetaBuilds.length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                No off-meta builds found matching your filters
+              </div>
+            )}
+
+            <div className="px-4 py-3 border-t border-gray-800 bg-[#0f0f17]">
+              <p className="text-xs text-gray-500">
+                Stats from poe.ninja ladder data. Click column headers to sort. DPS and EHP are approximate averages from top players.
+              </p>
+            </div>
           </div>
         )}
       </div>
