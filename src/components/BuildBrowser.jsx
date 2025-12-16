@@ -305,17 +305,6 @@ function BuildBrowser({ game }) {
                         )}
                       </span>
                     </th>
-                    <th
-                      className="text-center px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                      onClick={() => handleSort('popularity')}
-                    >
-                      <span className="flex items-center justify-center gap-1">
-                        Pop%
-                        {sortConfig.key === 'popularity' && (
-                          <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                        )}
-                      </span>
-                    </th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">
                       Tags
                     </th>
@@ -373,19 +362,6 @@ function BuildBrowser({ game }) {
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-center">
-                            {build.popularity && (
-                              <span
-                                className={`text-xs px-2 py-1 rounded font-medium ${
-                                  build.popularity >= 3 ? 'bg-green-500/20 text-green-400' :
-                                  build.popularity >= 1 ? 'bg-yellow-500/20 text-yellow-400' :
-                                  'bg-gray-500/20 text-gray-400'
-                                }`}
-                              >
-                                {build.popularity}%
-                              </span>
-                            )}
-                          </td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1">
                               {build.tags?.filter(t => t !== 'Off-Meta').slice(0, 3).map((tag, idx) => (
@@ -421,7 +397,7 @@ function BuildBrowser({ game }) {
                         {/* Expansion Panel */}
                         {isExpanded && (
                           <tr>
-                            <td colSpan={7} className="bg-[#0f0f17] border-t border-gray-800">
+                            <td colSpan={6} className="bg-[#0f0f17] border-t border-gray-800">
                               <div className="px-6 py-4 space-y-4">
                                 {/* Description */}
                                 {build.description && (
