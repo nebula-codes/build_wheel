@@ -337,6 +337,13 @@ export const poe1 = {
         },
       ],
     },
+    {
+      id: 'warden',
+      name: 'Warden',
+      baseClass: 'Ranger',
+      color: '#16a085',
+      skills: [],
+    },
     // DUELIST ASCENDANCIES
     {
       id: 'slayer',

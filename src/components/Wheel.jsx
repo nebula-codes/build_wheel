@@ -10,6 +10,21 @@ const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete, onTick, 
     isSpinning,
   }));
 
+  // Handle empty items
+  if (!items || items.length === 0) {
+    return (
+      <div className="flex flex-col items-center">
+        <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">{title}</h3>
+        <div className="w-80 h-80 lg:w-96 lg:h-96 flex items-center justify-center bg-[#1a1a24] rounded-full border-2 border-gray-700">
+          <span className="text-gray-500 text-center px-8">No {title.toLowerCase()}s match current filters</span>
+        </div>
+        <div className="mt-4 h-12 flex items-center justify-center">
+          <div className="text-gray-600 text-sm">Adjust filters to see options</div>
+        </div>
+      </div>
+    );
+  }
+
   const segmentAngle = 360 / items.length;
 
   const getSegmentColor = (index, item) => {

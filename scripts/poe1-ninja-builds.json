@@ -1023,6 +1023,357 @@
     ]
   },
   {
+    "id": "warden",
+    "name": "Warden",
+    "baseClass": "Ranger",
+    "color": "#16a085",
+    "skills": [
+      {
+        "id": "tornado-shot-warden",
+        "name": "Tornado Shot",
+        "tier": "S",
+        "description": "A ranged attack build dealing cold damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Cold",
+        "difficulty": "Medium",
+        "popularity": 5.2,
+        "tags": [
+          "Mapping",
+          "Speed",
+          "Endgame"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Tornado%20Shot&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Point Blank",
+          "Acrobatics"
+        ],
+        "skills": [
+          "Tornado Shot",
+          "Barrage",
+          "Grace",
+          "Hatred",
+          "Precision",
+          "Blood Rage"
+        ],
+        "keyItems": [
+          "Windripper",
+          "Hyrri's Ire",
+          "Dying Sun"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Cold conversion bow build with excellent clear. Barkskin provides strong defenses. Use Barrage for single target."
+      },
+      {
+        "id": "lightning-arrow-warden",
+        "name": "Lightning Arrow",
+        "tier": "S",
+        "description": "A ranged attack build dealing lightning damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Lightning",
+        "difficulty": "Medium",
+        "popularity": 4.8,
+        "tags": [
+          "Mapping",
+          "Clear Speed",
+          "Endgame"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Lightning%20Arrow&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        "skills": [
+          "Lightning Arrow",
+          "Barrage",
+          "Grace",
+          "Wrath",
+          "Precision",
+          "Blood Rage"
+        ],
+        "keyItems": [
+          "Voltaxic Rift",
+          "Hyrri's Ire",
+          "Thunderfist"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Lightning bow build with screen-wide clear. Barkskin defense plus evasion makes it tanky for a bow build."
+      },
+      {
+        "id": "ice-shot-warden",
+        "name": "Ice Shot",
+        "tier": "A",
+        "description": "A ranged attack build dealing cold damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Cold",
+        "difficulty": "Medium",
+        "popularity": 3.5,
+        "tags": [
+          "Cold",
+          "Mapping",
+          "Freeze"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Ice%20Shot&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        "skills": [
+          "Ice Shot",
+          "Barrage",
+          "Grace",
+          "Hatred",
+          "Herald of Ice",
+          "Precision"
+        ],
+        "keyItems": [
+          "Death's Opus",
+          "Hyrri's Ire",
+          "The Three Dragons"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Cold bow build that freezes and shatters packs. Great synergy with Warden cold bonuses."
+      },
+      {
+        "id": "elemental-hit-warden",
+        "name": "Elemental Hit",
+        "tier": "A",
+        "description": "A ranged attack build dealing elemental damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Elemental",
+        "difficulty": "Hard",
+        "popularity": 2.8,
+        "tags": [
+          "Endgame",
+          "Bossing",
+          "Expensive"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Elemental%20Hit&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Avatar of Fire",
+          "Elemental Overload"
+        ],
+        "skills": [
+          "Elemental Hit",
+          "Barrage",
+          "Grace",
+          "Anger",
+          "Precision",
+          "Blood Rage"
+        ],
+        "keyItems": [
+          "Combat Focus",
+          "Frostferno",
+          "Xoph's Blood"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Fire-converted Ele Hit with massive single target damage. Warden provides defensive layers for squishy bow build."
+      },
+      {
+        "id": "splitting-steel-warden",
+        "name": "Splitting Steel",
+        "tier": "A",
+        "description": "A ranged attack build dealing physical damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Physical",
+        "difficulty": "Medium",
+        "popularity": 2.1,
+        "tags": [
+          "Impale",
+          "Bossing",
+          "League Starter"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Splitting%20Steel&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Call to Arms",
+          "Iron Reflexes"
+        ],
+        "skills": [
+          "Splitting Steel",
+          "Shattering Steel",
+          "Grace",
+          "Pride",
+          "Precision",
+          "Blood Rage"
+        ],
+        "keyItems": [
+          "Paradoxica",
+          "Saviour",
+          "Lion's Roar"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Impale steel skills with strong single target. Barkskin helps survive tough encounters."
+      },
+      {
+        "id": "rain-of-arrows-warden",
+        "name": "Rain of Arrows",
+        "tier": "B",
+        "description": "A ranged attack build dealing physical damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Physical",
+        "difficulty": "Easy",
+        "popularity": 1.8,
+        "tags": [
+          "League Starter",
+          "Mapping"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Rain%20of%20Arrows&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        "skills": [
+          "Rain of Arrows",
+          "Puncture",
+          "Grace",
+          "Pride",
+          "Precision",
+          "Blood Rage"
+        ],
+        "keyItems": [
+          "Lioneye's Glare",
+          "Hyrri's Ire",
+          "Drillneck"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Simple bow starter that covers the screen. Puncture for single target bleed."
+      },
+      {
+        "id": "caustic-arrow-warden",
+        "name": "Caustic Arrow",
+        "tier": "B",
+        "description": "A ranged attack build dealing chaos damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Chaos",
+        "difficulty": "Easy",
+        "popularity": 1.5,
+        "tags": [
+          "League Starter",
+          "DoT",
+          "Mapping"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Caustic%20Arrow&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        "skills": [
+          "Caustic Arrow",
+          "Toxic Rain",
+          "Grace",
+          "Malevolence",
+          "Precision",
+          "Withering Step"
+        ],
+        "keyItems": [
+          "Quill Rain",
+          "Carcass Jack",
+          "Drillneck"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Chaos DoT bow build with excellent clear. Very budget friendly league starter."
+      },
+      {
+        "id": "scourge-arrow-warden",
+        "name": "Scourge Arrow",
+        "tier": "B",
+        "description": "A ranged attack build dealing chaos damage from a distance.",
+        "playstyle": "Ranged",
+        "damageType": "Chaos",
+        "difficulty": "Medium",
+        "popularity": 1.2,
+        "tags": [
+          "Poison",
+          "Channel",
+          "Bossing"
+        ],
+        "source": "poe.ninja",
+        "league": "3.27",
+        "guideUrl": "https://poe.ninja/poe1/builds/keepers?skills=Scourge%20Arrow&class=Warden",
+        "plannerUrl": null,
+        "keystones": [
+          "Acrobatics",
+          "Phase Acrobatics"
+        ],
+        "skills": [
+          "Scourge Arrow",
+          "Mirage Archer",
+          "Grace",
+          "Malevolence",
+          "Herald of Agony",
+          "Precision"
+        ],
+        "keyItems": [
+          "Darkscorn",
+          "Dendrobate",
+          "Coralito's Signature"
+        ],
+        "ascendancy": [
+          "Barkskin",
+          "Oath of the Glade",
+          "Enduring Suffusion",
+          "Heart of Oak"
+        ],
+        "gameplay": "Channeled poison bow that shotguns with thorns. Good boss damage with proper positioning."
+      }
+    ]
+  },
+  {
     "id": "necromancer",
     "name": "Necromancer",
     "baseClass": "Witch",

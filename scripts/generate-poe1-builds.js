@@ -91,7 +91,7 @@ function generatePoe1Data() {
   // Define all ascendancies in order
   const ascendancyOrder = [
     // Ranger
-    'Deadeye', 'Pathfinder', 'Raider',
+    'Deadeye', 'Pathfinder', 'Raider', 'Warden',
     // Witch
     'Necromancer', 'Occultist', 'Elementalist',
     // Duelist
