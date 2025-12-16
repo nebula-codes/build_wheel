@@ -1,12 +1,14 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-export function useWheelSpin(items, onComplete) {
+export function useWheelSpin(items, onComplete, onTick) {
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const animationRef = useRef(null);
+  const tickIntervalRef = useRef(null);
   const itemsRef = useRef(items);
   const onCompleteRef = useRef(onComplete);
+  const onTickRef = useRef(onTick);
 
   // Keep refs updated
   useEffect(() => {
@@ -16,6 +18,10 @@ export function useWheelSpin(items, onComplete) {
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  useEffect(() => {
+    onTickRef.current = onTick;
+  }, [onTick]);
 
   const spin = useCallback(() => {
     const currentItems = itemsRef.current;
@@ -52,10 +58,38 @@ export function useWheelSpin(items, onComplete) {
     // Store the selected item for the callback
     const selectedItemForCallback = currentItems[randomSegment];
 
+    // Start tick sounds during spin (simulate wheel clicking past segments)
+    // Use exponential slowdown to match the easing curve
+    if (onTickRef.current) {
+      let tickCount = 0;
+      const maxTicks = 20 + Math.floor(Math.random() * 10); // 20-30 ticks
+      const tick = () => {
+        if (tickCount >= maxTicks) {
+          if (tickIntervalRef.current) {
+            clearTimeout(tickIntervalRef.current);
+            tickIntervalRef.current = null;
+          }
+          return;
+        }
+        onTickRef.current();
+        tickCount++;
+        // Exponentially increase interval (start fast, slow down)
+        const baseDelay = 50;
+        const delay = baseDelay + Math.pow(tickCount / maxTicks, 2) * 300;
+        tickIntervalRef.current = setTimeout(tick, delay);
+      };
+      tickIntervalRef.current = setTimeout(tick, 100);
+    }
+
     // Set timeout to match CSS transition duration
     animationRef.current = setTimeout(() => {
       setIsSpinning(false);
       setSelectedItem(selectedItemForCallback);
+      // Clear any remaining tick timers
+      if (tickIntervalRef.current) {
+        clearTimeout(tickIntervalRef.current);
+        tickIntervalRef.current = null;
+      }
       if (onCompleteRef.current) {
         onCompleteRef.current(selectedItemForCallback);
       }
@@ -67,6 +101,10 @@ export function useWheelSpin(items, onComplete) {
   const reset = useCallback(() => {
     if (animationRef.current) {
       clearTimeout(animationRef.current);
+    }
+    if (tickIntervalRef.current) {
+      clearTimeout(tickIntervalRef.current);
+      tickIntervalRef.current = null;
     }
     setRotation(0);
     setIsSpinning(false);
