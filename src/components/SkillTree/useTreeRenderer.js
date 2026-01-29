@@ -447,7 +447,7 @@ function createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData)
 
     container.addChild(sprite);
   } else {
-    // Fallback to graphics-based rendering
+    // Fallback to graphics-based rendering with enhanced visuals
     const graphics = new Graphics();
     const radius = getNodeRadius(nodeType);
     const color = getNodeColor(nodeType, isAllocated);
@@ -455,23 +455,62 @@ function createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData)
     // Outer glow for allocated/highlighted nodes
     if (isAllocated || isHighlighted) {
       const glowColor = isHighlighted ? 0xff6b35 : color;
+      // Multiple layered glows for better effect
+      graphics.circle(0, 0, radius + 15);
+      graphics.fill({ color: glowColor, alpha: 0.15 });
       graphics.circle(0, 0, radius + 10);
+      graphics.fill({ color: glowColor, alpha: 0.25 });
+      graphics.circle(0, 0, radius + 5);
       graphics.fill({ color: glowColor, alpha: 0.35 });
     }
 
     // Main node shape based on type
     if (nodeType === 'keystone') {
-      // Diamond shape for keystones
-      graphics.moveTo(0, -radius);
-      graphics.lineTo(radius, 0);
-      graphics.lineTo(0, radius);
-      graphics.lineTo(-radius, 0);
+      // Diamond shape for keystones with inner detail
+      const r = radius;
+
+      // Outer diamond border
+      graphics.moveTo(0, -r - 4);
+      graphics.lineTo(r + 4, 0);
+      graphics.lineTo(0, r + 4);
+      graphics.lineTo(-r - 4, 0);
       graphics.closePath();
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.7 });
-      graphics.stroke({ width: 3, color: isAllocated ? 0xffd700 : 0x6a5a4a });
+      graphics.fill({ color: isAllocated ? 0x2a2000 : 0x1a1510, alpha: 0.9 });
+
+      // Main diamond
+      graphics.moveTo(0, -r);
+      graphics.lineTo(r, 0);
+      graphics.lineTo(0, r);
+      graphics.lineTo(-r, 0);
+      graphics.closePath();
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.75 });
+      graphics.stroke({ width: 3, color: isAllocated ? 0xffd700 : 0x7a6a4a });
+
+      // Inner diamond accent
+      const innerR = r * 0.5;
+      graphics.moveTo(0, -innerR);
+      graphics.lineTo(innerR, 0);
+      graphics.lineTo(0, innerR);
+      graphics.lineTo(-innerR, 0);
+      graphics.closePath();
+      graphics.fill({ color: isAllocated ? 0xffee88 : 0x5a4a3a, alpha: isAllocated ? 0.6 : 0.4 });
+
     } else if (nodeType === 'notable') {
-      // Octagon for notables
+      // Octagon for notables with layered effect
       const sides = 8;
+
+      // Outer ring
+      for (let i = 0; i < sides; i++) {
+        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+        const x = Math.cos(angle) * (radius + 3);
+        const y = Math.sin(angle) * (radius + 3);
+        if (i === 0) graphics.moveTo(x, y);
+        else graphics.lineTo(x, y);
+      }
+      graphics.closePath();
+      graphics.fill({ color: isAllocated ? 0x003040 : 0x1a2028, alpha: 0.9 });
+
+      // Main octagon
       for (let i = 0; i < sides; i++) {
         const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
         const x = Math.cos(angle) * radius;
@@ -480,50 +519,87 @@ function createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData)
         else graphics.lineTo(x, y);
       }
       graphics.closePath();
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.7 });
-      graphics.stroke({ width: 2, color: isAllocated ? 0x00bfff : 0x4a6278 });
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.75 });
+      graphics.stroke({ width: 2, color: isAllocated ? 0x00bfff : 0x5a7088 });
+
+      // Inner circle accent
+      graphics.circle(0, 0, radius * 0.4);
+      graphics.fill({ color: isAllocated ? 0x88ddff : 0x3a4a58, alpha: isAllocated ? 0.5 : 0.3 });
+
     } else if (nodeType === 'jewel') {
-      // Hexagon for jewel sockets
+      // Hexagon for jewel sockets with gem-like appearance
       const sides = 6;
+
+      // Outer hexagon
       for (let i = 0; i < sides; i++) {
         const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
+        const x = Math.cos(angle) * (radius + 4);
+        const y = Math.sin(angle) * (radius + 4);
         if (i === 0) graphics.moveTo(x, y);
         else graphics.lineTo(x, y);
       }
       graphics.closePath();
-      graphics.fill({ color: 0x1a1a2e, alpha: 0.8 });
+      graphics.fill({ color: 0x1a1a2e, alpha: 0.95 });
       graphics.stroke({ width: 3, color: isAllocated ? 0x9932cc : 0x5a4a6a });
 
-      // Inner circle
-      graphics.circle(0, 0, radius * 0.5);
-      graphics.stroke({ width: 2, color: isAllocated ? 0xcc66ff : 0x4a3a5a });
-    } else if (nodeType === 'mastery') {
-      // Star shape for masteries
-      graphics.circle(0, 0, radius);
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.6 });
-      graphics.stroke({ width: 2, color: isAllocated ? 0xff69b4 : 0x6b4a5e });
+      // Inner hexagon
+      for (let i = 0; i < sides; i++) {
+        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+        const x = Math.cos(angle) * (radius * 0.65);
+        const y = Math.sin(angle) * (radius * 0.65);
+        if (i === 0) graphics.moveTo(x, y);
+        else graphics.lineTo(x, y);
+      }
+      graphics.closePath();
+      graphics.fill({ color: isAllocated ? 0x6020a0 : 0x2a2040, alpha: 0.8 });
+      graphics.stroke({ width: 2, color: isAllocated ? 0xcc66ff : 0x5a4a6a });
 
-      // Inner pattern
-      graphics.circle(0, 0, radius * 0.4);
-      graphics.fill({ color: 0xffffff, alpha: 0.3 });
-    } else {
-      // Circle for small passives
+      // Center circle
+      graphics.circle(0, 0, radius * 0.25);
+      graphics.fill({ color: isAllocated ? 0xee88ff : 0x4a3a5a, alpha: 0.9 });
+
+    } else if (nodeType === 'mastery') {
+      // Star-like shape for masteries
+      // Outer glow ring
+      graphics.circle(0, 0, radius + 3);
+      graphics.fill({ color: isAllocated ? 0x401030 : 0x201020, alpha: 0.8 });
+
       graphics.circle(0, 0, radius);
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.6 });
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.7 });
+      graphics.stroke({ width: 2, color: isAllocated ? 0xff69b4 : 0x7b5a6e });
+
+      // Inner star pattern
+      const starPoints = 6;
+      const innerRadius = radius * 0.35;
+      const outerStarRadius = radius * 0.6;
+      for (let i = 0; i < starPoints * 2; i++) {
+        const angle = (i * Math.PI) / starPoints - Math.PI / 2;
+        const r = i % 2 === 0 ? outerStarRadius : innerRadius;
+        const x = Math.cos(angle) * r;
+        const y = Math.sin(angle) * r;
+        if (i === 0) graphics.moveTo(x, y);
+        else graphics.lineTo(x, y);
+      }
+      graphics.closePath();
+      graphics.fill({ color: isAllocated ? 0xffaacc : 0x5a4050, alpha: isAllocated ? 0.7 : 0.4 });
+
+    } else {
+      // Circle for small passives with ring
+      graphics.circle(0, 0, radius + 2);
+      graphics.fill({ color: isAllocated ? 0x103010 : 0x151a15, alpha: 0.8 });
+
+      graphics.circle(0, 0, radius);
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.65 });
       graphics.stroke({ width: 1.5, color: isAllocated ? 0x90ee90 : 0x4a5a4a });
+
+      // Small center dot for allocated
+      if (isAllocated) {
+        graphics.circle(0, 0, radius * 0.3);
+        graphics.fill({ color: 0xccffcc, alpha: 0.6 });
+      }
     }
 
     container.addChild(graphics);
-
-    // Add inner symbol for some types
-    if (nodeType === 'keystone' && isAllocated) {
-      const inner = new Graphics();
-      inner.circle(0, 0, radius * 0.3);
-      inner.fill({ color: 0xffffff, alpha: 0.9 });
-      container.addChild(inner);
-    }
   }
 
   // Add name label for keystones and notables
