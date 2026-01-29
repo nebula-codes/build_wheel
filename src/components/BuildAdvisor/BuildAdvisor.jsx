@@ -106,9 +106,18 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
         if (response.status === 401) {
           throw new Error('Invalid API key. Please check your key and try again.');
         } else if (response.status === 429) {
-          throw new Error('Rate limited. Please wait a moment and try again.');
+          const retryAfter = response.headers.get('retry-after');
+          throw new Error(
+            `Rate limited by OpenAI. This usually means:\n` +
+            `• Your account needs billing enabled (free tier has strict limits)\n` +
+            `• You've exceeded your monthly quota\n` +
+            `• Too many requests in a short period\n\n` +
+            `Check your usage at platform.openai.com/usage${retryAfter ? `\nRetry after: ${retryAfter}s` : ''}`
+          );
         } else if (response.status === 402) {
-          throw new Error('API quota exceeded. Please check your OpenAI billing.');
+          throw new Error('Insufficient credits. Please add billing at platform.openai.com/account/billing');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. Your API key may not have access to this model.');
         } else {
           throw new Error(errorData.error?.message || `API error: ${response.status}`);
         }
@@ -300,8 +309,18 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
         )}
 
         {error && (
-          <div className="bg-red-900/30 border border-red-800 rounded-lg px-4 py-2 text-sm text-red-400">
-            {error}
+          <div className="bg-red-900/30 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-400">
+            <div className="whitespace-pre-wrap">{error}</div>
+            {error.includes('platform.openai.com') && (
+              <a
+                href="https://platform.openai.com/account/billing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 text-xs text-red-300 hover:text-red-200 underline"
+              >
+                Open OpenAI Billing Settings
+              </a>
+            )}
           </div>
         )}
 
