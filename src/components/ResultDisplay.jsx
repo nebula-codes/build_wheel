@@ -1,6 +1,13 @@
+import { useState } from 'react';
 import { getUniversalTierColor, getUniversalDifficultyColor } from '../data/games';
+import { GemListCompact } from './GemLinks/GemLinks';
+import { ItemList } from './ItemDisplay/ItemDisplay';
+import PantheonBandit from './BuildDetails/PantheonBandit';
+import BuildProgression from './BuildDetails/BuildProgression';
+import { getMapModWarnings } from './BuildDetails/MapModWarnings';
 
 function ResultDisplay({ selectedClass, selectedSkill, isSpinning, gameId }) {
+  const [showProgression, setShowProgression] = useState(false);
   if (isSpinning) {
     return (
       <div className="bg-[#1a1a24] rounded-xl border border-gray-800 p-12 text-center">
@@ -109,35 +116,50 @@ function ResultDisplay({ selectedClass, selectedSkill, isSpinning, gameId }) {
 
           {/* Build Info Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-800">
-            {/* Skills */}
+            {/* Skills - Enhanced for PoE1 */}
             {selectedSkill.skills && selectedSkill.skills.length > 0 && (
               <div className="p-4">
                 <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-3">Skills</h4>
-                <div className="space-y-1.5">
-                  {selectedSkill.skills.slice(0, 6).map((skill, idx) => (
-                    <div key={idx} className="text-sm text-gray-300 flex items-center gap-2">
-                      <span className="text-xs text-gray-600 w-4">{idx + 1}.</span>
-                      {skill}
-                    </div>
-                  ))}
-                </div>
+                {gameId === 'poe1' ? (
+                  <GemListCompact
+                    gems={selectedSkill.skills}
+                    maxDisplay={6}
+                  />
+                ) : (
+                  <div className="space-y-1.5">
+                    {selectedSkill.skills.slice(0, 6).map((skill, idx) => (
+                      <div key={idx} className="text-sm text-gray-300 flex items-center gap-2">
+                        <span className="text-xs text-gray-600 w-4">{idx + 1}.</span>
+                        {skill}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Key Items */}
+            {/* Key Items - Enhanced for PoE1 */}
             {selectedSkill.keyItems && selectedSkill.keyItems.length > 0 && (
               <div className="p-4">
                 <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-3">Key Items</h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedSkill.keyItems.map((item, idx) => (
-                    <span
-                      key={idx}
-                      className="text-xs px-2 py-1 bg-amber-500/10 text-amber-400 rounded"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
+                {gameId === 'poe1' ? (
+                  <ItemList
+                    items={selectedSkill.keyItems}
+                    maxDisplay={5}
+                    size="sm"
+                  />
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedSkill.keyItems.map((item, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs px-2 py-1 bg-amber-500/10 text-amber-400 rounded"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -193,6 +215,72 @@ function ResultDisplay({ selectedClass, selectedSkill, isSpinning, gameId }) {
             <div className="px-6 py-4 border-t border-gray-800">
               <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Gameplay</h4>
               <p className="text-sm text-gray-400 leading-relaxed">{selectedSkill.gameplay}</p>
+            </div>
+          )}
+
+          {/* PoE1 Specific: Pantheon & Bandit */}
+          {gameId === 'poe1' && (selectedSkill.pantheon || selectedSkill.bandit) && (
+            <div className="px-6 py-4 border-t border-gray-800">
+              <PantheonBandit
+                pantheon={selectedSkill.pantheon}
+                bandit={selectedSkill.bandit}
+                compact={true}
+              />
+            </div>
+          )}
+
+          {/* PoE1 Specific: Map Mod Warnings */}
+          {gameId === 'poe1' && (() => {
+            const warnings = getMapModWarnings(selectedSkill);
+            return warnings.length > 0 ? (
+              <div className="px-6 py-4 border-t border-gray-800">
+                <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-3">Map Mod Warnings</h4>
+                <div className="flex flex-wrap gap-2">
+                  {warnings.slice(0, 6).map((warning, idx) => (
+                    <span
+                      key={idx}
+                      className={`text-xs px-2 py-1 rounded ${
+                        warning.severity === 'critical'
+                          ? 'bg-red-900/50 text-red-400 border border-red-800'
+                          : warning.severity === 'high'
+                          ? 'bg-orange-900/50 text-orange-400 border border-orange-800'
+                          : 'bg-yellow-900/50 text-yellow-400 border border-yellow-800'
+                      }`}
+                      title={warning.reason}
+                    >
+                      {warning.mod}
+                    </span>
+                  ))}
+                  {warnings.length > 6 && (
+                    <span className="text-xs text-gray-500">+{warnings.length - 6} more</span>
+                  )}
+                </div>
+              </div>
+            ) : null;
+          })()}
+
+          {/* PoE1 Specific: Build Progression Toggle */}
+          {gameId === 'poe1' && selectedSkill.progression && (
+            <div className="px-6 py-4 border-t border-gray-800">
+              <button
+                onClick={() => setShowProgression(!showProgression)}
+                className="flex items-center justify-between w-full text-left"
+              >
+                <h4 className="text-xs text-gray-500 uppercase tracking-wider">Build Progression</h4>
+                <svg
+                  className={`w-4 h-4 text-gray-500 transition-transform ${showProgression ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showProgression && (
+                <div className="mt-4">
+                  <BuildProgression progression={selectedSkill.progression} compact={true} />
+                </div>
+              )}
             </div>
           )}
 
