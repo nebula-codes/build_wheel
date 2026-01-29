@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "pako": "^2.1.0",
     "pixi-viewport": "^6.0.3",
     "pixi.js": "^8.15.0",
     "react": "^19.2.0",
