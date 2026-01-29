@@ -10,65 +10,89 @@ export function compileBuildContext(build, options = {}) {
   const sections = [];
 
   // Basic build info
-  sections.push(`## Build Overview
-- **Build Name:** ${build.name}
-- **Class:** ${build.className || build.baseClass || 'Unknown'}
-- **Ascendancy:** ${build.ascendancyName || build.ascendancy?.[0] || 'None selected'}
-- **Tier:** ${build.tier || 'Unrated'}
-- **Difficulty:** ${build.difficulty || 'Unknown'}
-- **Playstyle:** ${build.playstyle || 'Unknown'}
-- **Damage Type:** ${build.damageType || 'Unknown'}
-- **Source:** ${build.source || 'User Import'}`);
+  const overviewLines = [
+    `- **Build Name:** ${build.name}`,
+    `- **Class:** ${build.className || build.baseClass || 'Unknown'}`,
+    `- **Ascendancy:** ${build.ascendancyName || build.ascendancy?.[0] || 'None selected'}`,
+  ];
+
+  if (build.level) overviewLines.push(`- **Level:** ${build.level}`);
+  if (build.tier) overviewLines.push(`- **Tier:** ${build.tier}`);
+  if (build.difficulty) overviewLines.push(`- **Difficulty:** ${build.difficulty}`);
+  if (build.playstyle) overviewLines.push(`- **Playstyle:** ${build.playstyle}`);
+  if (build.damageType) overviewLines.push(`- **Damage Type:** ${build.damageType}`);
+  overviewLines.push(`- **Source:** ${build.source || 'User Import'}`);
+
+  sections.push(`## Build Overview\n${overviewLines.join('\n')}`);
 
   // Description
   if (build.description) {
-    sections.push(`## Build Description
-${build.description}`);
+    sections.push(`## Build Description\n${build.description}`);
   }
 
-  // Skills and Gems
-  if (build.skills && build.skills.length > 0) {
-    sections.push(`## Main Skills & Gems
-${build.skills.map((s, i) => `${i + 1}. ${s}`).join('\n')}`);
-  }
-
-  // Gem links (from PoB)
+  // Skills and Gems - Enhanced for PoB imports
   if (build.gems && build.gems.length > 0) {
     const enabledGems = build.gems.filter(g => g.enabled !== false);
-    const mainSkills = enabledGems.filter(g => g.isMainSkill);
-    const supportGems = enabledGems.filter(g => !g.isMainSkill);
 
-    if (mainSkills.length > 0) {
-      sections.push(`## Main Skill Gems
-${mainSkills.map(g => `- ${g.name}${g.level ? ` (Level ${g.level})` : ''}`).join('\n')}`);
+    // Categorize gems into active skills and supports
+    const supportKeywords = ['Support', 'Awakened Support'];
+    const activeGems = [];
+    const supportGems = [];
+
+    enabledGems.forEach(g => {
+      const name = g.name || '';
+      const isSupport = supportKeywords.some(kw => name.includes(kw)) ||
+        name.startsWith('Awakened ') ||
+        ['Increased', 'Added', 'Greater', 'Lesser', 'Faster', 'Slower'].some(w => name.startsWith(w + ' '));
+
+      if (isSupport) {
+        supportGems.push(g);
+      } else if (name.length > 0) {
+        activeGems.push(g);
+      }
+    });
+
+    if (activeGems.length > 0) {
+      sections.push(`## Active Skill Gems\n${activeGems.map(g => {
+        let desc = `- ${g.name}`;
+        if (g.level && g.level !== 20) desc += ` (Level ${g.level})`;
+        if (g.quality && g.quality > 0) desc += ` [${g.quality}% quality]`;
+        return desc;
+      }).join('\n')}`);
     }
 
     if (supportGems.length > 0) {
-      sections.push(`## Support Gems
-${supportGems.slice(0, 20).map(g => `- ${g.name}`).join('\n')}${supportGems.length > 20 ? `\n... and ${supportGems.length - 20} more` : ''}`);
+      sections.push(`## Support Gems (${supportGems.length} total)\n${supportGems.slice(0, 15).map(g => {
+        let desc = `- ${g.name}`;
+        if (g.level && g.level !== 20) desc += ` (Lvl ${g.level})`;
+        return desc;
+      }).join('\n')}${supportGems.length > 15 ? `\n... and ${supportGems.length - 15} more supports` : ''}`);
     }
+  } else if (build.skills && build.skills.length > 0) {
+    // Fallback to basic skills list
+    sections.push(`## Main Skills & Gems\n${build.skills.map((s, i) => `${i + 1}. ${s}`).join('\n')}`);
   }
 
-  // Key Items
-  if (build.keyItems && build.keyItems.length > 0) {
-    sections.push(`## Key/Required Items
-${build.keyItems.map(item => `- ${item}`).join('\n')}`);
-  }
-
-  // Equipment (from PoB)
+  // Equipment (from PoB) - show this first if we have detailed equipment
   if (build.equipment && build.equipment.length > 0) {
     const uniques = build.equipment.filter(e => e.rarity === 'Unique');
     const rares = build.equipment.filter(e => e.rarity === 'Rare');
+    const other = build.equipment.filter(e => e.rarity !== 'Unique' && e.rarity !== 'Rare');
 
     if (uniques.length > 0) {
-      sections.push(`## Unique Items Equipped
-${uniques.map(e => `- ${e.name} (${e.slot || 'Unknown slot'})`).join('\n')}`);
+      sections.push(`## Unique Items Equipped (${uniques.length})\n${uniques.map(e => `- **${e.name}** (${e.slot || 'Unknown slot'})`).join('\n')}`);
     }
 
     if (rares.length > 0) {
-      sections.push(`## Rare Items
-${rares.map(e => `- ${e.slot}: ${e.name || 'Rare'}`).join('\n')}`);
+      sections.push(`## Rare Items (${rares.length})\n${rares.map(e => `- ${e.slot}: ${e.name || 'Rare item'}`).join('\n')}`);
     }
+
+    if (other.length > 0) {
+      sections.push(`## Other Equipment\n${other.map(e => `- ${e.slot}: ${e.name || e.rarity || 'Item'}`).join('\n')}`);
+    }
+  } else if (build.keyItems && build.keyItems.length > 0) {
+    // Fallback to key items list
+    sections.push(`## Key/Required Items\n${build.keyItems.map(item => `- ${item}`).join('\n')}`);
   }
 
   // Ascendancy nodes
@@ -135,6 +159,11 @@ ${build.tags.join(', ')}`);
 ${build.guideUrl}`);
   }
 
+  // Passive Tree info (from PoB)
+  if (build.allocatedNodes && build.allocatedNodes.length > 0) {
+    sections.push(`## Passive Skill Tree\n- **Allocated Nodes:** ${build.allocatedNodes.length}\n- Tree data is available for visualization`);
+  }
+
   // PoB stats (if available)
   if (build.stats) {
     const statLines = [];
@@ -143,9 +172,12 @@ ${build.guideUrl}`);
     if (build.stats.dps) statLines.push(`- DPS: ${build.stats.dps}`);
     if (build.stats.armor) statLines.push(`- Armour: ${build.stats.armor}`);
     if (build.stats.evasion) statLines.push(`- Evasion: ${build.stats.evasion}`);
+    if (build.stats.totalGems) statLines.push(`- Total Gems: ${build.stats.totalGems}`);
+    if (build.stats.totalNodes) statLines.push(`- Passive Nodes: ${build.stats.totalNodes}`);
+    if (build.stats.uniqueCount) statLines.push(`- Unique Items: ${build.stats.uniqueCount}`);
 
     if (statLines.length > 0) {
-      sections.push(`## Character Stats\n${statLines.join('\n')}`);
+      sections.push(`## Build Statistics\n${statLines.join('\n')}`);
     }
   }
 
@@ -228,6 +260,12 @@ export function generateSuggestedQuestions(build) {
   questions.push('What should I prioritize upgrading first?');
   questions.push('What map mods should I avoid with this build?');
 
+  // PoB-specific questions
+  if (build.urlType === 'pob' || build.gems?.length > 0) {
+    questions.push('Analyze my gem setup - any improvements?');
+    questions.push('What unique items would benefit this build?');
+  }
+
   // Progression questions
   if (build.progression) {
     questions.push('How do I progress from budget to endgame gear?');
@@ -238,11 +276,21 @@ export function generateSuggestedQuestions(build) {
   // Item-specific questions
   if (build.keyItems && build.keyItems.length > 0) {
     questions.push(`What are good alternatives to ${build.keyItems[0]}?`);
+  } else if (build.equipment?.filter(e => e.rarity === 'Unique').length > 0) {
+    const firstUnique = build.equipment.find(e => e.rarity === 'Unique')?.name;
+    if (firstUnique) {
+      questions.push(`Is ${firstUnique} the best option for this slot?`);
+    }
   }
 
   // Gem questions
   if (build.skills && build.skills.length > 0) {
     questions.push(`What support gems should I prioritize for ${build.skills[0]}?`);
+  }
+
+  // Ascendancy questions
+  if (build.ascendancyName && build.ascendancyName !== 'None') {
+    questions.push(`What are the best ascendancy nodes for ${build.ascendancyName}?`);
   }
 
   // Damage type specific
@@ -270,5 +318,6 @@ export function generateSuggestedQuestions(build) {
   // Boss questions
   questions.push('Can this build do Uber bosses? What would I need?');
 
-  return questions.slice(0, 8); // Return up to 8 suggestions
+  // Deduplicate and return
+  return [...new Set(questions)].slice(0, 8);
 }

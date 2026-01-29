@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { compileBuildContext, createSystemPrompt, generateSuggestedQuestions } from './buildContext';
 import MarkdownRenderer from './MarkdownRenderer';
+import { decodePobCode, CLASS_NAMES, ASCENDANCY_NAMES } from '../../utils/pobParser';
 
 const API_KEY_STORAGE_KEY = 'poe_build_advisor_openai_key';
 const LEAGUE_STORAGE_KEY = 'poe_build_advisor_league';
@@ -112,17 +113,28 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
     setError(null);
 
     try {
-      const url = importUrl.trim();
+      const input = importUrl.trim();
       let buildData = null;
 
-      if (url.includes('maxroll.gg')) {
+      // Check if it's a PoB code (long base64 string without spaces or URL characters)
+      const isPobCode = input.length > 50 && !input.includes(' ') && !input.includes('://') && !input.includes('.com');
+
+      // Check if it's a pastebin URL
+      const isPastebinUrl = input.includes('pastebin.com');
+
+      if (isPobCode) {
+        // Parse PoB code directly
+        buildData = parsePobCode(input);
+      } else if (isPastebinUrl) {
+        throw new Error('Pastebin URLs cannot be fetched directly due to CORS. Please copy the raw PoB code from the pastebin page and paste it here.');
+      } else if (input.includes('maxroll.gg')) {
         // Extract build info from Maxroll URL
-        buildData = await parseMaxrollUrl(url);
-      } else if (url.includes('poe.ninja')) {
+        buildData = await parseMaxrollUrl(input);
+      } else if (input.includes('poe.ninja')) {
         // Extract build info from poe.ninja URL
-        buildData = await parsePoeNinjaUrl(url);
+        buildData = await parsePoeNinjaUrl(input);
       } else {
-        throw new Error('Unsupported URL. Please use a Maxroll or poe.ninja build URL.');
+        throw new Error('Unsupported input. Please use a PoB code, Maxroll URL, or poe.ninja URL.');
       }
 
       setImportedBuild(buildData);
@@ -138,6 +150,61 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
     } finally {
       setImportLoading(false);
     }
+  };
+
+  const parsePobCode = (code) => {
+    const pobData = decodePobCode(code);
+
+    if (!pobData) {
+      throw new Error('Could not parse PoB code. Make sure you copied the full code from Path of Building (not a pastebin URL).');
+    }
+
+    // Convert PoB data to build format
+    const className = pobData.className || CLASS_NAMES[pobData.classId] || 'Unknown';
+    const ascendancyName = pobData.ascendClassName ||
+      (pobData.classId !== undefined && pobData.ascendancyId !== undefined
+        ? ASCENDANCY_NAMES[pobData.classId]?.[pobData.ascendancyId]
+        : null) || 'None';
+
+    // Extract main skills (enabled gems that look like active skills)
+    const activeSkillKeywords = ['Strike', 'Slam', 'Shot', 'Arrow', 'Blast', 'Nova', 'Storm', 'Wave', 'Orb', 'Brand', 'Totem', 'Trap', 'Mine', 'Minion', 'Golem', 'Spectre', 'Zombie', 'Skeleton'];
+    const supportKeywords = ['Support', 'Awakened', 'Increased', 'Added', 'Greater', 'Lesser'];
+
+    const enabledGems = pobData.gems?.filter(g => g.enabled) || [];
+    const mainSkills = enabledGems.filter(g => {
+      const name = g.name || '';
+      const isSupport = supportKeywords.some(kw => name.includes(kw));
+      return !isSupport && name.length > 0;
+    });
+
+    // Get unique items
+    const uniqueItems = pobData.equipment?.filter(e => e.rarity === 'Unique').map(e => e.name) || [];
+
+    return {
+      id: `pob-${Date.now()}`,
+      name: `${ascendancyName !== 'None' ? ascendancyName : className} Build`,
+      className: className,
+      ascendancyName: ascendancyName,
+      level: pobData.level || 1,
+      source: 'Path of Building',
+      importedFromUrl: true,
+      urlType: 'pob',
+      // Rich data from PoB
+      gems: pobData.gems || [],
+      equipment: pobData.equipment || [],
+      allocatedNodes: pobData.allocatedNodes || [],
+      treeSpec: pobData.treeSpec,
+      // Extracted summary data
+      skills: mainSkills.slice(0, 6).map(g => g.name),
+      keyItems: uniqueItems.slice(0, 8),
+      // Stats for context
+      stats: {
+        totalGems: enabledGems.length,
+        totalNodes: pobData.allocatedNodes?.length || 0,
+        uniqueCount: uniqueItems.length,
+      },
+      description: `Build imported from Path of Building. Class: ${className}, Ascendancy: ${ascendancyName}, Level: ${pobData.level || 'Unknown'}. Contains ${enabledGems.length} gems and ${uniqueItems.length} unique items.`,
+    };
   };
 
   const parseMaxrollUrl = async (url) => {
@@ -347,24 +414,24 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
         </div>
       </div>
 
-      {/* URL Import Panel */}
+      {/* Build Import Panel */}
       {showUrlImport && (
         <div className="p-4 border-b border-gray-800 bg-amber-900/20">
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Import Build from URL</label>
+              <label className="text-xs text-gray-400 block mb-1">Import Build</label>
               <div className="flex gap-2">
-                <input
-                  type="text"
+                <textarea
                   value={importUrl}
                   onChange={(e) => setImportUrl(e.target.value)}
-                  placeholder="Paste Maxroll or poe.ninja build URL..."
-                  className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none"
+                  placeholder="Paste PoB code, Maxroll URL, or poe.ninja URL..."
+                  className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none resize-none font-mono"
+                  rows={2}
                 />
                 <button
                   onClick={importBuildFromUrl}
                   disabled={importLoading || !importUrl.trim()}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded transition-colors flex items-center gap-2 self-start"
                 >
                   {importLoading ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -375,7 +442,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
               </div>
             </div>
             <div className="text-xs text-gray-500">
-              Supported: <span className="text-green-400">maxroll.gg</span> build guides, <span className="text-blue-400">poe.ninja</span> character pages
+              Supported: <span className="text-cyan-400">PoB codes</span> (best), <span className="text-green-400">maxroll.gg</span> URLs, <span className="text-blue-400">poe.ninja</span> URLs
             </div>
             {importedBuild && (
               <div className="flex items-center justify-between bg-gray-800/50 rounded px-3 py-2">
