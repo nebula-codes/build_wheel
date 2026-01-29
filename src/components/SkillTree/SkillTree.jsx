@@ -24,6 +24,15 @@ export default function SkillTree({
   const [selectedVariant, setSelectedVariant] = useState('default');
   const [showSettings, setShowSettings] = useState(false);
 
+  // Auto-select alternate variant when choosing a league that has them
+  const handleVersionChange = (newVersion) => {
+    setSelectedVersion(newVersion);
+    const league = LEAGUE_VERSIONS.find(l => l.tag === newVersion);
+    if (league?.hasAlternateAscendancies) {
+      setSelectedVariant('alternate');
+    }
+  };
+
   // Fetch tree data when version changes
   useEffect(() => {
     let cancelled = false;
@@ -175,7 +184,7 @@ export default function SkillTree({
             <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">League</label>
             <select
               value={selectedVersion}
-              onChange={(e) => setSelectedVersion(e.target.value)}
+              onChange={(e) => handleVersionChange(e.target.value)}
               className="w-full bg-[#0f0f17] border border-gray-700 rounded px-3 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none"
             >
               <option value="master">Latest (Master Branch)</option>
@@ -243,6 +252,7 @@ export default function SkillTree({
       {/* Controls overlay */}
       <div className="absolute bottom-4 left-4 text-xs text-gray-500 bg-black/50 px-2 py-1 rounded">
         Scroll to zoom • Drag to pan
+        <span className="block text-gray-600 mt-1">Using stylized graphics (official sprites blocked by CORS)</span>
       </div>
 
       {/* Stats overlay */}
