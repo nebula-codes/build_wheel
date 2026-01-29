@@ -285,17 +285,48 @@ export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
       {/* Content */}
       <div className="p-4">
         {error && (
-          <div className="text-red-400 text-sm bg-red-900/20 border border-red-800 rounded p-3 mb-4">
-            {error}
-            <button onClick={fetchData} className="ml-2 underline">
-              Retry
-            </button>
+          <div className="bg-amber-900/20 border border-amber-800 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <h4 className="text-amber-300 font-medium text-sm">Unable to load live data</h4>
+                <p className="text-amber-200/70 text-xs mt-1">
+                  poe.ninja's API doesn't allow direct browser requests (CORS restriction).
+                  Visit poe.ninja directly for live data:
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <a
+                    href={`https://poe.ninja/builds/challenge`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    View Builds on poe.ninja
+                  </a>
+                  <button onClick={fetchData} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition-colors">
+                    Retry
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {loading && !buildStats && (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+          </div>
+        )}
+
+        {/* Fallback content when no data */}
+        {!loading && !buildStats && !error && (
+          <div className="text-center py-8">
+            <p className="text-gray-400 mb-4">Loading build statistics...</p>
           </div>
         )}
 
@@ -464,9 +495,65 @@ export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
           </div>
         )}
 
-        {/* Note about CORS */}
+        {/* Quick links to poe.ninja */}
+        {!buildStats && (
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <a
+              href="https://poe.ninja/builds/challenge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg text-center transition-colors"
+            >
+              <div className="text-lg mb-1">📊</div>
+              <div className="text-sm text-white">All Builds</div>
+              <div className="text-xs text-gray-500">View ladder</div>
+            </a>
+            <a
+              href="https://poe.ninja/builds/challenge?class=Deadeye,Pathfinder,Raider"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg text-center transition-colors"
+            >
+              <div className="text-lg mb-1">🏹</div>
+              <div className="text-sm text-white">Rangers</div>
+              <div className="text-xs text-gray-500">Deadeye, Pathfinder, Raider</div>
+            </a>
+            <a
+              href="https://poe.ninja/builds/challenge?class=Necromancer,Elementalist,Occultist"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg text-center transition-colors"
+            >
+              <div className="text-lg mb-1">🧙</div>
+              <div className="text-sm text-white">Witches</div>
+              <div className="text-xs text-gray-500">Necro, Ele, Occultist</div>
+            </a>
+            <a
+              href="https://poe.ninja/economy/challenge/currency"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg text-center transition-colors"
+            >
+              <div className="text-lg mb-1">💰</div>
+              <div className="text-sm text-white">Economy</div>
+              <div className="text-xs text-gray-500">Currency prices</div>
+            </a>
+          </div>
+        )}
+
+        {/* Note about data source */}
         <div className="mt-4 text-xs text-gray-600 text-center">
-          Data from poe.ninja API • May be rate-limited
+          {buildStats ? (
+            <span>Data from poe.ninja API • League: {selectedLeague}</span>
+          ) : (
+            <span>
+              Visit{' '}
+              <a href="https://poe.ninja" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                poe.ninja
+              </a>
+              {' '}for live build statistics
+            </span>
+          )}
         </div>
       </div>
     </div>
