@@ -155,7 +155,7 @@ ${build.guideUrl}`);
 /**
  * Create the system prompt for the AI advisor
  */
-export function createSystemPrompt(buildContext, leagueContext = 'Phrecia (3.27)') {
+export function createSystemPrompt(buildContext, leagueContext = 'Keepers of the Flame (3.27)') {
   return `You are an expert Path of Exile build advisor with deep knowledge of game mechanics, items, skills, and the current meta.
 
 ## Path of Exile Knowledge

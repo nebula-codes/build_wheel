@@ -10,8 +10,8 @@ import { GemBadge } from '../GemLinks/GemLinks';
 
 // Current/Permanent leagues
 const CURRENT_LEAGUES = [
-  { id: 'Phrecia', name: 'Phrecia', type: 'current' },
-  { id: 'Hardcore Phrecia', name: 'HC Phrecia', type: 'current' },
+  { id: 'Keepers of the Flame', name: 'Keepers of the Flame', type: 'current' },
+  { id: 'Hardcore Keepers of the Flame', name: 'HC Keepers', type: 'current' },
   { id: 'Standard', name: 'Standard', type: 'permanent' },
   { id: 'Hardcore', name: 'Hardcore', type: 'permanent' },
 ];
@@ -50,7 +50,7 @@ const HISTORICAL_LEAGUES = [
  * Live poe.ninja builds browser with league selection
  */
 export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
-  const [selectedLeague, setSelectedLeague] = useState('Phrecia');
+  const [selectedLeague, setSelectedLeague] = useState('Keepers of the Flame');
   const [leagueType, setLeagueType] = useState('current'); // 'current' or 'historical'
   const [historicalSearch, setHistoricalSearch] = useState('');
   const [showHistoricalDropdown, setShowHistoricalDropdown] = useState(false);

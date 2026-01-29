@@ -7,7 +7,7 @@ const LEAGUE_STORAGE_KEY = 'poe_build_advisor_league';
 
 // Current and recent leagues
 const LEAGUES = [
-  { id: 'phrecia', name: 'Phrecia (3.27)', current: true },
+  { id: 'keepers', name: 'Keepers of the Flame (3.27)', current: true },
   { id: 'settlers', name: 'Settlers of Kalguur (3.25)', current: false },
   { id: 'necropolis', name: 'Necropolis (3.24)', current: false },
   { id: 'affliction', name: 'Affliction (3.23)', current: false },
@@ -26,7 +26,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
-  const [selectedLeague, setSelectedLeague] = useState('phrecia');
+  const [selectedLeague, setSelectedLeague] = useState('keepers');
   const [showUrlImport, setShowUrlImport] = useState(false);
   const [importUrl, setImportUrl] = useState('');
   const [importLoading, setImportLoading] = useState(false);
@@ -102,7 +102,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
 
   const getLeagueContext = () => {
     const league = LEAGUES.find(l => l.id === selectedLeague);
-    return league ? league.name : 'Phrecia (3.27)';
+    return league ? league.name : 'Keepers of the Flame (3.27)';
   };
 
   const importBuildFromUrl = async () => {
