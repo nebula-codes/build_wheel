@@ -1,7 +1,7 @@
 import { useWheelSpin } from '../hooks/useWheelSpin';
 import { useImperativeHandle, forwardRef } from 'react';
 
-const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete, onTick, locked }, ref) {
+const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete, onTick }, ref) {
   const { rotation, isSpinning, selectedItem, spin, reset } = useWheelSpin(items, onSpinComplete, onTick);
 
   useImperativeHandle(ref, () => ({

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { getUniversalTierColor, getUniversalDifficultyColor } from '../data/games';
 
-function BuildBrowser({ game }) {
+function BuildBrowser({ game, onViewSkillTree }) {
   const [activeTab, setActiveTab] = useState('all'); // 'all' or 'offmeta'
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedTier, setSelectedTier] = useState('all');
@@ -229,6 +229,7 @@ function BuildBrowser({ game }) {
                         gameId={game.id}
                         isExpanded={expandedBuild === build.id}
                         onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
+                        onViewSkillTree={onViewSkillTree}
                       />
                     ))}
                   </div>
@@ -251,6 +252,7 @@ function BuildBrowser({ game }) {
                       gameId={game.id}
                       isExpanded={expandedBuild === build.id}
                       onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
+                      onViewSkillTree={onViewSkillTree}
                     />
                   ))}
                 </div>
@@ -544,7 +546,7 @@ function BuildBrowser({ game }) {
   );
 }
 
-function BuildCard({ build, gameId, isExpanded, onToggle }) {
+function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree }) {
   const tierColor = build.tier ? getUniversalTierColor(build.tier, gameId) : null;
   const difficultyColor = build.difficulty ? getUniversalDifficultyColor(build.difficulty, gameId) : null;
 
@@ -684,7 +686,7 @@ function BuildCard({ build, gameId, isExpanded, onToggle }) {
             </div>
           )}
 
-          {(build.guideUrl || build.plannerUrl) && (
+          {(build.guideUrl || build.plannerUrl || (build.keystones && build.keystones.length > 0)) && (
             <div className="px-4 py-2 border-t border-gray-800 bg-[#0f0f17] flex items-center gap-4">
               {build.guideUrl && (
                 <a
@@ -711,6 +713,17 @@ function BuildCard({ build, gameId, isExpanded, onToggle }) {
                   </svg>
                   PoB Planner
                 </a>
+              )}
+              {onViewSkillTree && build.keystones && build.keystones.length > 0 && (
+                <button
+                  onClick={() => onViewSkillTree(build)}
+                  className="text-xs text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                  </svg>
+                  Skill Tree
+                </button>
               )}
             </div>
           )}

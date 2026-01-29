@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import Wheel from './components/Wheel';
 import ResultDisplay from './components/ResultDisplay';
 import BuildBrowser from './components/BuildBrowser';
+import { SkillTree } from './components/SkillTree';
 import { games, gameList } from './data/games';
 
 // Sound effects (base64 encoded short sounds)
@@ -35,6 +36,9 @@ function App() {
   });
   const [copied, setCopied] = useState(false);
 
+  // Skill tree viewer state
+  const [skillTreeBuild, setSkillTreeBuild] = useState(null);
+
   const classWheelRef = useRef(null);
   const skillWheelRef = useRef(null);
   const tickAudioRef = useRef(null);
@@ -52,17 +56,8 @@ function App() {
     localStorage.setItem('buildWheel_soundEnabled', JSON.stringify(soundEnabled));
   }, [soundEnabled]);
 
-  // Keyboard shortcut for spinning (spacebar)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.code === 'Space' && activeView === 'wheel' && !isSpinning) {
-        e.preventDefault();
-        handleSpin();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeView, isSpinning]);
+  // Ref for handleSpin to avoid stale closure in keyboard handler
+  const handleSpinRef = useRef(null);
 
   // Get unique playstyles from current game
   const availablePlaystyles = useMemo(() => {
@@ -225,6 +220,23 @@ function App() {
     }
   }, [isSpinning, lockedClass, lockedBuild, availableClasses, hasAnySkills]);
 
+  // Update ref when handleSpin changes
+  useEffect(() => {
+    handleSpinRef.current = handleSpin;
+  }, [handleSpin]);
+
+  // Keyboard shortcut for spinning (spacebar)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' && activeView === 'wheel' && !isSpinning) {
+        e.preventDefault();
+        handleSpinRef.current?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeView, isSpinning]);
+
   const handleClassSpinComplete = useCallback((cls) => {
     setSelectedClass(cls);
     setSpinningClass(cls);
@@ -305,11 +317,6 @@ function App() {
     setSelectedSkill(null);
   }, []);
 
-  const handleLockBuild = useCallback((skill) => {
-    setLockedBuild(prev => prev?.id === skill.id ? null : skill);
-    setSelectedSkill(null);
-  }, []);
-
   const isClassExcluded = (classId) => excludedClasses.includes(classId);
   const isSkillExcluded = (skillId) => excludedSkills.includes(skillId);
 
@@ -369,6 +376,21 @@ function App() {
               Build Browser
               <span className="ml-auto text-xs text-gray-600">{totalBuilds}</span>
             </button>
+            {selectedGameId === 'poe1' && (
+              <button
+                onClick={() => setActiveView('tree')}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeView === 'tree'
+                    ? 'bg-cyan-500/10 text-cyan-400'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+                Skill Tree
+              </button>
+            )}
           </nav>
         </div>
 
@@ -799,7 +821,100 @@ function App() {
           )}
 
           {activeView === 'browser' && (
-            <BuildBrowser game={currentGame} />
+            <BuildBrowser
+              game={currentGame}
+              onViewSkillTree={(build) => {
+                setSkillTreeBuild(build);
+                setActiveView('tree');
+              }}
+            />
+          )}
+
+          {activeView === 'tree' && (
+            <div className="h-full flex flex-col">
+              {/* Skill Tree Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-lg font-semibold text-white">Passive Skill Tree</h2>
+                  {skillTreeBuild && (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: skillTreeBuild.classColor }}
+                      />
+                      <span className="text-gray-400">{skillTreeBuild.name}</span>
+                      <span className="text-gray-600">({skillTreeBuild.className})</span>
+                    </div>
+                  )}
+                </div>
+                {skillTreeBuild && (
+                  <button
+                    onClick={() => setSkillTreeBuild(null)}
+                    className="text-sm text-gray-400 hover:text-white flex items-center gap-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear Build
+                  </button>
+                )}
+              </div>
+
+              {/* Build Selector if no build selected */}
+              {!skillTreeBuild && (
+                <div className="mb-4 p-4 bg-[#1a1a24] rounded-lg border border-gray-800">
+                  <p className="text-gray-400 text-sm mb-3">
+                    Select a build to highlight its keystones on the tree, or explore the full passive tree below.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {currentGame.classes.slice(0, 6).flatMap(cls =>
+                      cls.skills.filter(s => s.keystones?.length > 0).slice(0, 2).map(skill => (
+                        <button
+                          key={skill.id}
+                          onClick={() => setSkillTreeBuild({
+                            ...skill,
+                            classColor: cls.color,
+                            className: cls.name
+                          })}
+                          className="px-3 py-1.5 text-xs bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded border border-cyan-500/30 transition-colors"
+                        >
+                          {skill.name}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Skill Tree Viewer */}
+              <SkillTree
+                className="flex-1 rounded-lg overflow-hidden border border-gray-800"
+                highlightedKeystones={skillTreeBuild?.keystones || []}
+                ascendancyName={skillTreeBuild?.className}
+                onNodeClick={(node) => {
+                  console.log('Node clicked:', node);
+                }}
+              />
+
+              {/* Keystones Legend */}
+              {skillTreeBuild?.keystones && skillTreeBuild.keystones.length > 0 && (
+                <div className="mt-4 p-4 bg-[#1a1a24] rounded-lg border border-gray-800">
+                  <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+                    Build Keystones
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {skillTreeBuild.keystones.map((keystone, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded text-sm border border-yellow-500/30"
+                      >
+                        {keystone}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </main>
