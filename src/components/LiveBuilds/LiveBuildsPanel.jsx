@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   fetchBuildStats,
   fetchTopBuildsForSkill,
@@ -8,12 +8,42 @@ import {
 } from '../../utils/poeNinjaApi';
 import { GemBadge } from '../GemLinks/GemLinks';
 
-// Available leagues
-const LEAGUES = [
-  { id: 'Phrecia', name: 'Phrecia (Current)' },
-  { id: 'Standard', name: 'Standard' },
-  { id: 'Hardcore', name: 'Hardcore' },
-  { id: 'Hardcore Phrecia', name: 'Hardcore Phrecia' },
+// Current/Permanent leagues
+const CURRENT_LEAGUES = [
+  { id: 'Phrecia', name: 'Phrecia', type: 'current' },
+  { id: 'Hardcore Phrecia', name: 'HC Phrecia', type: 'current' },
+  { id: 'Standard', name: 'Standard', type: 'permanent' },
+  { id: 'Hardcore', name: 'Hardcore', type: 'permanent' },
+];
+
+// Historical leagues (most recent first)
+const HISTORICAL_LEAGUES = [
+  { id: 'Settlers of Kalguur', name: 'Settlers of Kalguur', version: '3.25' },
+  { id: 'Necropolis', name: 'Necropolis', version: '3.24' },
+  { id: 'Affliction', name: 'Affliction', version: '3.23' },
+  { id: 'Trial of the Ancestors', name: 'Trial of the Ancestors', version: '3.22' },
+  { id: 'Crucible', name: 'Crucible', version: '3.21' },
+  { id: 'Sanctum', name: 'Sanctum', version: '3.20' },
+  { id: 'Kalandra', name: 'Lake of Kalandra', version: '3.19' },
+  { id: 'Sentinel', name: 'Sentinel', version: '3.18' },
+  { id: 'Archnemesis', name: 'Archnemesis', version: '3.17' },
+  { id: 'Scourge', name: 'Scourge', version: '3.16' },
+  { id: 'Expedition', name: 'Expedition', version: '3.15' },
+  { id: 'Ultimatum', name: 'Ultimatum', version: '3.14' },
+  { id: 'Ritual', name: 'Ritual', version: '3.13' },
+  { id: 'Heist', name: 'Heist', version: '3.12' },
+  { id: 'Harvest', name: 'Harvest', version: '3.11' },
+  { id: 'Delirium', name: 'Delirium', version: '3.10' },
+  { id: 'Metamorph', name: 'Metamorph', version: '3.9' },
+  { id: 'Blight', name: 'Blight', version: '3.8' },
+  { id: 'Legion', name: 'Legion', version: '3.7' },
+  { id: 'Synthesis', name: 'Synthesis', version: '3.6' },
+  { id: 'Betrayal', name: 'Betrayal', version: '3.5' },
+  { id: 'Delve', name: 'Delve', version: '3.4' },
+  { id: 'Incursion', name: 'Incursion', version: '3.3' },
+  { id: 'Bestiary', name: 'Bestiary', version: '3.2' },
+  { id: 'Abyss', name: 'Abyss', version: '3.1' },
+  { id: 'Harbinger', name: 'Harbinger', version: '3.0' },
 ];
 
 /**
@@ -21,6 +51,9 @@ const LEAGUES = [
  */
 export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
   const [selectedLeague, setSelectedLeague] = useState('Phrecia');
+  const [leagueType, setLeagueType] = useState('current'); // 'current' or 'historical'
+  const [historicalSearch, setHistoricalSearch] = useState('');
+  const [showHistoricalDropdown, setShowHistoricalDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [buildStats, setBuildStats] = useState(null);
@@ -29,6 +62,46 @@ export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [skillBuilds, setSkillBuilds] = useState([]);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'ascendancies', 'keystones', 'skills'
+
+  // Filter historical leagues based on search
+  const filteredHistoricalLeagues = HISTORICAL_LEAGUES.filter(league =>
+    league.name.toLowerCase().includes(historicalSearch.toLowerCase()) ||
+    league.version.includes(historicalSearch)
+  );
+
+  // Handle selecting a historical league
+  const handleHistoricalLeagueSelect = (league) => {
+    setSelectedLeague(league.id);
+    setLeagueType('historical');
+    setShowHistoricalDropdown(false);
+    setHistoricalSearch('');
+  };
+
+  // Handle selecting a current league
+  const handleCurrentLeagueSelect = (leagueId) => {
+    setSelectedLeague(leagueId);
+    setLeagueType('current');
+  };
+
+  // Ref for click-outside detection
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowHistoricalDropdown(false);
+      }
+    };
+
+    if (showHistoricalDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHistoricalDropdown]);
 
   // Fetch data when league changes
   const fetchData = useCallback(async () => {
@@ -88,23 +161,97 @@ export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
           <p className="text-xs text-gray-500 mt-0.5">Real-time build statistics from the ladder</p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <select
-            value={selectedLeague}
-            onChange={(e) => setSelectedLeague(e.target.value)}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white focus:border-blue-500 focus:outline-none"
-          >
-            {LEAGUES.map((league) => (
-              <option key={league.id} value={league.id}>
-                {league.name}
-              </option>
-            ))}
-          </select>
+        <div className="flex items-center gap-2">
+          {/* Current League Selector */}
+          <div className="flex items-center gap-1">
+            <select
+              value={leagueType === 'current' ? selectedLeague : ''}
+              onChange={(e) => handleCurrentLeagueSelect(e.target.value)}
+              className={`bg-gray-800 border rounded px-2 py-1.5 text-sm text-white focus:border-blue-500 focus:outline-none ${
+                leagueType === 'current' ? 'border-blue-600' : 'border-gray-700'
+              }`}
+            >
+              <option value="" disabled>Current</option>
+              {CURRENT_LEAGUES.map((league) => (
+                <option key={league.id} value={league.id}>
+                  {league.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
+          {/* Historical League Selector with Search */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setShowHistoricalDropdown(!showHistoricalDropdown)}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded text-sm transition-colors ${
+                leagueType === 'historical'
+                  ? 'bg-purple-900/50 border border-purple-600 text-purple-300'
+                  : 'bg-gray-800 border border-gray-700 text-gray-400 hover:text-white'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {leagueType === 'historical' ? (
+                <span className="max-w-[100px] truncate">
+                  {HISTORICAL_LEAGUES.find(l => l.id === selectedLeague)?.name || 'Historical'}
+                </span>
+              ) : (
+                'Historical'
+              )}
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Historical League Dropdown */}
+            {showHistoricalDropdown && (
+              <div className="absolute right-0 top-full mt-1 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50">
+                {/* Search Input */}
+                <div className="p-2 border-b border-gray-800">
+                  <input
+                    type="text"
+                    value={historicalSearch}
+                    onChange={(e) => setHistoricalSearch(e.target.value)}
+                    placeholder="Search leagues..."
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    autoFocus
+                  />
+                </div>
+                {/* League List */}
+                <div className="max-h-64 overflow-y-auto">
+                  {filteredHistoricalLeagues.length === 0 ? (
+                    <div className="p-3 text-sm text-gray-500 text-center">No leagues found</div>
+                  ) : (
+                    filteredHistoricalLeagues.map((league) => (
+                      <button
+                        key={league.id}
+                        onClick={() => handleHistoricalLeagueSelect(league)}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-800 transition-colors flex items-center justify-between ${
+                          selectedLeague === league.id ? 'bg-purple-900/30 text-purple-300' : 'text-gray-300'
+                        }`}
+                      >
+                        <span>{league.name}</span>
+                        <span className="text-xs text-gray-500">{league.version}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+                {/* Note about data availability */}
+                <div className="p-2 border-t border-gray-800 text-xs text-gray-600 text-center">
+                  Note: Historical data may be limited or unavailable
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Refresh Button */}
           <button
             onClick={fetchData}
             disabled={loading}
             className="p-2 bg-gray-800 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+            title="Refresh data"
           >
             <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
