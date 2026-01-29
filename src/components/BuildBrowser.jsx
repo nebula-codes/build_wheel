@@ -7,7 +7,7 @@ import MapModWarnings from './BuildDetails/MapModWarnings';
 import PantheonBandit from './BuildDetails/PantheonBandit';
 import BuildProgression from './BuildDetails/BuildProgression';
 import BuildComparison from './BuildComparison/BuildComparison';
-import LiveBuildsPanel from './LiveBuilds/LiveBuildsPanel';
+// import LiveBuildsPanel from './LiveBuilds/LiveBuildsPanel'; // Temporarily disabled - CORS issue
 import PoBImport from './PoBImport/PoBImport';
 import { BuildAdvisor } from './BuildAdvisor';
 
@@ -176,17 +176,15 @@ function BuildBrowser({ game, onViewSkillTree }) {
           {game.id === 'poe1' && (
             <>
               <button
-                onClick={() => setActiveTab('live')}
-                className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
-                  activeTab === 'live'
-                    ? 'text-green-400 border-b-2 border-green-400'
-                    : 'text-gray-400 hover:text-white'
-                }`}
+                disabled
+                className="px-4 py-2 text-sm font-medium flex items-center gap-2 text-gray-600 cursor-not-allowed opacity-50"
+                title="Coming soon - poe.ninja integration temporarily disabled"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 <span>Live Stats</span>
+                <span className="text-[10px] px-1 py-0.5 bg-gray-700 rounded">Soon</span>
               </button>
               <button
                 onClick={() => setActiveTab('import')}
@@ -664,10 +662,8 @@ function BuildBrowser({ game, onViewSkillTree }) {
           <BuildComparison builds={allBuilds} />
         )}
 
-        {/* Live Stats Tab (PoE only) */}
-        {activeTab === 'live' && game.id === 'poe1' && (
-          <LiveBuildsPanel />
-        )}
+        {/* Live Stats Tab (PoE only) - Temporarily disabled due to CORS */}
+        {/* Will be re-enabled when backend proxy is implemented */}
 
         {/* Import PoB Tab (PoE only) */}
         {activeTab === 'import' && game.id === 'poe1' && (
