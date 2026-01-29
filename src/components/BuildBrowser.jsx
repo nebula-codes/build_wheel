@@ -9,9 +9,10 @@ import BuildProgression from './BuildDetails/BuildProgression';
 import BuildComparison from './BuildComparison/BuildComparison';
 import LiveBuildsPanel from './LiveBuilds/LiveBuildsPanel';
 import PoBImport from './PoBImport/PoBImport';
+import { BuildAdvisor } from './BuildAdvisor';
 
 function BuildBrowser({ game, onViewSkillTree }) {
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'offmeta', 'compare', 'live', 'import'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'offmeta', 'compare', 'live', 'import', 'advisor'
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedTier, setSelectedTier] = useState('all');
   const [selectedSource, setSelectedSource] = useState('all');
@@ -20,6 +21,13 @@ function BuildBrowser({ game, onViewSkillTree }) {
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [advancedFilters, setAdvancedFilters] = useState({});
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [advisorBuild, setAdvisorBuild] = useState(null);
+
+  // Open AI advisor for a specific build
+  const openAdvisor = (build) => {
+    setAdvisorBuild(build);
+    setActiveTab('advisor');
+  };
 
   const allBuilds = useMemo(() => {
     const builds = [];
@@ -193,6 +201,22 @@ function BuildBrowser({ game, onViewSkillTree }) {
                 </svg>
                 <span>Import PoB</span>
               </button>
+              <button
+                onClick={() => setActiveTab('advisor')}
+                className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                  activeTab === 'advisor'
+                    ? 'text-amber-400 border-b-2 border-amber-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <span>AI Advisor</span>
+                {advisorBuild && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                )}
+              </button>
             </>
           )}
         </div>
@@ -321,6 +345,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
                         isExpanded={expandedBuild === build.id}
                         onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
                         onViewSkillTree={onViewSkillTree}
+                        onAskAI={openAdvisor}
                       />
                     ))}
                   </div>
@@ -344,6 +369,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
                       isExpanded={expandedBuild === build.id}
                       onToggle={() => setExpandedBuild(expandedBuild === build.id ? null : build.id)}
                       onViewSkillTree={onViewSkillTree}
+                      onAskAI={openAdvisor}
                     />
                   ))}
                 </div>
@@ -656,7 +682,60 @@ function BuildBrowser({ game, onViewSkillTree }) {
                   });
                 }
               }}
+              onImport={(buildData) => {
+                // Open advisor with imported build
+                setAdvisorBuild({
+                  name: `${buildData.className || 'Unknown'} ${buildData.ascendancyName || ''}`.trim(),
+                  ...buildData,
+                });
+                setActiveTab('advisor');
+              }}
             />
+          </div>
+        )}
+
+        {/* AI Advisor Tab (PoE only) */}
+        {activeTab === 'advisor' && game.id === 'poe1' && (
+          <div className="h-full flex gap-4">
+            {/* Build selector sidebar */}
+            <div className="w-72 flex-shrink-0 bg-gray-900/50 rounded-lg border border-gray-800 flex flex-col overflow-hidden">
+              <div className="p-3 border-b border-gray-800">
+                <h4 className="text-sm font-medium text-white mb-2">Select a Build</h4>
+                <input
+                  type="text"
+                  placeholder="Search builds..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none"
+                />
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                {allBuilds
+                  .filter(b => !searchQuery || b.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .slice(0, 50)
+                  .map((build, idx) => (
+                    <button
+                      key={build.id || idx}
+                      onClick={() => setAdvisorBuild(build)}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-800 transition-colors border-b border-gray-800/50 ${
+                        advisorBuild?.id === build.id ? 'bg-amber-900/30 text-amber-300' : 'text-gray-300'
+                      }`}
+                    >
+                      <div className="font-medium truncate">{build.name}</div>
+                      <div className="text-xs text-gray-500">{build.className}</div>
+                    </button>
+                  ))}
+              </div>
+            </div>
+
+            {/* Advisor chat area */}
+            <div className="flex-1 min-w-0">
+              <BuildAdvisor
+                build={advisorBuild}
+                onClose={() => setAdvisorBuild(null)}
+                className="h-full"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -664,7 +743,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
   );
 }
 
-function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree }) {
+function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree, onAskAI }) {
   const tierColor = build.tier ? getUniversalTierColor(build.tier, gameId) : null;
   const difficultyColor = build.difficulty ? getUniversalDifficultyColor(build.difficulty, gameId) : null;
 
@@ -855,6 +934,17 @@ function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                   </svg>
                   Skill Tree
+                </button>
+              )}
+              {onAskAI && gameId === 'poe1' && (
+                <button
+                  onClick={() => onAskAI(build)}
+                  className="text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 ml-auto"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  Ask AI
                 </button>
               )}
             </div>
