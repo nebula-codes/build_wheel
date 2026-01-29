@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { Application, Graphics, Container, Text, TextStyle } from 'pixi.js';
+import { Application, Graphics, Container, Text, TextStyle, Assets, Sprite, Texture, Rectangle } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { getNodePosition, getNodeType, getNodeRadius, getNodeColor } from '../../utils/treeUtils';
+
+// Sprite sheet cache
+const spriteCache = new Map();
 
 export function useTreeRenderer({
   containerRef,
@@ -16,6 +19,7 @@ export function useTreeRenderer({
   const viewportRef = useRef(null);
   const nodesContainerRef = useRef(null);
   const connectionsContainerRef = useRef(null);
+  const backgroundContainerRef = useRef(null);
 
   // Use refs for callbacks to avoid stale closures
   const onNodeHoverRef = useRef(onNodeHover);
@@ -87,27 +91,36 @@ export function useTreeRenderer({
           .pinch()
           .wheel({ smooth: 5 })
           .decelerate({ friction: 0.95 })
-          .clampZoom({ minScale: 0.05, maxScale: 2 });
+          .clampZoom({ minScale: 0.02, maxScale: 3 });
 
         app.stage.addChild(viewport);
         viewportRef.current = viewport;
 
-        // Create containers for rendering layers
+        // Create containers for rendering layers (back to front)
+        const backgroundContainer = new Container();
         const connectionsContainer = new Container();
         const nodesContainer = new Container();
 
+        viewport.addChild(backgroundContainer);
         viewport.addChild(connectionsContainer);
         viewport.addChild(nodesContainer);
 
+        backgroundContainerRef.current = backgroundContainer;
         connectionsContainerRef.current = connectionsContainer;
         nodesContainerRef.current = nodesContainer;
 
+        // Load sprites and render
+        await loadSprites(treeData);
+
+        if (destroyed) return;
+
         // Render the tree
-        renderTree(
+        await renderTree(
           treeData,
           allocatedNodes,
           highlightedKeystones,
           ascendancyName,
+          backgroundContainer,
           nodesContainer,
           connectionsContainer,
           onNodeHoverRef,
@@ -156,12 +169,16 @@ export function useTreeRenderer({
     // Clear and re-render
     nodesContainerRef.current.removeChildren();
     connectionsContainerRef.current.removeChildren();
+    if (backgroundContainerRef.current) {
+      backgroundContainerRef.current.removeChildren();
+    }
 
     renderTree(
       treeData,
       allocatedNodes,
       highlightedKeystones,
       ascendancyName,
+      backgroundContainerRef.current,
       nodesContainerRef.current,
       connectionsContainerRef.current,
       onNodeHoverRef,
@@ -170,11 +187,96 @@ export function useTreeRenderer({
   }, [allocatedNodes, highlightedKeystones, ascendancyName, treeData]);
 }
 
-function renderTree(
+/**
+ * Load sprite sheets for the tree
+ */
+async function loadSprites(treeData) {
+  if (!treeData.sprites?.skillSprites) return;
+
+  const { skillSprites } = treeData.sprites;
+  const assetsRoot = treeData.assetsRoot || 'https://web.poecdn.com/image/';
+
+  // Get the highest zoom level sprites (best quality)
+  const zoomLevel = 3; // 0.3835 zoom = highest detail
+
+  // Collect unique sprite sheet URLs
+  const spriteSheetUrls = new Set();
+
+  for (const spriteType of Object.values(skillSprites)) {
+    const spriteInfo = spriteType[zoomLevel] || spriteType[spriteType.length - 1];
+    if (spriteInfo?.filename) {
+      spriteSheetUrls.add(assetsRoot + spriteInfo.filename);
+    }
+  }
+
+  // Load all sprite sheets
+  for (const url of spriteSheetUrls) {
+    if (!spriteCache.has(url)) {
+      try {
+        const texture = await Assets.load(url);
+        spriteCache.set(url, texture);
+      } catch (err) {
+        console.warn('Failed to load sprite sheet:', url, err);
+      }
+    }
+  }
+}
+
+/**
+ * Get sprite texture for a node
+ */
+function getNodeSpriteTexture(node, treeData, isAllocated) {
+  if (!treeData.sprites?.skillSprites) return null;
+
+  const { skillSprites } = treeData.sprites;
+  const assetsRoot = treeData.assetsRoot || 'https://web.poecdn.com/image/';
+  const zoomLevel = 3;
+
+  // Determine which sprite type to use based on node type
+  let spriteType = null;
+  let iconKey = node.icon;
+
+  if (node.isKeystone) {
+    spriteType = isAllocated ? skillSprites.keystoneActive : skillSprites.keystoneInactive;
+  } else if (node.isNotable) {
+    spriteType = isAllocated ? skillSprites.notableActive : skillSprites.notableInactive;
+  } else if (node.isMastery) {
+    spriteType = skillSprites.mastery;
+    iconKey = node.inactiveIcon || node.icon;
+  } else if (node.isJewelSocket) {
+    spriteType = isAllocated ? skillSprites.jewelSocketActive : skillSprites.jewelSocketNormal;
+  } else {
+    spriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
+  }
+
+  if (!spriteType) return null;
+
+  const spriteInfo = spriteType[zoomLevel] || spriteType[spriteType.length - 1];
+  if (!spriteInfo?.filename || !spriteInfo.coords) return null;
+
+  const sheetUrl = assetsRoot + spriteInfo.filename;
+  const sheetTexture = spriteCache.get(sheetUrl);
+  if (!sheetTexture) return null;
+
+  // Find the coordinates for this icon
+  const coords = spriteInfo.coords[iconKey];
+  if (!coords) return null;
+
+  // Create texture from sprite sheet region
+  try {
+    const frame = new Rectangle(coords.x, coords.y, coords.w, coords.h);
+    return new Texture({ source: sheetTexture.source, frame });
+  } catch (err) {
+    return null;
+  }
+}
+
+async function renderTree(
   treeData,
   allocatedNodes,
   highlightedKeystones,
   ascendancyName,
+  backgroundContainer,
   nodesContainer,
   connectionsContainer,
   onNodeHoverRef,
@@ -199,7 +301,12 @@ function renderTree(
     nodePositions.set(nodeId, pos);
   }
 
-  // Render connections first (behind nodes)
+  // Render group backgrounds
+  if (backgroundContainer) {
+    renderGroupBackgrounds(treeData, groups, backgroundContainer);
+  }
+
+  // Render connections (behind nodes)
   const connectionGraphics = new Graphics();
 
   for (const [nodeId, node] of Object.entries(nodes)) {
@@ -216,9 +323,9 @@ function renderTree(
       const isBothAllocated = isFromAllocated && isToAllocated;
 
       // Connection style
-      const lineColor = isBothAllocated ? 0xffd700 : 0x2a3a4a;
-      const lineAlpha = isBothAllocated ? 1 : 0.5;
-      const lineWidth = isBothAllocated ? 3 : 1.5;
+      const lineColor = isBothAllocated ? 0xffd700 : 0x3a4a5a;
+      const lineAlpha = isBothAllocated ? 1 : 0.6;
+      const lineWidth = isBothAllocated ? 4 : 2;
 
       connectionGraphics.moveTo(fromPos.x, fromPos.y);
       connectionGraphics.lineTo(toPos.x, toPos.y);
@@ -241,14 +348,15 @@ function renderTree(
     if (allocatedNodes.length > 0 && nodeType === 'small' && !isAllocated) {
       // Draw smaller, dimmer for context
       const smallNode = new Graphics();
-      smallNode.circle(0, 0, 5);
-      smallNode.fill({ color: 0x1a2a3a, alpha: 0.3 });
+      smallNode.circle(0, 0, 8);
+      smallNode.fill({ color: 0x2a3a4a, alpha: 0.4 });
       smallNode.position.set(pos.x, pos.y);
       nodesContainer.addChild(smallNode);
       continue;
     }
 
-    const nodeGraphic = createNodeGraphic(node, nodeType, isAllocated, isHighlighted);
+    // Try to create sprite-based node, fall back to graphics
+    const nodeGraphic = createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData);
     nodeGraphic.position.set(pos.x, pos.y);
 
     // Store node data for interactions
@@ -262,7 +370,7 @@ function renderTree(
       onNodeHoverRef.current?.(node, { x: globalPos.x, y: globalPos.y });
 
       // Scale up on hover
-      nodeGraphic.scale.set(1.2);
+      nodeGraphic.scale.set(1.15);
     });
 
     nodeGraphic.on('pointerout', () => {
@@ -278,90 +386,167 @@ function renderTree(
   }
 }
 
-function createNodeGraphic(node, nodeType, isAllocated, isHighlighted) {
-  const container = new Container();
-  const graphics = new Graphics();
+/**
+ * Render group background images
+ */
+function renderGroupBackgrounds(treeData, groups, container) {
+  // For now, render orbit circles for each group
+  for (const [, group] of Object.entries(groups)) {
+    if (!group.orbits || group.orbits.length === 0) continue;
 
-  const radius = getNodeRadius(nodeType);
-  const color = getNodeColor(nodeType, isAllocated);
+    const bgGraphics = new Graphics();
+    const maxOrbit = Math.max(...group.orbits);
 
-  // Outer glow for allocated/highlighted nodes
-  if (isAllocated || isHighlighted) {
-    const glowColor = isHighlighted ? 0xff6b35 : color;
-    graphics.circle(0, 0, radius + 8);
-    graphics.fill({ color: glowColor, alpha: 0.3 });
-  }
+    if (maxOrbit > 0) {
+      const radius = treeData.constants.orbitRadii[maxOrbit] || 200;
 
-  // Main node circle
-  graphics.circle(0, 0, radius);
+      // Draw subtle background circle
+      bgGraphics.circle(group.x, group.y, radius + 30);
+      bgGraphics.fill({ color: 0x1a2030, alpha: 0.15 });
 
-  if (isAllocated) {
-    graphics.fill({ color });
-    graphics.stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
-  } else {
-    graphics.fill({ color, alpha: 0.6 });
-    graphics.stroke({ width: 1, color: 0x4a5a6a, alpha: 0.5 });
-  }
-
-  container.addChild(graphics);
-
-  // Add icon/symbol for special nodes
-  if (nodeType === 'keystone') {
-    const symbol = new Graphics();
-    // Diamond shape for keystone
-    symbol.moveTo(0, -radius * 0.5);
-    symbol.lineTo(radius * 0.5, 0);
-    symbol.lineTo(0, radius * 0.5);
-    symbol.lineTo(-radius * 0.5, 0);
-    symbol.closePath();
-    symbol.stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
-    container.addChild(symbol);
-  } else if (nodeType === 'notable') {
-    const symbol = new Graphics();
-    // Star shape for notable
-    symbol.circle(0, 0, radius * 0.3);
-    symbol.fill({ color: 0xffffff, alpha: 0.8 });
-    container.addChild(symbol);
-  } else if (nodeType === 'jewel') {
-    const symbol = new Graphics();
-    // Hexagon for jewel socket
-    const sides = 6;
-    const innerRadius = radius * 0.5;
-    for (let i = 0; i < sides; i++) {
-      const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-      const x = Math.cos(angle) * innerRadius;
-      const y = Math.sin(angle) * innerRadius;
-      if (i === 0) {
-        symbol.moveTo(x, y);
-      } else {
-        symbol.lineTo(x, y);
+      // Draw orbit rings
+      for (const orbit of group.orbits) {
+        if (orbit === 0) continue;
+        const orbitRadius = treeData.constants.orbitRadii[orbit];
+        if (orbitRadius) {
+          bgGraphics.circle(group.x, group.y, orbitRadius);
+          bgGraphics.stroke({ width: 1, color: 0x2a3a4a, alpha: 0.3 });
+        }
       }
     }
-    symbol.closePath();
-    symbol.stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
-    container.addChild(symbol);
-  } else if (nodeType === 'mastery') {
-    // Crown-like symbol for mastery
-    const symbol = new Graphics();
-    symbol.circle(0, 0, radius * 0.4);
-    symbol.fill({ color: 0xffffff, alpha: 0.6 });
-    container.addChild(symbol);
+
+    container.addChild(bgGraphics);
+  }
+}
+
+function createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData) {
+  const container = new Container();
+
+  // Try to use sprite texture
+  const spriteTexture = getNodeSpriteTexture(node, treeData, isAllocated);
+
+  if (spriteTexture) {
+    // Use sprite-based rendering
+    const sprite = new Sprite(spriteTexture);
+    sprite.anchor.set(0.5);
+
+    // Scale based on node type
+    const scale = nodeType === 'keystone' ? 0.8 :
+                  nodeType === 'notable' ? 0.7 :
+                  nodeType === 'mastery' ? 0.75 :
+                  nodeType === 'jewel' ? 0.7 : 0.6;
+    sprite.scale.set(scale);
+
+    // Add glow for highlighted nodes
+    if (isHighlighted) {
+      const glow = new Graphics();
+      glow.circle(0, 0, sprite.width * scale / 2 + 15);
+      glow.fill({ color: 0xff6b35, alpha: 0.4 });
+      container.addChild(glow);
+    }
+
+    container.addChild(sprite);
+  } else {
+    // Fallback to graphics-based rendering
+    const graphics = new Graphics();
+    const radius = getNodeRadius(nodeType);
+    const color = getNodeColor(nodeType, isAllocated);
+
+    // Outer glow for allocated/highlighted nodes
+    if (isAllocated || isHighlighted) {
+      const glowColor = isHighlighted ? 0xff6b35 : color;
+      graphics.circle(0, 0, radius + 10);
+      graphics.fill({ color: glowColor, alpha: 0.35 });
+    }
+
+    // Main node shape based on type
+    if (nodeType === 'keystone') {
+      // Diamond shape for keystones
+      graphics.moveTo(0, -radius);
+      graphics.lineTo(radius, 0);
+      graphics.lineTo(0, radius);
+      graphics.lineTo(-radius, 0);
+      graphics.closePath();
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.7 });
+      graphics.stroke({ width: 3, color: isAllocated ? 0xffd700 : 0x6a5a4a });
+    } else if (nodeType === 'notable') {
+      // Octagon for notables
+      const sides = 8;
+      for (let i = 0; i < sides; i++) {
+        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) graphics.moveTo(x, y);
+        else graphics.lineTo(x, y);
+      }
+      graphics.closePath();
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.7 });
+      graphics.stroke({ width: 2, color: isAllocated ? 0x00bfff : 0x4a6278 });
+    } else if (nodeType === 'jewel') {
+      // Hexagon for jewel sockets
+      const sides = 6;
+      for (let i = 0; i < sides; i++) {
+        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) graphics.moveTo(x, y);
+        else graphics.lineTo(x, y);
+      }
+      graphics.closePath();
+      graphics.fill({ color: 0x1a1a2e, alpha: 0.8 });
+      graphics.stroke({ width: 3, color: isAllocated ? 0x9932cc : 0x5a4a6a });
+
+      // Inner circle
+      graphics.circle(0, 0, radius * 0.5);
+      graphics.stroke({ width: 2, color: isAllocated ? 0xcc66ff : 0x4a3a5a });
+    } else if (nodeType === 'mastery') {
+      // Star shape for masteries
+      graphics.circle(0, 0, radius);
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.6 });
+      graphics.stroke({ width: 2, color: isAllocated ? 0xff69b4 : 0x6b4a5e });
+
+      // Inner pattern
+      graphics.circle(0, 0, radius * 0.4);
+      graphics.fill({ color: 0xffffff, alpha: 0.3 });
+    } else {
+      // Circle for small passives
+      graphics.circle(0, 0, radius);
+      graphics.fill({ color, alpha: isAllocated ? 1 : 0.6 });
+      graphics.stroke({ width: 1.5, color: isAllocated ? 0x90ee90 : 0x4a5a4a });
+    }
+
+    container.addChild(graphics);
+
+    // Add inner symbol for some types
+    if (nodeType === 'keystone' && isAllocated) {
+      const inner = new Graphics();
+      inner.circle(0, 0, radius * 0.3);
+      inner.fill({ color: 0xffffff, alpha: 0.9 });
+      container.addChild(inner);
+    }
   }
 
   // Add name label for keystones and notables
   if ((nodeType === 'keystone' || nodeType === 'notable') && node.name) {
     const style = new TextStyle({
-      fontFamily: 'Arial',
-      fontSize: nodeType === 'keystone' ? 12 : 10,
+      fontFamily: 'Arial, sans-serif',
+      fontSize: nodeType === 'keystone' ? 14 : 11,
+      fontWeight: nodeType === 'keystone' ? 'bold' : 'normal',
       fill: isAllocated ? 0xffffff : 0xaaaaaa,
       align: 'center',
       wordWrap: true,
-      wordWrapWidth: 100
+      wordWrapWidth: 120,
+      dropShadow: {
+        color: 0x000000,
+        blur: 4,
+        distance: 1
+      }
     });
 
-    const text = new Text({ text: truncateText(node.name, 20), style });
+    const radius = getNodeRadius(nodeType);
+    const text = new Text({ text: truncateText(node.name, 25), style });
     text.anchor.set(0.5, 0);
-    text.position.set(0, radius + 5);
+    text.position.set(0, radius + 8);
     container.addChild(text);
   }
 
@@ -406,7 +591,7 @@ function centerViewport(viewport, treeData, allocatedNodes) {
     const centerY = (bounds.minY + bounds.maxY) / 2;
 
     viewport.moveCenter(centerX, centerY);
-    viewport.setZoom(0.1); // Start zoomed out to see full tree
+    viewport.setZoom(0.08); // Start zoomed out to see full tree
   }
 }
 

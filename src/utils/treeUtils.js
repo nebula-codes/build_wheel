@@ -1,7 +1,43 @@
 // Utility functions for PoE skill tree data processing
 
-// GGG's official skill tree data URL
-export const TREE_DATA_URL = 'https://raw.githubusercontent.com/grindinggear/skilltree-export/master/data.json';
+// Base URL for GGG's skill tree data
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/grindinggear/skilltree-export';
+
+// Available league versions with their details
+export const LEAGUE_VERSIONS = [
+  { version: '3.27.0g', name: 'Legacy of Phrecia 2', tag: '3.27.0g', isLatest: true },
+  { version: '3.27.0', name: 'Keepers of the Flame', tag: '3.27.0' },
+  { version: '3.26.0', name: 'Secrets of the Atlas', tag: '3.26.0' },
+  { version: '3.25.3d', name: 'Legacy of Phrecia', tag: '3.25.3d', hasAlternateAscendancies: true },
+  { version: '3.25.0', name: 'Settlers of Kalguur', tag: '3.25.0' },
+  { version: '3.24.0', name: 'Necropolis', tag: '3.24.0' },
+  { version: '3.23.0', name: 'Affliction', tag: '3.23.0' },
+];
+
+// Tree variants available
+export const TREE_VARIANTS = [
+  { id: 'default', name: 'Standard', file: 'data.json' },
+  { id: 'alternate', name: 'Alternate Ascendancies', file: 'alternate.json' },
+  { id: 'ruthless', name: 'Ruthless', file: 'ruthless.json' },
+];
+
+/**
+ * Get the URL for tree data based on version and variant
+ */
+export function getTreeDataUrl(version = 'master', variant = 'default') {
+  const variantInfo = TREE_VARIANTS.find(v => v.id === variant) || TREE_VARIANTS[0];
+  return `${GITHUB_RAW_BASE}/${version}/${variantInfo.file}`;
+}
+
+/**
+ * Get the URL for sprite assets
+ */
+export function getSpriteUrl(version = 'master', spritePath) {
+  return `${GITHUB_RAW_BASE}/${version}/assets/${spritePath}`;
+}
+
+// Default tree data URL (latest)
+export const TREE_DATA_URL = getTreeDataUrl('master');
 
 // Orbit configuration - how many nodes can fit in each orbit ring
 export const SKILLS_PER_ORBIT = [1, 6, 16, 16, 40];
@@ -160,7 +196,7 @@ function parsePassiveTreeBytes(bytes) {
 /**
  * Process raw GGG tree data into a renderable format
  */
-export function processTreeData(raw) {
+export function processTreeData(raw, leagueVersion = 'master') {
   const nodes = {};
   const groups = {};
 
@@ -184,6 +220,9 @@ export function processTreeData(raw) {
       id: parseInt(nodeId),
       name: node.name || node.dn || '',
       icon: node.icon,
+      activeIcon: node.activeIcon,
+      inactiveIcon: node.inactiveIcon,
+      activeEffectImage: node.activeEffectImage,
       stats: node.stats || node.sd || [],
       group: node.group || node.g,
       orbit: node.orbit ?? node.o ?? 0,
@@ -199,7 +238,12 @@ export function processTreeData(raw) {
       isMultipleChoiceOption: node.isMultipleChoiceOption || false,
       ascendancyName: node.ascendancyName,
       classStartIndex: node.classStartIndex,
-      flavourText: node.flavourText
+      flavourText: node.flavourText,
+      recipe: node.recipe, // For masteries
+      grantedStrength: node.grantedStrength,
+      grantedDexterity: node.grantedDexterity,
+      grantedIntelligence: node.grantedIntelligence,
+      grantedPassivePoints: node.grantedPassivePoints
     };
   }
 
@@ -212,7 +256,8 @@ export function processTreeData(raw) {
     ascendancies: (cls.ascendancies || []).map(asc => ({
       id: asc.id,
       name: asc.name,
-      flavourText: asc.flavourText
+      flavourText: asc.flavourText,
+      flavourTextColour: asc.flavourTextColour
     }))
   }));
 
@@ -222,11 +267,19 @@ export function processTreeData(raw) {
     orbitRadii: ORBIT_RADII
   };
 
+  // Process sprite information
+  const sprites = {
+    skillSprites: raw.skillSprites || {},
+    assets: raw.assets || {},
+    imageZoomLevels: raw.imageZoomLevels || [0.1246, 0.2109, 0.2972, 0.3835]
+  };
+
   return {
     nodes,
     groups,
     classes,
     constants,
+    sprites,
     bounds: {
       minX: raw.min_x || -10000,
       maxX: raw.max_x || 10000,
@@ -234,7 +287,9 @@ export function processTreeData(raw) {
       maxY: raw.max_y || 10000
     },
     imageRoot: raw.imageRoot || 'https://web.poecdn.com/image/',
-    version: raw.tree || 'unknown'
+    assetsRoot: `${GITHUB_RAW_BASE}/${leagueVersion}/assets/`,
+    version: raw.tree || 'unknown',
+    leagueVersion
   };
 }
 
