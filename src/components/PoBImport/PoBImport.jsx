@@ -1,19 +1,22 @@
 import { useState, useMemo } from 'react';
-import { decodeTreeUrl, decodePobCode, CLASS_NAMES, ASCENDANCY_NAMES, extractKeystones } from '../../utils/pobParser';
-import { GemBadge, GemLinkGroup } from '../GemLinks/GemLinks';
+import { decodeTreeUrl, decodePobCode, CLASS_NAMES, ASCENDANCY_NAMES } from '../../utils/pobParser';
+import { GemBadge } from '../GemLinks/GemLinks';
 import EquipmentDisplay from '../EquipmentDisplay';
 import SkillTree from '../SkillTree/SkillTree';
 
 /**
  * Enhanced PoB code/URL import component with full build visualization
+ * Supports multiple specs/progression stages
  */
-export default function PoBImport({ onImport, onViewTree, className = '' }) {
+export default function PoBImport({ onImport, className = '' }) {
   const [input, setInput] = useState('');
   const [parsedBuild, setParsedBuild] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('tree');
   const [showImportPanel, setShowImportPanel] = useState(true);
+  const [selectedSpecIndex, setSelectedSpecIndex] = useState(0);
+  const [selectedSkillSetIndex, setSelectedSkillSetIndex] = useState(0);
 
   const handleParse = async () => {
     if (!input.trim()) {
@@ -38,16 +41,26 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
 
         setParsedBuild({
           type: 'tree',
+          specs: [{
+            index: 0,
+            title: 'Imported Tree',
+            nodes: treeData.nodes,
+            nodeCount: treeData.nodes.length,
+          }],
+          activeSpec: 0,
           allocatedNodes: treeData.nodes,
           classId: treeData.classId,
           ascendancyId: treeData.ascendancyId,
           className: CLASS_NAMES[treeData.classId] || 'Unknown',
           ascendancyName: ASCENDANCY_NAMES[treeData.classId]?.[treeData.ascendancyId] || 'None',
           url: trimmed,
+          skillGroups: [],
           gems: [],
           equipment: [],
+          itemSets: [],
         });
         setShowImportPanel(false);
+        setSelectedSpecIndex(0);
       }
       // Check if it's a PoB code (base64-ish string)
       else if (trimmed.length > 50 && !trimmed.includes(' ')) {
@@ -60,9 +73,12 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
         setParsedBuild({
           type: 'pob',
           ...pobData,
-          allocatedNodes: pobData.allocatedNodes || [],
         });
         setShowImportPanel(false);
+        setSelectedSpecIndex(pobData.activeSpec || 0);
+        // Find active skill set
+        const activeSet = pobData.skillGroups?.findIndex(s => s.isActive);
+        setSelectedSkillSetIndex(activeSet >= 0 ? activeSet : 0);
       }
       // Could be a pastebin URL
       else if (trimmed.includes('pastebin.com')) {
@@ -83,6 +99,8 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
     setInput('');
     setShowImportPanel(true);
     setActiveTab('tree');
+    setSelectedSpecIndex(0);
+    setSelectedSkillSetIndex(0);
   };
 
   const handleImport = () => {
@@ -91,42 +109,27 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
     }
   };
 
-  // Categorize gems into skill groups
-  const gemGroups = useMemo(() => {
-    if (!parsedBuild?.gems) return { main: [], auras: [], utility: [], other: [] };
+  // Get current spec data
+  const currentSpec = useMemo(() => {
+    if (!parsedBuild?.specs?.length) return null;
+    return parsedBuild.specs[selectedSpecIndex] || parsedBuild.specs[0];
+  }, [parsedBuild, selectedSpecIndex]);
 
-    const enabledGems = parsedBuild.gems.filter(g => g.enabled !== false);
+  // Get current skill set
+  const currentSkillSet = useMemo(() => {
+    if (!parsedBuild?.skillGroups?.length) return null;
+    return parsedBuild.skillGroups[selectedSkillSetIndex] || parsedBuild.skillGroups[0];
+  }, [parsedBuild, selectedSkillSetIndex]);
 
-    // Keywords for categorization
-    const auraKeywords = ['Aura', 'Herald', 'Aspect', 'Purity', 'Determination', 'Grace', 'Discipline', 'Vitality', 'Clarity', 'Hatred', 'Wrath', 'Anger', 'Zealotry', 'Malevolence', 'Pride', 'Defiance Banner', 'War Banner', 'Dread Banner'];
-    const movementKeywords = ['Dash', 'Leap Slam', 'Flame Dash', 'Shield Charge', 'Whirling Blades', 'Blink Arrow', 'Frostblink', 'Lightning Warp'];
-    const supportKeywords = ['Support', 'Awakened'];
-
-    const isSupport = (name) => supportKeywords.some(kw => name.includes(kw));
-    const isAura = (name) => auraKeywords.some(kw => name.includes(kw));
-    const isMovement = (name) => movementKeywords.some(kw => name.includes(kw));
-
-    const activeGems = enabledGems.filter(g => !isSupport(g.name || ''));
-    const supportGems = enabledGems.filter(g => isSupport(g.name || ''));
-
-    // Find main skill (highest level non-aura, non-movement active)
-    const mainSkills = activeGems.filter(g => !isAura(g.name) && !isMovement(g.name));
-    const auras = activeGems.filter(g => isAura(g.name));
-    const movement = activeGems.filter(g => isMovement(g.name));
-
-    return {
-      main: mainSkills,
-      supports: supportGems,
-      auras,
-      movement,
-      all: enabledGems,
-    };
-  }, [parsedBuild?.gems]);
+  // Get allocated nodes for current spec
+  const currentNodes = useMemo(() => {
+    return currentSpec?.nodes || parsedBuild?.allocatedNodes || [];
+  }, [currentSpec, parsedBuild]);
 
   const tabs = [
     { id: 'tree', label: 'Skill Tree', icon: '🌳' },
+    { id: 'skills', label: 'Skills', icon: '💎', count: currentSkillSet?.groups?.length },
     { id: 'gear', label: 'Equipment', icon: '🎒', count: parsedBuild?.equipment?.length },
-    { id: 'gems', label: 'Gems', icon: '💎', count: parsedBuild?.gems?.filter(g => g.enabled !== false).length },
     { id: 'stats', label: 'Build Info', icon: '📊' },
   ];
 
@@ -165,37 +168,75 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
 
         {/* Build Overview (when loaded) */}
         {parsedBuild && (
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">⚔️</span>
-              <div>
-                <div className="text-white font-semibold">
-                  {parsedBuild.ascendClassName || parsedBuild.ascendancyName || parsedBuild.className || 'Unknown'} Build
-                </div>
-                <div className="text-xs text-gray-500">
-                  {parsedBuild.className}
-                  {parsedBuild.level && ` • Level ${parsedBuild.level}`}
+          <div className="mt-4">
+            <div className="flex flex-wrap items-center gap-4 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">⚔️</span>
+                <div>
+                  <div className="text-white font-semibold">
+                    {parsedBuild.ascendClassName || parsedBuild.ascendancyName || parsedBuild.className || 'Unknown'} Build
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {parsedBuild.className}
+                    {parsedBuild.level && ` • Level ${parsedBuild.level}`}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="text-center">
-                <div className="text-cyan-400 font-semibold">{parsedBuild.allocatedNodes?.length || 0}</div>
-                <div className="text-xs text-gray-500">Passives</div>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="text-center">
+                  <div className="text-cyan-400 font-semibold">{currentNodes.length}</div>
+                  <div className="text-xs text-gray-500">Passives</div>
+                </div>
+                {currentSkillSet && (
+                  <div className="text-center">
+                    <div className="text-purple-400 font-semibold">{currentSkillSet.groups?.length || 0}</div>
+                    <div className="text-xs text-gray-500">Skill Groups</div>
+                  </div>
+                )}
+                {parsedBuild.equipment && (
+                  <div className="text-center">
+                    <div className="text-amber-400 font-semibold">{parsedBuild.equipment.filter(e => e.rarity === 'Unique').length}</div>
+                    <div className="text-xs text-gray-500">Uniques</div>
+                  </div>
+                )}
               </div>
-              {parsedBuild.gems && (
-                <div className="text-center">
-                  <div className="text-purple-400 font-semibold">{parsedBuild.gems.filter(g => g.enabled !== false).length}</div>
-                  <div className="text-xs text-gray-500">Gems</div>
-                </div>
-              )}
-              {parsedBuild.equipment && (
-                <div className="text-center">
-                  <div className="text-amber-400 font-semibold">{parsedBuild.equipment.filter(e => e.rarity === 'Unique').length}</div>
-                  <div className="text-xs text-gray-500">Uniques</div>
-                </div>
-              )}
             </div>
+
+            {/* Spec/Progression Selector */}
+            {parsedBuild.specs?.length > 1 && (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs text-gray-500">Progression:</span>
+                <select
+                  value={selectedSpecIndex}
+                  onChange={(e) => setSelectedSpecIndex(parseInt(e.target.value))}
+                  className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white focus:border-cyan-500 focus:outline-none"
+                >
+                  {parsedBuild.specs.map((spec, idx) => (
+                    <option key={idx} value={idx}>
+                      {spec.title} ({spec.nodeCount} points)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Skill Set Selector */}
+            {parsedBuild.skillGroups?.length > 1 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Skill Set:</span>
+                <select
+                  value={selectedSkillSetIndex}
+                  onChange={(e) => setSelectedSkillSetIndex(parseInt(e.target.value))}
+                  className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white focus:border-cyan-500 focus:outline-none"
+                >
+                  {parsedBuild.skillGroups.map((set, idx) => (
+                    <option key={idx} value={idx}>
+                      {set.title} {set.isActive && '(Active)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -216,7 +257,6 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
               />
             </div>
 
-            {/* Parse button */}
             <div className="flex items-center gap-3">
               <button
                 onClick={handleParse}
@@ -245,7 +285,6 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
               </div>
             </div>
 
-            {/* Error */}
             {error && (
               <div className="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
                 {error}
@@ -286,9 +325,10 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium text-white flex items-center gap-2">
-                    <span className="text-lg">🌳</span> Passive Skill Tree
+                    <span className="text-lg">🌳</span>
+                    {currentSpec?.title || 'Passive Skill Tree'}
                     <span className="text-xs text-gray-500">
-                      ({parsedBuild.allocatedNodes?.length || 0} points)
+                      ({currentNodes.length} points)
                     </span>
                   </h4>
                   {parsedBuild.url && (
@@ -303,18 +343,39 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
                   )}
                 </div>
 
-                {/* Embedded Skill Tree */}
                 <div className="rounded-lg overflow-hidden border border-gray-700">
                   <SkillTree
-                    allocatedNodes={parsedBuild.allocatedNodes || []}
+                    allocatedNodes={currentNodes}
                     ascendancyName={parsedBuild.ascendClassName || parsedBuild.ascendancyName}
                     className="w-full"
                   />
                 </div>
+              </div>
+            )}
 
-                {/* Keystones Summary */}
-                {parsedBuild.allocatedNodes?.length > 0 && (
-                  <KeystonesSummary allocatedNodes={parsedBuild.allocatedNodes} />
+            {/* Skills Tab - Show Gem Link Groups */}
+            {activeTab === 'skills' && (
+              <div className="space-y-6">
+                {currentSkillSet?.groups?.length > 0 ? (
+                  currentSkillSet.groups.map((group, idx) => (
+                    <GemLinkGroupDisplay key={idx} group={group} />
+                  ))
+                ) : parsedBuild.gems?.length > 0 ? (
+                  // Fallback to flat gem list
+                  <div>
+                    <h4 className="text-sm font-medium text-white mb-3">All Gems</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {parsedBuild.gems.filter(g => g.enabled !== false).map((gem, i) => (
+                        <GemBadge key={i} name={gem.name} size="sm" />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <span className="text-4xl mb-4 block">💎</span>
+                    <p>No skill data available</p>
+                    <p className="text-xs mt-1">Skill info is only available from full PoB codes</p>
+                  </div>
                 )}
               </div>
             )}
@@ -325,76 +386,6 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
                 <EquipmentDisplay
                   equipment={parsedBuild.equipment || []}
                 />
-              </div>
-            )}
-
-            {/* Gems Tab */}
-            {activeTab === 'gems' && (
-              <div className="space-y-6">
-                {/* Main Skills */}
-                {gemGroups.main.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                      <span className="text-lg">⚔️</span> Active Skills ({gemGroups.main.length})
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {gemGroups.main.map((gem, i) => (
-                        <GemCard key={i} gem={gem} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Support Gems */}
-                {gemGroups.supports.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                      <span className="text-lg">🔗</span> Support Gems ({gemGroups.supports.length})
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {gemGroups.supports.map((gem, i) => (
-                        <GemBadge key={i} name={gem.name} size="sm" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Auras */}
-                {gemGroups.auras.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                      <span className="text-lg">✨</span> Auras & Heralds ({gemGroups.auras.length})
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {gemGroups.auras.map((gem, i) => (
-                        <GemBadge key={i} name={gem.name} size="sm" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Movement */}
-                {gemGroups.movement.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                      <span className="text-lg">🏃</span> Movement ({gemGroups.movement.length})
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {gemGroups.movement.map((gem, i) => (
-                        <GemBadge key={i} name={gem.name} size="sm" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* No gems */}
-                {gemGroups.all.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <span className="text-4xl mb-4 block">💎</span>
-                    <p>No gem data available</p>
-                    <p className="text-xs mt-1">Gem info is only available from full PoB codes</p>
-                  </div>
-                )}
               </div>
             )}
 
@@ -420,10 +411,62 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
                   />
                   <StatCard
                     label="Passive Points"
-                    value={parsedBuild.allocatedNodes?.length || 0}
+                    value={currentNodes.length}
                     icon="🌳"
                   />
                 </div>
+
+                {/* Specs Summary */}
+                {parsedBuild.specs?.length > 1 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-white mb-3">Progression Stages ({parsedBuild.specs.length})</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {parsedBuild.specs.map((spec, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setSelectedSpecIndex(idx);
+                            setActiveTab('tree');
+                          }}
+                          className={`p-3 rounded-lg border text-left transition-colors ${
+                            idx === selectedSpecIndex
+                              ? 'border-cyan-500 bg-cyan-900/20'
+                              : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                          }`}
+                        >
+                          <div className="text-sm text-white font-medium">{spec.title}</div>
+                          <div className="text-xs text-gray-500">{spec.nodeCount} points</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skill Sets Summary */}
+                {parsedBuild.skillGroups?.length > 1 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-white mb-3">Skill Sets ({parsedBuild.skillGroups.length})</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {parsedBuild.skillGroups.map((set, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setSelectedSkillSetIndex(idx);
+                            setActiveTab('skills');
+                          }}
+                          className={`p-3 rounded-lg border text-left transition-colors ${
+                            idx === selectedSkillSetIndex
+                              ? 'border-purple-500 bg-purple-900/20'
+                              : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                          }`}
+                        >
+                          <div className="text-sm text-white font-medium">{set.title}</div>
+                          <div className="text-xs text-gray-500">{set.groups?.length || 0} skill groups</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Equipment Summary */}
                 {parsedBuild.equipment && parsedBuild.equipment.length > 0 && (
@@ -451,42 +494,6 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
                         color="text-gray-400"
                       />
                     </div>
-                  </div>
-                )}
-
-                {/* Gem Summary */}
-                {parsedBuild.gems && parsedBuild.gems.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-3">Gem Summary</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <StatCard
-                        label="Active Skills"
-                        value={gemGroups.main.length}
-                        color="text-red-400"
-                      />
-                      <StatCard
-                        label="Support Gems"
-                        value={gemGroups.supports.length}
-                        color="text-blue-400"
-                      />
-                      <StatCard
-                        label="Auras"
-                        value={gemGroups.auras.length}
-                        color="text-green-400"
-                      />
-                      <StatCard
-                        label="Total Gems"
-                        value={gemGroups.all.length}
-                        color="text-purple-400"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Tree Version Info */}
-                {parsedBuild.treeSpec && (
-                  <div className="text-xs text-gray-500 border-t border-gray-800 pt-4">
-                    Tree Version: {parsedBuild.treeSpec}
                   </div>
                 )}
 
@@ -530,29 +537,134 @@ export default function PoBImport({ onImport, onViewTree, className = '' }) {
   );
 }
 
-// Helper Components
-function GemCard({ gem }) {
-  const getGemColor = (name) => {
-    if (name?.includes('Vaal')) return 'border-red-500 bg-red-900/20';
-    if (name?.includes('Awakened')) return 'border-purple-500 bg-purple-900/20';
-    return 'border-gray-600 bg-gray-800/30';
+// Gem Link Group Display Component
+function GemLinkGroupDisplay({ group }) {
+  const activeGems = group.gems.filter(g => !g.isSupport);
+  const supportGems = group.gems.filter(g => g.isSupport);
+  const mainSkill = group.gems.find(g => g.isMainSkill);
+
+  // Determine link color based on slot
+  const getLinkColor = () => {
+    if (group.slot?.includes('Weapon')) return 'border-red-700';
+    if (group.slot?.includes('Body')) return 'border-cyan-700';
+    if (group.slot?.includes('Helmet')) return 'border-purple-700';
+    if (group.slot?.includes('Gloves')) return 'border-green-700';
+    if (group.slot?.includes('Boots')) return 'border-amber-700';
+    return 'border-gray-700';
   };
 
+  if (!group.gems || group.gems.length === 0) return null;
+
   return (
-    <div className={`rounded-lg border p-3 ${getGemColor(gem.name)}`}>
-      <div className="flex items-center justify-between">
-        <span className="text-white font-medium text-sm">{gem.name}</span>
-        <div className="flex items-center gap-2 text-xs">
-          {gem.level && gem.level !== 20 && (
-            <span className="text-gray-400">Lvl {gem.level}</span>
-          )}
-          {gem.quality > 0 && (
-            <span className="text-blue-400">{gem.quality}%</span>
-          )}
+    <div className={`rounded-lg border-2 ${getLinkColor()} bg-gray-800/30 overflow-hidden`}>
+      {/* Header */}
+      <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-white font-medium">
+            {group.label || mainSkill?.name || `${group.linkCount}-Link`}
+          </span>
+          <span className="text-xs px-1.5 py-0.5 bg-gray-700 rounded text-gray-400">
+            {group.linkCount}L
+          </span>
         </div>
+        {group.slot && (
+          <span className="text-xs text-gray-500">{group.slot}</span>
+        )}
+      </div>
+
+      {/* Gems */}
+      <div className="p-4">
+        {/* Main/Active Skills */}
+        {activeGems.length > 0 && (
+          <div className="mb-3">
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Active Skills</div>
+            <div className="flex flex-wrap gap-2">
+              {activeGems.map((gem, i) => (
+                <div
+                  key={i}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
+                    gem.isMainSkill
+                      ? 'bg-amber-900/40 border border-amber-600'
+                      : 'bg-gray-700/50'
+                  }`}
+                >
+                  <GemSocket color={getGemSocketColor(gem.name)} size="sm" />
+                  <span className={`text-sm ${gem.isMainSkill ? 'text-amber-300 font-medium' : 'text-white'}`}>
+                    {gem.name}
+                  </span>
+                  {gem.level !== 20 && (
+                    <span className="text-xs text-gray-400">Lv{gem.level}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Support Gems */}
+        {supportGems.length > 0 && (
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+              Supports ({supportGems.length})
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {supportGems.map((gem, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-gray-700/30 text-xs"
+                >
+                  <GemSocket color={getGemSocketColor(gem.name)} size="xs" />
+                  <span className="text-gray-300">{gem.name.replace(' Support', '')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+// Small gem socket indicator
+function GemSocket({ color, size = 'sm' }) {
+  const sizeClasses = {
+    xs: 'w-2 h-2',
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+  };
+
+  const colorClasses = {
+    R: 'bg-red-500',
+    G: 'bg-green-500',
+    B: 'bg-blue-500',
+    W: 'bg-gray-300',
+  };
+
+  return (
+    <div className={`${sizeClasses[size]} ${colorClasses[color] || colorClasses.W} rounded-full`} />
+  );
+}
+
+// Get gem socket color based on name
+function getGemSocketColor(name) {
+  if (!name) return 'W';
+
+  const lowerName = name.toLowerCase();
+
+  // Strength (Red)
+  if (['strike', 'slam', 'melee', 'fortify', 'determination', 'vitality', 'anger', 'pride', 'blood', 'life', 'physical'].some(k => lowerName.includes(k))) {
+    return 'R';
+  }
+  // Dexterity (Green)
+  if (['arrow', 'shot', 'evasion', 'grace', 'haste', 'projectile', 'trap', 'mine', 'poison', 'bleed', 'frenzy'].some(k => lowerName.includes(k))) {
+    return 'G';
+  }
+  // Intelligence (Blue)
+  if (['spell', 'curse', 'aura', 'discipline', 'clarity', 'wrath', 'zealotry', 'energy', 'mana', 'cold', 'lightning', 'fire'].some(k => lowerName.includes(k))) {
+    return 'B';
+  }
+
+  return 'W';
 }
 
 function StatCard({ label, value, icon, color = 'text-white' }) {
@@ -561,19 +673,6 @@ function StatCard({ label, value, icon, color = 'text-white' }) {
       {icon && <span className="text-lg mb-1 block">{icon}</span>}
       <div className={`font-semibold ${color}`}>{value}</div>
       <div className="text-xs text-gray-500">{label}</div>
-    </div>
-  );
-}
-
-function KeystonesSummary({ allocatedNodes }) {
-  // This would need tree data to properly identify keystones
-  // For now, show a placeholder
-  return (
-    <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-3">
-      <div className="text-xs text-yellow-400 font-medium mb-1">Keystones</div>
-      <div className="text-xs text-gray-400">
-        Keystone detection requires loading tree data. View the tree above to see allocated keystones highlighted.
-      </div>
     </div>
   );
 }

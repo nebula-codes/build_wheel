@@ -135,7 +135,7 @@ export function decodePobCode(code) {
 }
 
 /**
- * Parse PoB XML content
+ * Parse PoB XML content - Enhanced to support multiple specs/progression
  */
 function parsePobXml(xml) {
   if (!xml) return null;
@@ -154,54 +154,136 @@ function parsePobXml(xml) {
       className: build?.getAttribute('className') || null,
       ascendClassName: build?.getAttribute('ascendClassName') || null,
       level: parseInt(build?.getAttribute('level') || '1'),
+      mainSocketGroup: parseInt(build?.getAttribute('mainSocketGroup') || '1'),
+      // Multiple specs/progression stages
+      specs: [],
+      activeSpec: 0,
+      // Gem link groups (organized by socket group)
+      skillGroups: [],
+      // All gems (flat list for compatibility)
+      gems: [],
+      // Items with full parsing
+      equipment: [],
+      // Item sets for different specs
+      itemSets: [],
+      // Legacy fields for compatibility
       treeSpec: null,
       allocatedNodes: [],
-      gems: [],
-      equipment: [],
     };
 
-    // Parse tree
+    // Parse all tree specs (progression stages)
     if (tree) {
-      const spec = tree.querySelector('Spec');
-      if (spec) {
-        result.treeSpec = spec.getAttribute('treeVersion');
-        const nodes = spec.getAttribute('nodes')?.split(',').map(n => parseInt(n)).filter(n => !isNaN(n)) || [];
-        result.allocatedNodes = nodes;
+      const activeSpecAttr = tree.getAttribute('activeSpec');
+      result.activeSpec = activeSpecAttr ? parseInt(activeSpecAttr) - 1 : 0; // Convert to 0-indexed
+
+      const specs = tree.querySelectorAll('Spec');
+      specs.forEach((spec, index) => {
+        const title = spec.getAttribute('title') || `Spec ${index + 1}`;
+        const treeVersion = spec.getAttribute('treeVersion');
+        const nodesStr = spec.getAttribute('nodes') || '';
+        const nodes = nodesStr.split(',').map(n => parseInt(n)).filter(n => !isNaN(n));
+
+        // Parse masteries if present
+        const masteryEffects = spec.getAttribute('masteryEffects') || '';
+
+        result.specs.push({
+          index,
+          title,
+          treeVersion,
+          nodes,
+          masteryEffects,
+          nodeCount: nodes.length,
+        });
+      });
+
+      // Set legacy fields from active spec
+      if (result.specs.length > 0) {
+        const activeSpec = result.specs[result.activeSpec] || result.specs[0];
+        result.treeSpec = activeSpec.treeVersion;
+        result.allocatedNodes = activeSpec.nodes;
       }
     }
 
-    // Parse gems from skill groups
+    // Parse skill groups (gem links)
     if (skills) {
-      const skillGroups = skills.querySelectorAll('Skill');
-      skillGroups.forEach(group => {
-        const gems = group.querySelectorAll('Gem');
-        gems.forEach(gem => {
-          result.gems.push({
-            name: gem.getAttribute('nameSpec') || gem.getAttribute('skillId'),
-            level: parseInt(gem.getAttribute('level') || '20'),
-            quality: parseInt(gem.getAttribute('quality') || '0'),
-            enabled: gem.getAttribute('enabled') !== 'false',
+      const activeSkillSet = parseInt(skills.getAttribute('activeSkillSet') || '1') - 1;
+      const skillSets = skills.querySelectorAll('SkillSet');
+
+      // If there are skill sets, parse them; otherwise parse direct Skill elements
+      if (skillSets.length > 0) {
+        skillSets.forEach((skillSet, setIndex) => {
+          const setTitle = skillSet.getAttribute('title') || `Skill Set ${setIndex + 1}`;
+          const groups = parseSkillGroups(skillSet, setIndex === activeSkillSet);
+          result.skillGroups.push({
+            setIndex,
+            title: setTitle,
+            isActive: setIndex === activeSkillSet,
+            groups,
           });
         });
-      });
+      } else {
+        // No skill sets, parse Skill elements directly
+        const groups = parseSkillGroups(skills, true);
+        result.skillGroups.push({
+          setIndex: 0,
+          title: 'Main',
+          isActive: true,
+          groups,
+        });
+      }
+
+      // Flatten gems for compatibility (from active skill set)
+      const activeSet = result.skillGroups.find(s => s.isActive) || result.skillGroups[0];
+      if (activeSet) {
+        activeSet.groups.forEach(group => {
+          group.gems.forEach(gem => {
+            result.gems.push(gem);
+          });
+        });
+      }
     }
 
-    // Parse equipment
+    // Parse items with full details
     if (items) {
-      const itemSlots = items.querySelectorAll('Item');
-      itemSlots.forEach(item => {
-        const text = item.textContent || '';
-        const lines = text.trim().split('\n');
-        if (lines.length > 0) {
-          const rarity = lines.find(l => l.startsWith('Rarity:'))?.replace('Rarity: ', '') || 'Normal';
-          const name = lines.find(l => !l.includes(':') && l.trim()) || 'Unknown';
-          result.equipment.push({
-            name: name.trim(),
-            rarity,
-            slot: item.getAttribute('id'),
+      const activeItemSet = parseInt(items.getAttribute('activeItemSet') || '1') - 1;
+
+      // Parse item sets
+      const itemSetElements = items.querySelectorAll('ItemSet');
+      if (itemSetElements.length > 0) {
+        itemSetElements.forEach((itemSet, setIndex) => {
+          const setTitle = itemSet.getAttribute('title') || `Item Set ${setIndex + 1}`;
+          const slots = parseItemSlots(itemSet);
+          result.itemSets.push({
+            setIndex,
+            title: setTitle,
+            isActive: setIndex === activeItemSet,
+            slots,
           });
+        });
+      }
+
+      // Parse all items (they're referenced by ID)
+      const itemElements = items.querySelectorAll('Item');
+      itemElements.forEach(item => {
+        const parsed = parseItemElement(item);
+        if (parsed) {
+          result.equipment.push(parsed);
         }
       });
+
+      // If we have item sets, map items to the active set's slots
+      if (result.itemSets.length > 0) {
+        const activeSet = result.itemSets.find(s => s.isActive) || result.itemSets[0];
+        if (activeSet) {
+          // Map slot references to actual items
+          activeSet.slots.forEach(slot => {
+            const item = result.equipment.find(e => e.id === slot.itemId);
+            if (item) {
+              item.slot = slot.slotName;
+            }
+          });
+        }
+      }
     }
 
     return result;
@@ -209,6 +291,191 @@ function parsePobXml(xml) {
     console.warn('Failed to parse PoB XML:', error);
     return null;
   }
+}
+
+/**
+ * Parse skill groups from a parent element
+ */
+function parseSkillGroups(parent, isActive) {
+  const groups = [];
+  const skillElements = parent.querySelectorAll(':scope > Skill');
+
+  skillElements.forEach((group, groupIndex) => {
+    const label = group.getAttribute('label') || '';
+    const slot = group.getAttribute('slot') || '';
+    const slotEnabled = group.getAttribute('slotEnabled') !== 'false';
+    const enabled = group.getAttribute('enabled') !== 'false';
+    const mainActiveSkill = parseInt(group.getAttribute('mainActiveSkill') || '1');
+
+    const gems = [];
+    const gemElements = group.querySelectorAll('Gem');
+
+    gemElements.forEach((gem, gemIndex) => {
+      const gemData = {
+        name: gem.getAttribute('nameSpec') || gem.getAttribute('skillId') || '',
+        level: parseInt(gem.getAttribute('level') || '20'),
+        quality: parseInt(gem.getAttribute('quality') || '0'),
+        qualityId: gem.getAttribute('qualityId') || 'Default',
+        enabled: gem.getAttribute('enabled') !== 'false',
+        skillId: gem.getAttribute('skillId') || '',
+        gemId: gem.getAttribute('gemId') || '',
+        isSupport: isGemSupport(gem.getAttribute('nameSpec') || gem.getAttribute('skillId') || ''),
+        isMainSkill: gemIndex + 1 === mainActiveSkill && !isGemSupport(gem.getAttribute('nameSpec') || ''),
+      };
+      gems.push(gemData);
+    });
+
+    // Determine socket color pattern based on gems
+    const socketColors = gems.map(g => getGemColor(g.name)).join('');
+
+    groups.push({
+      groupIndex,
+      label: label || `Group ${groupIndex + 1}`,
+      slot,
+      slotEnabled,
+      enabled,
+      mainActiveSkill,
+      gems,
+      socketColors,
+      linkCount: gems.length,
+      isActive,
+    });
+  });
+
+  return groups;
+}
+
+/**
+ * Parse item slots from an ItemSet element
+ */
+function parseItemSlots(itemSet) {
+  const slots = [];
+  const slotElements = itemSet.querySelectorAll('Slot');
+
+  slotElements.forEach(slot => {
+    const slotName = slot.getAttribute('name') || '';
+    const itemId = slot.getAttribute('itemId') || '';
+
+    if (slotName && itemId) {
+      slots.push({
+        slotName,
+        itemId,
+      });
+    }
+  });
+
+  return slots;
+}
+
+/**
+ * Parse a single item element
+ */
+function parseItemElement(item) {
+  const text = item.textContent || '';
+  const lines = text.trim().split('\n').map(l => l.trim()).filter(l => l);
+
+  if (lines.length === 0) return null;
+
+  const id = item.getAttribute('id') || '';
+
+  // Parse item properties
+  let rarity = 'Normal';
+  let name = '';
+  let baseName = '';
+  let itemLevel = 0;
+  let sockets = '';
+  const mods = [];
+  const implicitMods = [];
+
+  let parsingSection = 'header';
+
+  lines.forEach((line, idx) => {
+    if (line.startsWith('Rarity:')) {
+      rarity = line.replace('Rarity:', '').trim();
+    } else if (line.startsWith('Item Level:')) {
+      itemLevel = parseInt(line.replace('Item Level:', '').trim()) || 0;
+    } else if (line.startsWith('Sockets:')) {
+      sockets = line.replace('Sockets:', '').trim();
+    } else if (line.startsWith('Implicits:')) {
+      parsingSection = 'implicit';
+    } else if (line === '{crafted}' || line === '{fractured}' || line === '{tags:}') {
+      // Skip mod tags
+    } else if (!line.includes(':') && parsingSection === 'header' && !name) {
+      // First non-property line is the name
+      name = line;
+    } else if (!line.includes(':') && parsingSection === 'header' && name && !baseName) {
+      // Second non-property line might be base name
+      baseName = line;
+    } else if (parsingSection === 'implicit' && !line.startsWith('{')) {
+      implicitMods.push(line);
+    } else if (!line.includes(':') && !line.startsWith('{') && line.length > 2) {
+      // Could be a mod
+      if (parsingSection !== 'implicit') {
+        mods.push(line);
+      }
+    }
+  });
+
+  // For unique items, the first line after rarity is the unique name, second is base
+  // For rare items, first is the rare name, second is base
+  if (!baseName && rarity === 'Unique') {
+    // Try to identify base from common unique naming
+    baseName = name;
+  }
+
+  return {
+    id,
+    name: name || 'Unknown Item',
+    baseName: baseName || name,
+    rarity,
+    itemLevel,
+    sockets,
+    implicitMods,
+    mods: mods.slice(0, 10), // Limit mods to prevent huge data
+    slot: '', // Will be filled in by slot mapping
+  };
+}
+
+/**
+ * Check if a gem name indicates it's a support gem
+ */
+function isGemSupport(name) {
+  if (!name) return false;
+  const supportIndicators = [
+    'Support',
+    ' of ', // "Cast on Critical Strike", etc. but could be support
+  ];
+  const definiteSupports = [
+    'Increased', 'Added', 'Greater', 'Lesser', 'Faster', 'Slower',
+    'Awakened', 'Empower', 'Enlighten', 'Enhance',
+  ];
+
+  if (supportIndicators.some(ind => name.includes(ind))) return true;
+  if (definiteSupports.some(s => name.startsWith(s + ' '))) return true;
+
+  return false;
+}
+
+/**
+ * Get gem socket color based on gem name/type
+ */
+function getGemColor(name) {
+  if (!name) return 'W';
+
+  // Strength (Red) gems
+  const redKeywords = ['Slam', 'Strike', 'Melee', 'Fortify', 'Determination', 'Vitality', 'Anger', 'Pride'];
+  // Dexterity (Green) gems
+  const greenKeywords = ['Arrow', 'Shot', 'Evasion', 'Grace', 'Haste', 'Projectile', 'Trap', 'Mine'];
+  // Intelligence (Blue) gems
+  const blueKeywords = ['Spell', 'Curse', 'Aura', 'Discipline', 'Clarity', 'Wrath', 'Zealotry'];
+
+  const lowerName = name.toLowerCase();
+
+  if (redKeywords.some(k => lowerName.includes(k.toLowerCase()))) return 'R';
+  if (greenKeywords.some(k => lowerName.includes(k.toLowerCase()))) return 'G';
+  if (blueKeywords.some(k => lowerName.includes(k.toLowerCase()))) return 'B';
+
+  return 'W'; // White/wildcard
 }
 
 /**
