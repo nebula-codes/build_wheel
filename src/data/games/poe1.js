@@ -26,6 +26,38 @@ export const poe1 = {
           gameplay: 'Clear by spamming attacks through packs using Quartz Flask for phasing. For single target, enable Barrage Support and continuously attack. Use Flame Dash and Blink Arrow for mobility.',
           guideUrl: 'https://maxroll.gg/poe/build-guides/elemental-hit-of-the-spectrum-deadeye-league-starter',
           plannerUrl: null,
+          // Pantheon & Bandit recommendations
+          pantheon: {
+            major: 'Soul of Lunaris',
+            minor: 'Soul of Garukhan',
+          },
+          bandit: 'Kill All',
+          // Build progression data
+          progression: {
+            starter: {
+              description: 'Focus on getting your Elemental Hit linked and capping resistances.',
+              items: ['Quill Rain', 'Tabula Rasa'],
+              gems: ['Elemental Hit', 'Elemental Damage with Attacks Support', 'Combustion Support'],
+              tips: ['Use Quill Rain until you can afford a better bow', 'Get life and resistances on all rare slots'],
+            },
+            budget: {
+              description: 'First real upgrades that improve clear speed significantly.',
+              items: ['Hyrri\'s Truth', 'Hyrri\'s Ire', 'Yoke of Suffering'],
+              gems: ['Trinity Support', 'Inspiration Support'],
+              tips: ['Hyrri\'s Truth is core for the build', 'Get a 5-link Hyrri\'s Ire'],
+            },
+            midgame: {
+              description: 'Ready for red maps and early bosses.',
+              items: ['The Taming', 'Death Rush', 'Dying Sun'],
+              gems: ['Awakened Elemental Damage with Attacks'],
+              tips: ['6-link your chest', 'Get Dying Sun for extra projectiles'],
+            },
+            endgame: {
+              description: 'All content viable including Uber bosses.',
+              items: ['Mageblood', 'Crystallised Omniscience'],
+              tips: ['Consider switching to Omniscience version', 'Perfect your flasks'],
+            },
+          },
         },
         {
           id: 'kinetic-blast-deadeye',
@@ -44,6 +76,28 @@ export const poe1 = {
           gameplay: 'Use Kinetic Blast for pack clearing with explosive overlapping damage. Power Siphon for single target. Maintain Sniper\'s Mark on bosses. Endgame can use Headhunter for Map Blaster variant.',
           guideUrl: 'https://maxroll.gg/poe/build-guides/league-starter/kinetic-blast-deadeye-league-starter',
           plannerUrl: null,
+          pantheon: {
+            major: 'Soul of Solaris',
+            minor: 'Soul of Shakari',
+          },
+          bandit: 'Help Alira',
+          progression: {
+            starter: {
+              description: 'Get a Piscator\'s Vigil and start blasting.',
+              items: ['Piscator\'s Vigil', 'Tabula Rasa', 'Praxis'],
+              tips: ['Piscator\'s is very cheap early league', 'Stack flat elemental damage on gear'],
+            },
+            budget: {
+              description: 'Upgrade to proper wand and chest.',
+              items: ['Crown of Eyes', 'Hyrri\'s Ire'],
+              tips: ['Crown of Eyes converts spell damage to attacks', '5-link is enough for mapping'],
+            },
+            endgame: {
+              description: 'Map blaster mode with Headhunter.',
+              items: ['Headhunter', 'Inspired Learning'],
+              tips: ['Headhunter makes you a god in maps', 'Consider Mageblood for more consistency'],
+            },
+          },
         },
         {
           id: 'storm-rain-deadeye',

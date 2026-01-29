@@ -1,0 +1,327 @@
+import { useState, useEffect, useCallback } from 'react';
+import {
+  fetchBuildStats,
+  fetchTopBuildsForSkill,
+  fetchAscendancyRankings,
+  fetchTrendingKeystones,
+  getCurrentLeague,
+} from '../../utils/poeNinjaApi';
+import { GemBadge } from '../GemLinks/GemLinks';
+
+// Available leagues
+const LEAGUES = [
+  { id: 'Phrecia', name: 'Phrecia (Current)' },
+  { id: 'Standard', name: 'Standard' },
+  { id: 'Hardcore', name: 'Hardcore' },
+  { id: 'Hardcore Phrecia', name: 'Hardcore Phrecia' },
+];
+
+/**
+ * Live poe.ninja builds browser with league selection
+ */
+export default function LiveBuildsPanel({ onSelectBuild, className = '' }) {
+  const [selectedLeague, setSelectedLeague] = useState('Phrecia');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [buildStats, setBuildStats] = useState(null);
+  const [ascendancyRankings, setAscendancyRankings] = useState([]);
+  const [trendingKeystones, setTrendingKeystones] = useState([]);
+  const [selectedSkill, setSelectedSkill] = useState(null);
+  const [skillBuilds, setSkillBuilds] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'ascendancies', 'keystones', 'skills'
+
+  // Fetch data when league changes
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [stats, ascendancies, keystones] = await Promise.all([
+        fetchBuildStats(selectedLeague),
+        fetchAscendancyRankings(selectedLeague),
+        fetchTrendingKeystones(selectedLeague, 15),
+      ]);
+
+      setBuildStats(stats);
+      setAscendancyRankings(ascendancies);
+      setTrendingKeystones(keystones);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch data from poe.ninja');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedLeague]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Fetch builds for a specific skill
+  const handleSkillClick = async (skillName) => {
+    setSelectedSkill(skillName);
+    setLoading(true);
+
+    try {
+      const builds = await fetchTopBuildsForSkill(skillName, selectedLeague, 10);
+      setSkillBuilds(builds);
+    } catch (err) {
+      setError('Failed to fetch skill builds');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className={`bg-gray-900/50 rounded-lg border border-gray-800 ${className}`}>
+      {/* Header with league selector */}
+      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <img
+              src="https://web.poecdn.com/protected/image/layout/logo-b01.png?key=Bbhn2u8m5S8s7WGkPqq6rQ"
+              alt="PoE"
+              className="h-5"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+            Live poe.ninja Data
+          </h3>
+          <p className="text-xs text-gray-500 mt-0.5">Real-time build statistics from the ladder</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <select
+            value={selectedLeague}
+            onChange={(e) => setSelectedLeague(e.target.value)}
+            className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white focus:border-blue-500 focus:outline-none"
+          >
+            {LEAGUES.map((league) => (
+              <option key={league.id} value={league.id}>
+                {league.name}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="p-2 bg-gray-800 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+          >
+            <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-gray-800">
+        {[
+          { id: 'overview', label: 'Overview' },
+          { id: 'ascendancies', label: 'Ascendancies' },
+          { id: 'keystones', label: 'Keystones' },
+          { id: 'skills', label: 'Top Skills' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'text-blue-400 border-b-2 border-blue-400 -mb-px'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        {error && (
+          <div className="text-red-400 text-sm bg-red-900/20 border border-red-800 rounded p-3 mb-4">
+            {error}
+            <button onClick={fetchData} className="ml-2 underline">
+              Retry
+            </button>
+          </div>
+        )}
+
+        {loading && !buildStats && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+          </div>
+        )}
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && buildStats && (
+          <div className="space-y-6">
+            {/* Stats summary */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-white">
+                  {buildStats.totalBuilds?.toLocaleString() || 0}
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider">Total Builds</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-green-400">
+                  {ascendancyRankings[0]?.name || '-'}
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider">Top Ascendancy</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-purple-400">
+                  {trendingKeystones[0]?.name || '-'}
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider">Top Keystone</div>
+              </div>
+            </div>
+
+            {/* Quick lists */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-medium text-white mb-2">Top 5 Ascendancies</h4>
+                <div className="space-y-1">
+                  {ascendancyRankings.slice(0, 5).map((asc, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300">{asc.name}</span>
+                      <span className="text-gray-500">{asc.percentage}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-white mb-2">Top 5 Keystones</h4>
+                <div className="space-y-1">
+                  {trendingKeystones.slice(0, 5).map((ks, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300">{ks.name}</span>
+                      <span className="text-gray-500">{ks.percentage}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Ascendancies Tab */}
+        {activeTab === 'ascendancies' && (
+          <div className="space-y-2">
+            {ascendancyRankings.map((asc, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors"
+              >
+                <span className="text-lg font-bold text-gray-600 w-6">#{asc.rank}</span>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-white">{asc.name}</div>
+                  <div className="text-xs text-gray-500">{asc.count?.toLocaleString()} builds</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-blue-400">{asc.percentage}%</div>
+                  <div className="w-24 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-500 rounded-full"
+                      style={{ width: `${Math.min(asc.percentage * 2, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Keystones Tab */}
+        {activeTab === 'keystones' && (
+          <div className="space-y-2">
+            {trendingKeystones.map((ks, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors"
+              >
+                <span className="text-lg font-bold text-gray-600 w-6">#{idx + 1}</span>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-amber-300">{ks.name}</div>
+                  <div className="text-xs text-gray-500">{ks.count?.toLocaleString()} builds</div>
+                </div>
+                <div className="text-sm font-semibold text-amber-400">{ks.percentage}%</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Skills Tab */}
+        {activeTab === 'skills' && buildStats?.skills && (
+          <div className="space-y-4">
+            {/* Skill list */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {buildStats.skills.slice(0, 18).map((skill, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSkillClick(skill.name)}
+                  className={`p-2 rounded-lg text-left transition-colors ${
+                    selectedSkill === skill.name
+                      ? 'bg-blue-900/50 border border-blue-700'
+                      : 'bg-gray-800/30 hover:bg-gray-800/50 border border-transparent'
+                  }`}
+                >
+                  <div className="text-sm text-white truncate">{skill.name}</div>
+                  <div className="text-xs text-gray-500">{skill.percentage}%</div>
+                </button>
+              ))}
+            </div>
+
+            {/* Selected skill builds */}
+            {selectedSkill && skillBuilds.length > 0 && (
+              <div className="mt-4 border-t border-gray-800 pt-4">
+                <h4 className="text-sm font-medium text-white mb-3">
+                  Top {selectedSkill} Builds
+                </h4>
+                <div className="space-y-2">
+                  {skillBuilds.map((build, idx) => (
+                    <a
+                      key={idx}
+                      href={build.profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors"
+                    >
+                      <div>
+                        <div className="text-sm text-white">{build.character}</div>
+                        <div className="text-xs text-gray-500">
+                          {build.class} • Level {build.level}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs">
+                        {build.dps && (
+                          <span className="text-green-400">
+                            DPS: {(build.dps / 1000000).toFixed(1)}M
+                          </span>
+                        )}
+                        {build.life && (
+                          <span className="text-red-400">Life: {build.life?.toLocaleString()}</span>
+                        )}
+                        {build.energyShield && (
+                          <span className="text-blue-400">ES: {build.energyShield?.toLocaleString()}</span>
+                        )}
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Note about CORS */}
+        <div className="mt-4 text-xs text-gray-600 text-center">
+          Data from poe.ninja API • May be rate-limited
+        </div>
+      </div>
+    </div>
+  );
+}

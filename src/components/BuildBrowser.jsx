@@ -4,10 +4,14 @@ import { GemListCompact, GemBadge } from './GemLinks/GemLinks';
 import { ItemList, UniqueItem } from './ItemDisplay/ItemDisplay';
 import AdvancedFilters, { applyFilters } from './AdvancedFilters/AdvancedFilters';
 import MapModWarnings from './BuildDetails/MapModWarnings';
+import PantheonBandit from './BuildDetails/PantheonBandit';
+import BuildProgression from './BuildDetails/BuildProgression';
 import BuildComparison from './BuildComparison/BuildComparison';
+import LiveBuildsPanel from './LiveBuilds/LiveBuildsPanel';
+import PoBImport from './PoBImport/PoBImport';
 
 function BuildBrowser({ game, onViewSkillTree }) {
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'offmeta', or 'compare'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'offmeta', 'compare', 'live', 'import'
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedTier, setSelectedTier] = useState('all');
   const [selectedSource, setSelectedSource] = useState('all');
@@ -161,6 +165,36 @@ function BuildBrowser({ game, onViewSkillTree }) {
             </svg>
             <span>Compare</span>
           </button>
+          {game.id === 'poe1' && (
+            <>
+              <button
+                onClick={() => setActiveTab('live')}
+                className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                  activeTab === 'live'
+                    ? 'text-green-400 border-b-2 border-green-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Live Stats</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('import')}
+                className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                  activeTab === 'import'
+                    ? 'text-cyan-400 border-b-2 border-cyan-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>Import PoB</span>
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -603,6 +637,28 @@ function BuildBrowser({ game, onViewSkillTree }) {
         {activeTab === 'compare' && (
           <BuildComparison builds={allBuilds} />
         )}
+
+        {/* Live Stats Tab (PoE only) */}
+        {activeTab === 'live' && game.id === 'poe1' && (
+          <LiveBuildsPanel />
+        )}
+
+        {/* Import PoB Tab (PoE only) */}
+        {activeTab === 'import' && game.id === 'poe1' && (
+          <div className="max-w-2xl mx-auto">
+            <PoBImport
+              onViewTree={(buildData) => {
+                if (onViewSkillTree) {
+                  onViewSkillTree({
+                    name: `${buildData.className} ${buildData.ascendancyName || ''}`.trim(),
+                    allocatedNodes: buildData.allocatedNodes,
+                    keystones: [],
+                  });
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -734,6 +790,24 @@ function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree }) {
             <div className="px-4 py-3 border-t border-gray-800">
               <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Gameplay</h4>
               <p className="text-xs text-gray-400 leading-relaxed">{build.gameplay}</p>
+            </div>
+          )}
+
+          {/* Pantheon & Bandit (PoE only) */}
+          {gameId === 'poe1' && (build.pantheon || build.bandit) && (
+            <div className="px-4 py-3 border-t border-gray-800">
+              <PantheonBandit
+                majorPantheon={build.pantheon?.major}
+                minorPantheon={build.pantheon?.minor}
+                bandit={build.bandit}
+              />
+            </div>
+          )}
+
+          {/* Build Progression (if data exists) */}
+          {build.progression && (
+            <div className="px-4 py-3 border-t border-gray-800">
+              <BuildProgression progression={build.progression} />
             </div>
           )}
 
