@@ -246,6 +246,7 @@ export default function SkillTree({
           node={hoveredNode}
           position={tooltipPos}
           isAllocated={allocatedNodes.includes(hoveredNode.id)}
+          classes={treeData?.classes}
         />
       )}
 
@@ -271,15 +272,28 @@ export default function SkillTree({
 }
 
 // Tooltip component
-function NodeTooltip({ node, position, isAllocated }) {
+function NodeTooltip({ node, position, isAllocated, classes }) {
   if (!node) return null;
+
+  // Look up the display name for an ascendancy ID
+  const getAscendancyDisplayName = (ascendancyId) => {
+    if (!classes || !ascendancyId) return ascendancyId;
+    for (const cls of classes) {
+      for (const asc of cls.ascendancies || []) {
+        if (asc.id === ascendancyId) {
+          return asc.name;
+        }
+      }
+    }
+    return ascendancyId; // fallback to ID if not found
+  };
 
   const getNodeTypeLabel = () => {
     if (node.isKeystone) return 'Keystone';
     if (node.isNotable) return 'Notable';
     if (node.isMastery) return 'Mastery';
     if (node.isJewelSocket) return 'Jewel Socket';
-    if (node.ascendancyName) return `Ascendancy (${node.ascendancyName})`;
+    if (node.ascendancyName) return `Ascendancy (${getAscendancyDisplayName(node.ascendancyName)})`;
     if (node.classStartIndex !== undefined) return 'Class Start';
     return 'Passive';
   };
