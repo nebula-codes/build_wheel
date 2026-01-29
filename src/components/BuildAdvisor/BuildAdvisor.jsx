@@ -1,12 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { compileBuildContext, createSystemPrompt, generateSuggestedQuestions } from './buildContext';
+import MarkdownRenderer from './MarkdownRenderer';
 
 const API_KEY_STORAGE_KEY = 'poe_build_advisor_openai_key';
+const LEAGUE_STORAGE_KEY = 'poe_build_advisor_league';
+
+// Current and recent leagues
+const LEAGUES = [
+  { id: 'phrecia', name: 'Phrecia (3.27)', current: true },
+  { id: 'settlers', name: 'Settlers of Kalguur (3.25)', current: false },
+  { id: 'necropolis', name: 'Necropolis (3.24)', current: false },
+  { id: 'affliction', name: 'Affliction (3.23)', current: false },
+  { id: 'standard', name: 'Standard', current: false },
+];
 
 /**
  * AI-powered build advisor using OpenAI's API
  */
-export default function BuildAdvisor({ build, onClose, className = '' }) {
+export default function BuildAdvisor({ build, onClose, onBuildImport, className = '' }) {
   const [apiKey, setApiKey] = useState('');
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [showApiKeySetup, setShowApiKeySetup] = useState(false);
@@ -15,10 +26,18 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
+  const [selectedLeague, setSelectedLeague] = useState('phrecia');
+  const [showUrlImport, setShowUrlImport] = useState(false);
+  const [importUrl, setImportUrl] = useState('');
+  const [importLoading, setImportLoading] = useState(false);
+  const [importedBuild, setImportedBuild] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Load API key from localStorage on mount
+  // The active build is either the imported one or the passed prop
+  const activeBuild = importedBuild || build;
+
+  // Load API key and league from localStorage on mount
   useEffect(() => {
     const savedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
     if (savedKey) {
@@ -26,14 +45,24 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
     } else {
       setShowApiKeySetup(true);
     }
+
+    const savedLeague = localStorage.getItem(LEAGUE_STORAGE_KEY);
+    if (savedLeague) {
+      setSelectedLeague(savedLeague);
+    }
   }, []);
+
+  // Save league selection
+  useEffect(() => {
+    localStorage.setItem(LEAGUE_STORAGE_KEY, selectedLeague);
+  }, [selectedLeague]);
 
   // Generate suggested questions when build changes
   useEffect(() => {
-    if (build) {
-      setSuggestedQuestions(generateSuggestedQuestions(build));
+    if (activeBuild) {
+      setSuggestedQuestions(generateSuggestedQuestions(activeBuild));
     }
-  }, [build]);
+  }, [activeBuild]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -46,6 +75,11 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
       inputRef.current?.focus();
     }
   }, [apiKey, showApiKeySetup]);
+
+  // Clear messages when build changes
+  useEffect(() => {
+    setMessages([]);
+  }, [activeBuild?.id, activeBuild?.name]);
 
   const saveApiKey = () => {
     if (apiKeyInput.trim().startsWith('sk-')) {
@@ -66,6 +100,97 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
     setMessages([]);
   };
 
+  const getLeagueContext = () => {
+    const league = LEAGUES.find(l => l.id === selectedLeague);
+    return league ? league.name : 'Phrecia (3.27)';
+  };
+
+  const importBuildFromUrl = async () => {
+    if (!importUrl.trim()) return;
+
+    setImportLoading(true);
+    setError(null);
+
+    try {
+      const url = importUrl.trim();
+      let buildData = null;
+
+      if (url.includes('maxroll.gg')) {
+        // Extract build info from Maxroll URL
+        buildData = await parseMaxrollUrl(url);
+      } else if (url.includes('poe.ninja')) {
+        // Extract build info from poe.ninja URL
+        buildData = await parsePoeNinjaUrl(url);
+      } else {
+        throw new Error('Unsupported URL. Please use a Maxroll or poe.ninja build URL.');
+      }
+
+      setImportedBuild(buildData);
+      setShowUrlImport(false);
+      setImportUrl('');
+      setMessages([]); // Clear previous conversation
+
+      if (onBuildImport) {
+        onBuildImport(buildData);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  const parseMaxrollUrl = async (url) => {
+    // Extract build name from URL
+    const urlParts = url.split('/');
+    const buildSlug = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+    const buildName = buildSlug
+      .replace(/-/g, ' ')
+      .replace(/league starter|guide|build/gi, '')
+      .trim()
+      .split(' ')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+    // Create a build object with the URL for context
+    return {
+      id: `maxroll-${Date.now()}`,
+      name: buildName || 'Maxroll Build',
+      source: 'Maxroll',
+      guideUrl: url,
+      description: `Build imported from Maxroll guide. Full guide available at: ${url}`,
+      importedFromUrl: true,
+      urlType: 'maxroll',
+      // Note: actual scraping would require server-side processing due to CORS
+      // The AI will use the URL context to provide relevant advice
+    };
+  };
+
+  const parsePoeNinjaUrl = async (url) => {
+    // Parse poe.ninja character URL
+    // Format: https://poe.ninja/poe1/builds/keepers/character/AccountName/CharacterName
+    const match = url.match(/character\/([^/]+)\/([^/?]+)/);
+    const accountName = match ? match[1] : 'Unknown';
+    const charName = match ? match[2] : 'Unknown Character';
+
+    // Extract class/skill from URL params if present
+    const urlObj = new URL(url);
+    const skillParam = urlObj.searchParams.get('skills');
+    const classParam = urlObj.searchParams.get('class');
+
+    return {
+      id: `poeninja-${Date.now()}`,
+      name: charName,
+      className: classParam || 'Unknown',
+      source: 'poe.ninja',
+      guideUrl: url,
+      description: `Character "${charName}" from account "${accountName}" on poe.ninja ladder.`,
+      skills: skillParam ? skillParam.split(',').map(s => s.replace(/\+/g, ' ')) : [],
+      importedFromUrl: true,
+      urlType: 'poeninja',
+    };
+  };
+
   const sendMessage = async (messageText) => {
     if (!messageText.trim() || !apiKey || isLoading) return;
 
@@ -76,9 +201,10 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
     setError(null);
 
     try {
-      // Compile build context
-      const buildContext = compileBuildContext(build);
-      const systemPrompt = createSystemPrompt(buildContext);
+      // Compile build context with league info
+      const buildContext = compileBuildContext(activeBuild);
+      const leagueContext = getLeagueContext();
+      const systemPrompt = createSystemPrompt(buildContext, leagueContext);
 
       // Prepare messages for API
       const apiMessages = [
@@ -94,10 +220,10 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Cost-effective and capable
+          model: 'gpt-4o-mini',
           messages: apiMessages,
           temperature: 0.7,
-          max_tokens: 1000,
+          max_tokens: 1500,
         })
       });
 
@@ -148,13 +274,10 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
     sendMessage(question);
   };
 
-  if (!build) {
-    return (
-      <div className={`bg-gray-900/50 rounded-lg border border-gray-800 p-8 text-center ${className}`}>
-        <p className="text-gray-400">Select a build to start the AI advisor</p>
-      </div>
-    );
-  }
+  const clearImportedBuild = () => {
+    setImportedBuild(null);
+    setMessages([]);
+  };
 
   return (
     <div className={`bg-gray-900/50 rounded-lg border border-gray-800 flex flex-col h-full ${className}`}>
@@ -168,14 +291,42 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-white">Build Advisor</h3>
-            <p className="text-xs text-gray-500 truncate max-w-[200px]">{build.name}</p>
+            <p className="text-xs text-gray-500 truncate max-w-[200px]">
+              {activeBuild ? activeBuild.name : 'No build selected'}
+              {importedBuild && <span className="text-amber-400 ml-1">(imported)</span>}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* League Selector */}
+          <select
+            value={selectedLeague}
+            onChange={(e) => setSelectedLeague(e.target.value)}
+            className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white focus:border-green-500 focus:outline-none"
+            title="Select league for context"
+          >
+            {LEAGUES.map(league => (
+              <option key={league.id} value={league.id}>
+                {league.name} {league.current && '✓'}
+              </option>
+            ))}
+          </select>
+
+          {/* Import URL Button */}
+          <button
+            onClick={() => setShowUrlImport(!showUrlImport)}
+            className={`p-1.5 rounded transition-colors ${showUrlImport ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+            title="Import build from URL"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+          </button>
+
           {apiKey && (
             <button
               onClick={() => setShowApiKeySetup(true)}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              className="p-1.5 bg-gray-800 text-gray-400 hover:text-white rounded transition-colors"
               title="Change API key"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,6 +346,51 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
           )}
         </div>
       </div>
+
+      {/* URL Import Panel */}
+      {showUrlImport && (
+        <div className="p-4 border-b border-gray-800 bg-amber-900/20">
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Import Build from URL</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  placeholder="Paste Maxroll or poe.ninja build URL..."
+                  className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none"
+                />
+                <button
+                  onClick={importBuildFromUrl}
+                  disabled={importLoading || !importUrl.trim()}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded transition-colors flex items-center gap-2"
+                >
+                  {importLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    'Import'
+                  )}
+                </button>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500">
+              Supported: <span className="text-green-400">maxroll.gg</span> build guides, <span className="text-blue-400">poe.ninja</span> character pages
+            </div>
+            {importedBuild && (
+              <div className="flex items-center justify-between bg-gray-800/50 rounded px-3 py-2">
+                <span className="text-sm text-amber-300">Currently using: {importedBuild.name}</span>
+                <button
+                  onClick={clearImportedBuild}
+                  className="text-xs text-gray-400 hover:text-red-400 transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* API Key Setup */}
       {showApiKeySetup && (
@@ -252,13 +448,31 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px]">
-        {messages.length === 0 && !showApiKeySetup && apiKey && (
+        {!activeBuild && !showApiKeySetup && apiKey && (
+          <div className="text-center py-8">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              <p className="text-sm">Select a build from the list or import one from a URL</p>
+              <button
+                onClick={() => setShowUrlImport(true)}
+                className="mt-3 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded transition-colors"
+              >
+                Import Build from URL
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeBuild && messages.length === 0 && !showApiKeySetup && apiKey && (
           <div className="text-center py-8">
             <div className="text-gray-400 mb-4">
               <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
-              <p className="text-sm">Ask me anything about your {build.name} build!</p>
+              <p className="text-sm">Ask me anything about your <span className="text-white font-medium">{activeBuild.name}</span> build!</p>
+              <p className="text-xs text-gray-500 mt-1">League: {getLeagueContext()}</p>
             </div>
 
             {/* Suggested Questions */}
@@ -291,7 +505,11 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
                   : 'bg-gray-800 text-gray-200'
               }`}
             >
-              <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
+              {msg.role === 'user' ? (
+                <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
+              ) : (
+                <MarkdownRenderer content={msg.content} className="text-sm" />
+              )}
             </div>
           </div>
         ))}
@@ -328,7 +546,7 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
       </div>
 
       {/* More Suggestions (after conversation starts) */}
-      {messages.length > 0 && messages.length < 6 && !isLoading && (
+      {activeBuild && messages.length > 0 && messages.length < 6 && !isLoading && (
         <div className="px-4 pb-2">
           <div className="flex flex-wrap gap-1">
             {suggestedQuestions.slice(4, 7).map((q, idx) => (
@@ -345,7 +563,7 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
       )}
 
       {/* Input Area */}
-      {apiKey && !showApiKeySetup && (
+      {apiKey && !showApiKeySetup && activeBuild && (
         <form onSubmit={handleSubmit} className="p-4 border-t border-gray-800">
           <div className="flex gap-2">
             <input
@@ -368,7 +586,7 @@ export default function BuildAdvisor({ build, onClose, className = '' }) {
             </button>
           </div>
           <p className="text-xs text-gray-600 mt-2 text-center">
-            Powered by GPT-4o-mini. Responses cost ~$0.001 each.
+            Powered by GPT-4o-mini • League: {getLeagueContext()}
           </p>
         </form>
       )}
