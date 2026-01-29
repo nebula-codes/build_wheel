@@ -1,14 +1,21 @@
 import React, { useState, useMemo } from 'react';
 import { getUniversalTierColor, getUniversalDifficultyColor } from '../data/games';
+import { GemListCompact, GemBadge } from './GemLinks/GemLinks';
+import { ItemList, UniqueItem } from './ItemDisplay/ItemDisplay';
+import AdvancedFilters, { applyFilters } from './AdvancedFilters/AdvancedFilters';
+import MapModWarnings from './BuildDetails/MapModWarnings';
+import BuildComparison from './BuildComparison/BuildComparison';
 
 function BuildBrowser({ game, onViewSkillTree }) {
-  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'offmeta'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'offmeta', or 'compare'
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedTier, setSelectedTier] = useState('all');
   const [selectedSource, setSelectedSource] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedBuild, setExpandedBuild] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [advancedFilters, setAdvancedFilters] = useState({});
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const allBuilds = useMemo(() => {
     const builds = [];
@@ -41,7 +48,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
   const hasOffMetaBuilds = offMetaBuilds.length > 0;
 
   const filteredBuilds = useMemo(() => {
-    return allBuilds.filter(build => {
+    let builds = allBuilds.filter(build => {
       // On "all" tab, exclude poe.ninja builds (they have their own tab)
       if (activeTab === 'all' && build.source === 'poe.ninja') return false;
       if (selectedClass !== 'all' && build.classId !== selectedClass) return false;
@@ -50,7 +57,12 @@ function BuildBrowser({ game, onViewSkillTree }) {
       if (searchQuery && !build.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       return true;
     });
-  }, [allBuilds, selectedClass, selectedTier, selectedSource, searchQuery, activeTab]);
+    // Apply advanced filters if any are active
+    if (Object.keys(advancedFilters).some(k => advancedFilters[k]?.length > 0)) {
+      builds = applyFilters(builds, advancedFilters);
+    }
+    return builds;
+  }, [allBuilds, selectedClass, selectedTier, selectedSource, searchQuery, activeTab, advancedFilters]);
 
   // Filtered and sorted off-meta builds for the table
   const filteredOffMetaBuilds = useMemo(() => {
@@ -136,6 +148,19 @@ function BuildBrowser({ game, onViewSkillTree }) {
               poe.ninja
             </span>
           </button>
+          <button
+            onClick={() => setActiveTab('compare')}
+            className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+              activeTab === 'compare'
+                ? 'text-purple-400 border-b-2 border-purple-400'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span>Compare</span>
+          </button>
         </div>
       )}
 
@@ -195,9 +220,41 @@ function BuildBrowser({ game, onViewSkillTree }) {
         )}
 
         <span className="text-sm text-gray-500">
-          {activeTab === 'all' ? filteredBuilds.length : filteredOffMetaBuilds.length} builds
+          {activeTab === 'all' ? filteredBuilds.length : activeTab === 'offmeta' ? filteredOffMetaBuilds.length : allBuilds.length} builds
         </span>
+
+        {/* Advanced filters toggle (PoE only) */}
+        {game.id === 'poe1' && activeTab !== 'compare' && (
+          <button
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className={`text-sm px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 ${
+              showAdvancedFilters || Object.keys(advancedFilters).some(k => advancedFilters[k]?.length > 0)
+                ? 'bg-cyan-900/50 text-cyan-300 border border-cyan-700'
+                : 'bg-gray-800 text-gray-400 hover:text-white border border-gray-700'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Advanced
+            {Object.keys(advancedFilters).some(k => advancedFilters[k]?.length > 0) && (
+              <span className="text-xs px-1 py-0.5 bg-cyan-600 rounded text-white">
+                {Object.values(advancedFilters).reduce((c, a) => c + (a?.length || 0), 0)}
+              </span>
+            )}
+          </button>
+        )}
       </div>
+
+      {/* Advanced Filters Panel */}
+      {showAdvancedFilters && game.id === 'poe1' && activeTab !== 'compare' && (
+        <AdvancedFilters
+          filters={advancedFilters}
+          onFiltersChange={setAdvancedFilters}
+          collapsible={false}
+          className="mb-4"
+        />
+      )}
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto">
@@ -541,6 +598,11 @@ function BuildBrowser({ game, onViewSkillTree }) {
             </div>
           </div>
         )}
+
+        {/* Compare Tab */}
+        {activeTab === 'compare' && (
+          <BuildComparison builds={allBuilds} />
+        )}
       </div>
     </div>
   );
@@ -643,24 +705,13 @@ function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree }) {
             {build.skills && build.skills.length > 0 && (
               <div className="p-3">
                 <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Skills</h4>
-                <div className="space-y-1">
-                  {build.skills.slice(0, 6).map((skill, idx) => (
-                    <div key={idx} className="text-xs text-gray-400">{skill}</div>
-                  ))}
-                </div>
+                <GemListCompact skills={build.skills} maxShow={6} />
               </div>
             )}
 
             {build.keyItems && build.keyItems.length > 0 && (
               <div className="p-3">
-                <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Key Items</h4>
-                <div className="flex flex-wrap gap-1">
-                  {build.keyItems.map((item, idx) => (
-                    <span key={idx} className="text-xs px-1.5 py-0.5 bg-amber-500/10 text-amber-400 rounded">
-                      {item}
-                    </span>
-                  ))}
-                </div>
+                <ItemList items={build.keyItems} title="Key Items" maxShow={4} />
               </div>
             )}
           </div>
@@ -683,6 +734,13 @@ function BuildCard({ build, gameId, isExpanded, onToggle, onViewSkillTree }) {
             <div className="px-4 py-3 border-t border-gray-800">
               <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Gameplay</h4>
               <p className="text-xs text-gray-400 leading-relaxed">{build.gameplay}</p>
+            </div>
+          )}
+
+          {/* Map Mod Warnings */}
+          {gameId === 'poe1' && (
+            <div className="px-4 py-3 border-t border-gray-800">
+              <MapModWarnings build={build} />
             </div>
           )}
 
