@@ -271,10 +271,45 @@ export function processTreeData(raw, leagueVersion = 'master') {
   };
 
   // Process sprite information
+  // GGG JSON uses 'sprites' with string zoom level keys like '0.3835'
+  // Transform to array format expected by renderer
+  const rawSprites = raw.sprites || {};
+  const zoomLevels = raw.imageZoomLevels || [0.1246, 0.2109, 0.2972, 0.3835];
+
+  const transformSpriteType = (spriteData) => {
+    if (!spriteData) return [];
+    // Convert from { '0.1246': {...}, '0.3835': {...} } to array indexed by zoom level
+    return zoomLevels.map((zoom, idx) => {
+      const entry = spriteData[zoom.toString()] || spriteData[zoom];
+      if (!entry) return null;
+      // Extract just the filename from full URL (e.g., "skills-3.jpg" from "https://web.poecdn.com/.../skills-3.jpg?hash")
+      let filename = entry.filename || '';
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop().split('?')[0];
+      }
+      return {
+        filename,
+        coords: entry.coords || {},
+        w: entry.w,
+        h: entry.h
+      };
+    });
+  };
+
   const sprites = {
-    skillSprites: raw.skillSprites || {},
+    skillSprites: {
+      normalActive: transformSpriteType(rawSprites.normalActive),
+      normalInactive: transformSpriteType(rawSprites.normalInactive),
+      keystoneActive: transformSpriteType(rawSprites.keystoneActive),
+      keystoneInactive: transformSpriteType(rawSprites.keystoneInactive),
+      notableActive: transformSpriteType(rawSprites.notableActive),
+      notableInactive: transformSpriteType(rawSprites.notableInactive),
+      mastery: transformSpriteType(rawSprites.mastery),
+      jewelSocketActive: transformSpriteType(rawSprites.jewel),
+      jewelSocketNormal: transformSpriteType(rawSprites.jewel),
+    },
     assets: raw.assets || {},
-    imageZoomLevels: raw.imageZoomLevels || [0.1246, 0.2109, 0.2972, 0.3835]
+    imageZoomLevels: zoomLevels
   };
 
   return {
