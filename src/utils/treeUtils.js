@@ -1,7 +1,10 @@
 // Utility functions for PoE skill tree data processing
 
-// Base URL for GGG's skill tree data
+// Base URL for GGG's skill tree data (JSON files still fetched remotely)
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/grindinggear/skilltree-export';
+
+// Local path for bundled sprite assets (avoids CORS issues)
+const LOCAL_ASSETS_PATH = '/assets/skill-tree/';
 
 // Available league versions with their details
 export const LEAGUE_VERSIONS = [
@@ -287,7 +290,7 @@ export function processTreeData(raw, leagueVersion = 'master') {
       maxY: raw.max_y || 10000
     },
     imageRoot: raw.imageRoot || 'https://web.poecdn.com/image/',
-    assetsRoot: `${GITHUB_RAW_BASE}/${leagueVersion}/assets/`,
+    assetsRoot: LOCAL_ASSETS_PATH,
     version: raw.tree || 'unknown',
     leagueVersion
   };

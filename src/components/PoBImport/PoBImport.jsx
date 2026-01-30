@@ -126,11 +126,39 @@ export default function PoBImport({ onImport, className = '' }) {
     return currentSpec?.nodes || parsedBuild?.allocatedNodes || [];
   }, [currentSpec, parsedBuild]);
 
+  // SVG icons for cross-platform compatibility (emojis render as squares on Linux)
+  const tabIcons = {
+    tree: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 2L8 8h8L12 2z" />
+        <path d="M12 8L6 16h12L12 8z" />
+        <path d="M12 16L4 24h16L12 16z" />
+        <path d="M12 8v16" />
+      </svg>
+    ),
+    skills: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+      </svg>
+    ),
+    gear: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M4 4h5v6H4zM15 4h5v6h-5zM4 14h5v6H4zM15 14h5v6h-5z" />
+        <path d="M9 7h6M9 17h6" />
+      </svg>
+    ),
+    stats: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M18 20V10M12 20V4M6 20v-6" />
+      </svg>
+    ),
+  };
+
   const tabs = [
-    { id: 'tree', label: 'Skill Tree', icon: '🌳' },
-    { id: 'skills', label: 'Skills', icon: '💎', count: currentSkillSet?.groups?.length },
-    { id: 'gear', label: 'Equipment', icon: '🎒', count: parsedBuild?.equipment?.length },
-    { id: 'stats', label: 'Build Info', icon: '📊' },
+    { id: 'tree', label: 'Skill Tree', icon: tabIcons.tree },
+    { id: 'skills', label: 'Skills', icon: tabIcons.skills, count: currentSkillSet?.groups?.length },
+    { id: 'gear', label: 'Equipment', icon: tabIcons.gear, count: parsedBuild?.equipment?.length },
+    { id: 'stats', label: 'Build Info', icon: tabIcons.stats },
   ];
 
   return (
@@ -171,7 +199,12 @@ export default function PoBImport({ onImport, className = '' }) {
           <div className="mt-4">
             <div className="flex flex-wrap items-center gap-4 mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">⚔️</span>
+                <svg className="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
+                  <path d="M13 19l6-6" />
+                  <path d="M16 16l4 4" />
+                  <path d="M19 21l2-2" />
+                </svg>
                 <div>
                   <div className="text-white font-semibold">
                     {parsedBuild.ascendClassName || parsedBuild.ascendancyName || parsedBuild.className || 'Unknown'} Build
@@ -325,7 +358,12 @@ export default function PoBImport({ onImport, className = '' }) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium text-white flex items-center gap-2">
-                    <span className="text-lg">🌳</span>
+                    <svg className="w-5 h-5 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2L8 8h8L12 2z" />
+                      <path d="M12 8L6 16h12L12 8z" />
+                      <path d="M12 16L4 24h16L12 16z" />
+                      <path d="M12 8v16" />
+                    </svg>
                     {currentSpec?.title || 'Passive Skill Tree'}
                     <span className="text-xs text-gray-500">
                       ({currentNodes.length} points)
@@ -372,7 +410,9 @@ export default function PoBImport({ onImport, className = '' }) {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <span className="text-4xl mb-4 block">💎</span>
+                    <svg className="w-12 h-12 mx-auto mb-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+                    </svg>
                     <p>No skill data available</p>
                     <p className="text-xs mt-1">Skill info is only available from full PoB codes</p>
                   </div>
@@ -397,22 +437,22 @@ export default function PoBImport({ onImport, className = '' }) {
                   <StatCard
                     label="Class"
                     value={parsedBuild.className || 'Unknown'}
-                    icon="👤"
+                    icon={<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
                   />
                   <StatCard
                     label="Ascendancy"
                     value={parsedBuild.ascendClassName || parsedBuild.ascendancyName || 'None'}
-                    icon="⭐"
+                    icon={<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>}
                   />
                   <StatCard
                     label="Level"
                     value={parsedBuild.level || '-'}
-                    icon="📈"
+                    icon={<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg>}
                   />
                   <StatCard
                     label="Passive Points"
                     value={currentNodes.length}
-                    icon="🌳"
+                    icon={<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L8 8h8L12 2z"/><path d="M12 8L6 16h12L12 8z"/><path d="M12 16L4 24h16L12 16z"/><path d="M12 8v16"/></svg>}
                   />
                 </div>
 
@@ -523,7 +563,10 @@ export default function PoBImport({ onImport, className = '' }) {
       {/* Empty State */}
       {!parsedBuild && !showImportPanel && (
         <div className="p-8 text-center text-gray-500">
-          <span className="text-4xl mb-4 block">📋</span>
+          <svg className="w-12 h-12 mx-auto mb-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+          </svg>
           <p>No build loaded</p>
           <button
             onClick={() => setShowImportPanel(true)}
@@ -670,7 +713,7 @@ function getGemSocketColor(name) {
 function StatCard({ label, value, icon, color = 'text-white' }) {
   return (
     <div className="bg-gray-800/50 rounded-lg p-3 text-center">
-      {icon && <span className="text-lg mb-1 block">{icon}</span>}
+      {icon && <span className="text-lg mb-1 flex justify-center text-gray-400">{icon}</span>}
       <div className={`font-semibold ${color}`}>{value}</div>
       <div className="text-xs text-gray-500">{label}</div>
     </div>

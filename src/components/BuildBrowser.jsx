@@ -667,7 +667,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
 
         {/* Import PoB Tab (PoE only) */}
         {activeTab === 'import' && game.id === 'poe1' && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <PoBImport
               onViewTree={(buildData) => {
                 if (onViewSkillTree) {

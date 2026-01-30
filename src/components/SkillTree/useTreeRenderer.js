@@ -188,13 +188,26 @@ export function useTreeRenderer({
 }
 
 /**
+ * Map remote sprite filenames to local bundled assets
+ * The tree data references filenames like "skills-3.jpg" which we've downloaded locally
+ */
+function mapToLocalSprite(filename, assetsRoot) {
+  // If already using local assets path, just concatenate
+  if (assetsRoot.startsWith('/assets/')) {
+    return assetsRoot + filename;
+  }
+  // Otherwise use the full URL (fallback)
+  return assetsRoot + filename;
+}
+
+/**
  * Load sprite sheets for the tree
  */
 async function loadSprites(treeData) {
   if (!treeData.sprites?.skillSprites) return;
 
   const { skillSprites } = treeData.sprites;
-  const assetsRoot = treeData.assetsRoot || 'https://web.poecdn.com/image/';
+  const assetsRoot = treeData.assetsRoot || '/assets/skill-tree/';
 
   // Get the highest zoom level sprites (best quality)
   const zoomLevel = 3; // 0.3835 zoom = highest detail
@@ -205,7 +218,7 @@ async function loadSprites(treeData) {
   for (const spriteType of Object.values(skillSprites)) {
     const spriteInfo = spriteType[zoomLevel] || spriteType[spriteType.length - 1];
     if (spriteInfo?.filename) {
-      spriteSheetUrls.add(assetsRoot + spriteInfo.filename);
+      spriteSheetUrls.add(mapToLocalSprite(spriteInfo.filename, assetsRoot));
     }
   }
 
@@ -229,7 +242,7 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
   if (!treeData.sprites?.skillSprites) return null;
 
   const { skillSprites } = treeData.sprites;
-  const assetsRoot = treeData.assetsRoot || 'https://web.poecdn.com/image/';
+  const assetsRoot = treeData.assetsRoot || '/assets/skill-tree/';
   const zoomLevel = 3;
 
   // Determine which sprite type to use based on node type
@@ -254,7 +267,7 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
   const spriteInfo = spriteType[zoomLevel] || spriteType[spriteType.length - 1];
   if (!spriteInfo?.filename || !spriteInfo.coords) return null;
 
-  const sheetUrl = assetsRoot + spriteInfo.filename;
+  const sheetUrl = mapToLocalSprite(spriteInfo.filename, assetsRoot);
   const sheetTexture = spriteCache.get(sheetUrl);
   if (!sheetTexture) return null;
 
