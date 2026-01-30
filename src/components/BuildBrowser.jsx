@@ -725,7 +725,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
             </div>
 
             {/* Advisor chat area */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 max-h-[calc(100vh-12rem)]">
               <BuildAdvisor
                 build={advisorBuild}
                 onClose={() => setAdvisorBuild(null)}

@@ -389,9 +389,9 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
   };
 
   return (
-    <div className={`bg-gray-900/50 rounded-lg border border-gray-800 flex flex-col h-full ${className}`}>
+    <div className={`bg-gray-900/50 rounded-lg border border-gray-800 flex flex-col h-full overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+      <div className="p-4 border-b border-gray-800 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -458,7 +458,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
 
       {/* Build Import Panel */}
       {showUrlImport && (
-        <div className="p-4 border-b border-gray-800 bg-amber-900/20">
+        <div className="p-4 border-b border-gray-800 bg-amber-900/20 flex-shrink-0">
           <div className="space-y-3">
             <div>
               <label className="text-xs text-gray-400 block mb-1">Import Build</label>
@@ -503,7 +503,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
 
       {/* API Key Setup / Settings Panel */}
       {showApiKeySetup && (
-        <div className="p-4 border-b border-gray-800 bg-gray-800/50">
+        <div className="p-4 border-b border-gray-800 bg-gray-800/50 flex-shrink-0 overflow-y-auto max-h-64">
           <div className="space-y-4">
             {/* Model Selection */}
             <div>
@@ -594,7 +594,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
       )}
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {!activeBuild && !showApiKeySetup && apiKey && (
           <div className="text-center py-8">
             <div className="text-gray-400 mb-4">
@@ -697,7 +697,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
 
       {/* More Suggestions (after conversation starts) */}
       {activeBuild && messages.length > 0 && messages.length < 6 && !isLoading && (
-        <div className="px-4 pb-2">
+        <div className="px-4 pb-2 flex-shrink-0">
           <div className="flex flex-wrap gap-1">
             {suggestedQuestions.slice(4, 7).map((q, idx) => (
               <button
@@ -714,7 +714,7 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
 
       {/* Input Area */}
       {apiKey && !showApiKeySetup && activeBuild && (
-        <form onSubmit={handleSubmit} className="p-4 border-t border-gray-800">
+        <form onSubmit={handleSubmit} className="p-4 border-t border-gray-800 flex-shrink-0">
           <div className="flex gap-2">
             <input
               ref={inputRef}
