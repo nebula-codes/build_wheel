@@ -694,8 +694,8 @@ function BuildBrowser({ game, onViewSkillTree }) {
         {activeTab === 'advisor' && game.id === 'poe1' && (
           <div className="h-full flex gap-4">
             {/* Build selector sidebar */}
-            <div className="w-72 flex-shrink-0 bg-gray-900/50 rounded-lg border border-gray-800 flex flex-col overflow-hidden">
-              <div className="p-3 border-b border-gray-800">
+            <div className="w-72 flex-shrink-0 bg-gray-900/50 rounded-lg border border-gray-800 flex flex-col max-h-[calc(100vh-12rem)]">
+              <div className="p-3 border-b border-gray-800 flex-shrink-0">
                 <h4 className="text-sm font-medium text-white mb-2">Select a Build</h4>
                 <input
                   type="text"
@@ -705,7 +705,7 @@ function BuildBrowser({ game, onViewSkillTree }) {
                   className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none"
                 />
               </div>
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {allBuilds
                   .filter(b => !searchQuery || b.name.toLowerCase().includes(searchQuery.toLowerCase()))
                   .slice(0, 50)
