@@ -5,6 +5,15 @@ import { decodePobCode, CLASS_NAMES, ASCENDANCY_NAMES } from '../../utils/pobPar
 
 const API_KEY_STORAGE_KEY = 'poe_build_advisor_openai_key';
 const LEAGUE_STORAGE_KEY = 'poe_build_advisor_league';
+const MODEL_STORAGE_KEY = 'poe_build_advisor_model';
+const WEB_SEARCH_STORAGE_KEY = 'poe_build_advisor_web_search';
+
+// Available OpenAI models
+const MODELS = [
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Fast & cheap, good for simple questions' },
+  { id: 'gpt-4o', name: 'GPT-4o (Recommended)', description: 'Best quality responses' },
+  { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', description: 'Balance of speed and quality' },
+];
 
 // Current and recent leagues
 const LEAGUES = [
@@ -28,6 +37,8 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
   const [error, setError] = useState(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState('keepers');
+  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [showUrlImport, setShowUrlImport] = useState(false);
   const [importUrl, setImportUrl] = useState('');
   const [importLoading, setImportLoading] = useState(false);
@@ -51,12 +62,32 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
     if (savedLeague) {
       setSelectedLeague(savedLeague);
     }
+
+    const savedModel = localStorage.getItem(MODEL_STORAGE_KEY);
+    if (savedModel) {
+      setSelectedModel(savedModel);
+    }
+
+    const savedWebSearch = localStorage.getItem(WEB_SEARCH_STORAGE_KEY);
+    if (savedWebSearch) {
+      setWebSearchEnabled(savedWebSearch === 'true');
+    }
   }, []);
 
   // Save league selection
   useEffect(() => {
     localStorage.setItem(LEAGUE_STORAGE_KEY, selectedLeague);
   }, [selectedLeague]);
+
+  // Save model selection
+  useEffect(() => {
+    localStorage.setItem(MODEL_STORAGE_KEY, selectedModel);
+  }, [selectedModel]);
+
+  // Save web search preference
+  useEffect(() => {
+    localStorage.setItem(WEB_SEARCH_STORAGE_KEY, String(webSearchEnabled));
+  }, [webSearchEnabled]);
 
   // Generate suggested questions when build changes
   useEffect(() => {
@@ -280,18 +311,29 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
         userMessage
       ];
 
+      // Build request body
+      const requestBody = {
+        model: selectedModel,
+        messages: apiMessages,
+        temperature: 0.7,
+        max_tokens: 2000,
+      };
+
+      // Add web search tool if enabled
+      if (webSearchEnabled) {
+        requestBody.tools = [{
+          type: "web_search_preview",
+          search_context_size: "medium"
+        }];
+      }
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: apiMessages,
-          temperature: 0.7,
-          max_tokens: 1500,
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -459,10 +501,48 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
         </div>
       )}
 
-      {/* API Key Setup */}
+      {/* API Key Setup / Settings Panel */}
       {showApiKeySetup && (
         <div className="p-4 border-b border-gray-800 bg-gray-800/50">
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* Model Selection */}
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">AI Model</label>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:border-green-500 focus:outline-none"
+              >
+                {MODELS.map(model => (
+                  <option key={model.id} value={model.id}>
+                    {model.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                {MODELS.find(m => m.id === selectedModel)?.description}
+              </p>
+            </div>
+
+            {/* Web Search Toggle */}
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={webSearchEnabled}
+                  onChange={(e) => setWebSearchEnabled(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-600 bg-gray-900 text-green-500 focus:ring-green-500 focus:ring-offset-gray-800"
+                />
+                <span className="text-sm text-white">Enable Web Search</span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1 ml-6">
+                Search for current prices, wiki info, and meta builds. May increase response time.
+              </p>
+            </div>
+
+            <hr className="border-gray-700" />
+
+            {/* API Key */}
             <div>
               <label className="text-xs text-gray-400 block mb-1">OpenAI API Key</label>
               <input
@@ -588,6 +668,9 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                {webSearchEnabled && (
+                  <span className="text-xs text-cyan-400 ml-2">searching web...</span>
+                )}
               </div>
             </div>
           </div>
@@ -653,7 +736,9 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
             </button>
           </div>
           <p className="text-xs text-gray-600 mt-2 text-center">
-            Powered by GPT-4o-mini • League: {getLeagueContext()}
+            Powered by {MODELS.find(m => m.id === selectedModel)?.name || selectedModel}
+            {webSearchEnabled && <span className="text-cyan-500 ml-1">• Web Search</span>}
+            {' '}• {getLeagueContext()}
           </p>
         </form>
       )}
