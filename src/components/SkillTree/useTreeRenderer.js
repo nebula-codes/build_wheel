@@ -207,7 +207,7 @@ async function loadSprites(treeData) {
   if (!treeData.sprites?.skillSprites) return;
 
   const { skillSprites } = treeData.sprites;
-  const assetsRoot = treeData.assetsRoot || '/assets/skill-tree/';
+  const assetsRoot = treeData.assetsRoot || `${import.meta.env.BASE_URL}assets/skill-tree/`;
 
   // Get the highest zoom level sprites (best quality)
   const zoomLevel = 3; // 0.3835 zoom = highest detail
@@ -242,7 +242,7 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
   if (!treeData.sprites?.skillSprites) return null;
 
   const { skillSprites } = treeData.sprites;
-  const assetsRoot = treeData.assetsRoot || '/assets/skill-tree/';
+  const assetsRoot = treeData.assetsRoot || `${import.meta.env.BASE_URL}assets/skill-tree/`;
   const zoomLevel = 3;
 
   // Determine which sprite type to use based on node type
