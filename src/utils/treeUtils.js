@@ -4,7 +4,8 @@
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/grindinggear/skilltree-export';
 
 // Local path for bundled sprite assets (avoids CORS issues)
-const LOCAL_ASSETS_PATH = '/assets/skill-tree/';
+// Uses Vite's BASE_URL to handle deployment paths (e.g., /build_wheel/ on GitHub Pages)
+const LOCAL_ASSETS_PATH = `${import.meta.env.BASE_URL}assets/skill-tree/`;
 
 // Available league versions with their details
 export const LEAGUE_VERSIONS = [
