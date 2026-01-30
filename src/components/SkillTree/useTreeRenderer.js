@@ -258,6 +258,9 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
     iconKey = node.inactiveIcon || node.icon;
   } else if (node.isJewelSocket) {
     spriteType = isAllocated ? skillSprites.jewelSocketActive : skillSprites.jewelSocketNormal;
+  } else if (node.ascendancyName) {
+    // Ascendancy nodes use the ascendancy sprite sheet
+    spriteType = skillSprites.ascendancy;
   } else {
     spriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
   }
@@ -364,6 +367,13 @@ async function renderTree(
       smallNode.circle(0, 0, 8);
       smallNode.fill({ color: 0x2a3a4a, alpha: 0.4 });
       smallNode.position.set(pos.x, pos.y);
+
+      // Add hover handlers to clear tooltip when hovering over background nodes
+      smallNode.eventMode = 'static';
+      smallNode.on('pointerover', () => {
+        onNodeHoverRef.current?.(null, { x: 0, y: 0 });
+      });
+
       nodesContainer.addChild(smallNode);
       continue;
     }

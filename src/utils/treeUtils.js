@@ -308,6 +308,7 @@ export function processTreeData(raw, leagueVersion = 'master') {
       mastery: transformSpriteType(rawSprites.mastery),
       jewelSocketActive: transformSpriteType(rawSprites.jewel),
       jewelSocketNormal: transformSpriteType(rawSprites.jewel),
+      ascendancy: transformSpriteType(rawSprites.ascendancy),
     },
     assets: raw.assets || {},
     imageZoomLevels: zoomLevels
