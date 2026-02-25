@@ -1,10 +1,49 @@
 import { useEffect, useRef } from 'react';
 import { Application, Graphics, Container, Text, TextStyle, Assets, Sprite, Texture, Rectangle } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { getNodePosition, getNodeType, getNodeRadius, getNodeColor } from '../../utils/treeUtils';
+import { getNodePosition, getNodeType, getNodeRadius, getNodeColor, getOrbitAngle } from '../../utils/treeUtils';
 
 // Sprite sheet cache
 const spriteCache = new Map();
+
+// Spatial index for fast node lookups on hover/click
+const SPATIAL_CELL_SIZE = 100;
+
+function buildSpatialIndex(nodePositions, nodes) {
+  const index = new Map();
+  for (const [nodeId, pos] of nodePositions) {
+    const cellX = Math.floor(pos.x / SPATIAL_CELL_SIZE);
+    const cellY = Math.floor(pos.y / SPATIAL_CELL_SIZE);
+    const key = `${cellX},${cellY}`;
+    if (!index.has(key)) index.set(key, []);
+    index.get(key).push({ nodeId, pos, node: nodes[nodeId] });
+  }
+  return index;
+}
+
+function findNearestNode(index, worldX, worldY, maxDist) {
+  const cellX = Math.floor(worldX / SPATIAL_CELL_SIZE);
+  const cellY = Math.floor(worldY / SPATIAL_CELL_SIZE);
+  let nearest = null;
+  let nearestDist = maxDist * maxDist; // Compare squared distances
+
+  // Check 3x3 neighborhood of cells
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dy = -1; dy <= 1; dy++) {
+      const key = `${cellX + dx},${cellY + dy}`;
+      const entries = index.get(key);
+      if (!entries) continue;
+      for (const entry of entries) {
+        const distSq = (entry.pos.x - worldX) ** 2 + (entry.pos.y - worldY) ** 2;
+        if (distSq < nearestDist) {
+          nearestDist = distSq;
+          nearest = entry;
+        }
+      }
+    }
+  }
+  return nearest;
+}
 
 export function useTreeRenderer({
   containerRef,
@@ -20,6 +59,9 @@ export function useTreeRenderer({
   const nodesContainerRef = useRef(null);
   const connectionsContainerRef = useRef(null);
   const backgroundContainerRef = useRef(null);
+  const spatialIndexRef = useRef(null);
+  const highlightRingRef = useRef(null);
+  const hoveredNodeIdRef = useRef(null);
 
   // Use refs for callbacks to avoid stale closures
   const onNodeHoverRef = useRef(onNodeHover);
@@ -118,7 +160,7 @@ export function useTreeRenderer({
         if (destroyed) return;
 
         // Render the tree
-        await renderTree(
+        const renderResult = await renderTree(
           treeData,
           allocatedNodes,
           highlightedKeystones,
@@ -126,9 +168,79 @@ export function useTreeRenderer({
           backgroundContainer,
           nodesContainer,
           connectionsContainer,
-          onNodeHoverRef,
-          onNodeClickRef
         );
+
+        // Build spatial index for hover/click
+        if (renderResult) {
+          spatialIndexRef.current = buildSpatialIndex(renderResult.nodePositions, treeData.nodes);
+        }
+
+        // Create reusable highlight ring (added to nodesContainer so it transforms with nodes)
+        const highlightRing = new Graphics();
+        highlightRing.visible = false;
+        nodesContainer.addChild(highlightRing);
+        highlightRingRef.current = highlightRing;
+
+        // Viewport-level pointer handlers (replaces per-node events)
+        let hoverDebounceTimer = null;
+
+        viewport.eventMode = 'static';
+
+        viewport.on('pointermove', (e) => {
+          if (hoverDebounceTimer) return;
+          hoverDebounceTimer = setTimeout(() => {
+            hoverDebounceTimer = null;
+          }, 16); // ~60fps cap
+
+          const worldPos = viewport.toWorld(e.global.x, e.global.y);
+          const zoom = viewport.scale.x || 0.1;
+          const maxDist = Math.min(60 / zoom, 200); // Scale hit distance by zoom
+
+          const hit = spatialIndexRef.current
+            ? findNearestNode(spatialIndexRef.current, worldPos.x, worldPos.y, maxDist)
+            : null;
+
+          if (hit) {
+            if (hoveredNodeIdRef.current !== hit.nodeId) {
+              hoveredNodeIdRef.current = hit.nodeId;
+              onNodeHoverRef.current?.(hit.node, { x: e.global.x, y: e.global.y });
+
+              // Position highlight ring
+              const ring = highlightRingRef.current;
+              if (ring) {
+                const nodeType = getNodeType(hit.node);
+                const radius = getNodeRadius(nodeType) + 6;
+                ring.clear();
+                ring.circle(0, 0, radius);
+                ring.stroke({ width: 2, color: 0xffffff, alpha: 0.6 });
+                ring.position.set(hit.pos.x, hit.pos.y);
+                ring.visible = true;
+              }
+            }
+          } else {
+            if (hoveredNodeIdRef.current !== null) {
+              hoveredNodeIdRef.current = null;
+              onNodeHoverRef.current?.(null, { x: 0, y: 0 });
+              if (highlightRingRef.current) {
+                highlightRingRef.current.visible = false;
+              }
+            }
+          }
+        });
+
+        viewport.on('pointertap', (e) => {
+          const worldPos = viewport.toWorld(e.global.x, e.global.y);
+          const zoom = viewport.scale.x || 0.1;
+          const maxDist = Math.min(60 / zoom, 200);
+
+          const hit = spatialIndexRef.current
+            ? findNearestNode(spatialIndexRef.current, worldPos.x, worldPos.y, maxDist)
+            : null;
+
+          if (hit) {
+            onNodeClickRef.current?.(hit.node);
+          }
+        });
 
         // Center the viewport
         centerViewport(viewport, treeData, allocatedNodes);
@@ -174,7 +286,7 @@ export function useTreeRenderer({
       backgroundContainerRef.current.removeChildren();
     }
 
-    renderTree(
+    const renderResult = renderTree(
       treeData,
       allocatedNodes,
       highlightedKeystones,
@@ -182,9 +294,24 @@ export function useTreeRenderer({
       backgroundContainerRef.current,
       nodesContainerRef.current,
       connectionsContainerRef.current,
-      onNodeHoverRef,
-      onNodeClickRef
     );
+
+    // Rebuild spatial index
+    if (renderResult) {
+      spatialIndexRef.current = buildSpatialIndex(renderResult.nodePositions, treeData.nodes);
+    }
+
+    // Re-add highlight ring
+    if (highlightRingRef.current) {
+      highlightRingRef.current.visible = false;
+      nodesContainerRef.current.addChild(highlightRingRef.current);
+    } else {
+      const highlightRing = new Graphics();
+      highlightRing.visible = false;
+      nodesContainerRef.current.addChild(highlightRing);
+      highlightRingRef.current = highlightRing;
+    }
+    hoveredNodeIdRef.current = null;
   }, [allocatedNodes, highlightedKeystones, ascendancyName, treeData]);
 }
 
@@ -246,6 +373,12 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
   const assetsRoot = treeData.assetsRoot || `${import.meta.env.BASE_URL}assets/skill-tree/`;
   const zoomLevel = 3;
 
+  // Mastery nodes: icon keys don't match sprite coords — keep geometric fallback
+  if (node.isMastery) return null;
+
+  // Jewel sockets: icon keys don't match jewel sprite coords — keep geometric fallback
+  if (node.isJewelSocket) return null;
+
   // Determine which sprite type to use based on node type
   let spriteType = null;
   let iconKey = node.icon;
@@ -254,14 +387,11 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
     spriteType = isAllocated ? skillSprites.keystoneActive : skillSprites.keystoneInactive;
   } else if (node.isNotable) {
     spriteType = isAllocated ? skillSprites.notableActive : skillSprites.notableInactive;
-  } else if (node.isMastery) {
-    spriteType = skillSprites.mastery;
-    iconKey = node.inactiveIcon || node.icon;
-  } else if (node.isJewelSocket) {
-    spriteType = isAllocated ? skillSprites.jewelSocketActive : skillSprites.jewelSocketNormal;
-  } else if (node.ascendancyName) {
-    // Ascendancy nodes use the ascendancy sprite sheet
-    spriteType = skillSprites.ascendancy;
+  } else if (node.ascendancyName && !node.isAscendancyStart) {
+    // Ascendancy passives are regular passives within the ascendancy tree.
+    // The 'ascendancy' sprite sheet only contains class background images, not node icons.
+    // Look them up in the normal sprite sheets based on their actual node type.
+    spriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
   } else {
     spriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
   }
@@ -273,7 +403,10 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
 
   const sheetUrl = mapToLocalSprite(spriteInfo.filename, assetsRoot);
   const sheetTexture = spriteCache.get(sheetUrl);
-  if (!sheetTexture) return null;
+  if (!sheetTexture) {
+    console.warn('Sprite sheet not in cache:', sheetUrl);
+    return null;
+  }
 
   // Find the coordinates for this icon
   const coords = spriteInfo.coords[iconKey];
@@ -283,7 +416,7 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
   try {
     const frame = new Rectangle(coords.x, coords.y, coords.w, coords.h);
     return new Texture({ source: sheetTexture.source, frame });
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -296,8 +429,6 @@ async function renderTree(
   backgroundContainer,
   nodesContainer,
   connectionsContainer,
-  onNodeHoverRef,
-  onNodeClickRef
 ) {
   const { nodes, groups, constants } = treeData;
   const allocatedSet = new Set(allocatedNodes.map(id => id.toString()));
@@ -336,6 +467,7 @@ async function renderTree(
       const toPos = nodePositions.get(outId.toString());
       if (!toPos) continue;
 
+      const targetNode = nodes[outId.toString()];
       const isToAllocated = allocatedSet.has(outId.toString());
       const isBothAllocated = isFromAllocated && isToAllocated;
 
@@ -344,15 +476,49 @@ async function renderTree(
       const lineAlpha = isBothAllocated ? 1 : 0.6;
       const lineWidth = isBothAllocated ? 4 : 2;
 
-      connectionGraphics.moveTo(fromPos.x, fromPos.y);
-      connectionGraphics.lineTo(toPos.x, toPos.y);
-      connectionGraphics.stroke({ width: lineWidth, color: lineColor, alpha: lineAlpha });
+      // Check if both nodes share the same group and orbit (for arc drawing)
+      const sameGroup = targetNode && node.group === targetNode.group && node.group != null;
+      const fromOrbit = node.orbit ?? 0;
+      const toOrbit = targetNode ? (targetNode.orbit ?? 0) : 0;
+      const sameOrbit = sameGroup && fromOrbit === toOrbit && fromOrbit > 0;
+
+      if (sameOrbit) {
+        // Draw arc along the orbit ring
+        const group = groups[node.group];
+        if (group) {
+          const orbitRadius = constants.orbitRadii[fromOrbit] || 0;
+          // Calculate angles in tree space (0=up, clockwise)
+          const fromAngle = getOrbitAngle(fromOrbit, node.orbitIndex ?? 0, constants.skillsPerOrbit);
+          const toAngle = getOrbitAngle(toOrbit, targetNode.orbitIndex ?? 0, constants.skillsPerOrbit);
+
+          // Convert tree angles to PixiJS arc angles (0=right, clockwise)
+          // Tree: 0=up with sin/cos → PixiJS arc: offset by -PI/2
+          const arcFromAngle = fromAngle - Math.PI / 2;
+          const arcToAngle = toAngle - Math.PI / 2;
+
+          // Choose the shorter arc direction
+          let diff = arcToAngle - arcFromAngle;
+          // Normalize to [-PI, PI]
+          while (diff > Math.PI) diff -= 2 * Math.PI;
+          while (diff < -Math.PI) diff += 2 * Math.PI;
+          const anticlockwise = diff < 0;
+
+          connectionGraphics.moveTo(fromPos.x, fromPos.y);
+          connectionGraphics.arc(group.x, group.y, orbitRadius, arcFromAngle, arcToAngle, anticlockwise);
+          connectionGraphics.stroke({ width: lineWidth, color: lineColor, alpha: lineAlpha });
+        }
+      } else {
+        // Straight line for cross-group or cross-orbit connections
+        connectionGraphics.moveTo(fromPos.x, fromPos.y);
+        connectionGraphics.lineTo(toPos.x, toPos.y);
+        connectionGraphics.stroke({ width: lineWidth, color: lineColor, alpha: lineAlpha });
+      }
     }
   }
 
   connectionsContainer.addChild(connectionGraphics);
 
-  // Render nodes
+  // Render nodes (no per-node event handlers — spatial index handles interaction)
   for (const [nodeId, node] of Object.entries(nodes)) {
     const pos = nodePositions.get(nodeId);
     if (!pos) continue;
@@ -368,13 +534,6 @@ async function renderTree(
       smallNode.circle(0, 0, 8);
       smallNode.fill({ color: 0x2a3a4a, alpha: 0.4 });
       smallNode.position.set(pos.x, pos.y);
-
-      // Add hover handlers to clear tooltip when hovering over background nodes
-      smallNode.eventMode = 'static';
-      smallNode.on('pointerover', () => {
-        onNodeHoverRef.current?.(null, { x: 0, y: 0 });
-      });
-
       nodesContainer.addChild(smallNode);
       continue;
     }
@@ -382,32 +541,10 @@ async function renderTree(
     // Try to create sprite-based node, fall back to graphics
     const nodeGraphic = createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData);
     nodeGraphic.position.set(pos.x, pos.y);
-
-    // Store node data for interactions
-    nodeGraphic.node = node;
-    nodeGraphic.eventMode = 'static';
-    nodeGraphic.cursor = 'pointer';
-
-    // Hover events
-    nodeGraphic.on('pointerover', (e) => {
-      const globalPos = e.global;
-      onNodeHoverRef.current?.(node, { x: globalPos.x, y: globalPos.y });
-
-      // Scale up on hover
-      nodeGraphic.scale.set(1.15);
-    });
-
-    nodeGraphic.on('pointerout', () => {
-      onNodeHoverRef.current?.(null, { x: 0, y: 0 });
-      nodeGraphic.scale.set(1);
-    });
-
-    nodeGraphic.on('pointertap', () => {
-      onNodeClickRef.current?.(node);
-    });
-
     nodesContainer.addChild(nodeGraphic);
   }
+
+  return { nodePositions };
 }
 
 /**

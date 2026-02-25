@@ -4,6 +4,7 @@ import {
   getNodeType,
   getNodeRadius,
   getNodeColor,
+  getOrbitAngle,
   SKILLS_PER_ORBIT,
   ORBIT_RADII,
   findAllocatedPaths,
@@ -56,6 +57,17 @@ describe('getNodePosition', () => {
     const node = { orbit: 1, oidx: 0 };
     const pos = getNodePosition(node, group);
     expect(pos.x).toBeCloseTo(100);
+  });
+
+  it('uses non-uniform angle for 16-node orbit', () => {
+    // Orbit 2 has 16 nodes with non-uniform spacing
+    // Index 1 = 30 degrees, so sin(30°) = 0.5, cos(30°) ≈ 0.866
+    const node = { orbit: 2, orbitIndex: 1 };
+    const pos = getNodePosition(node, group);
+    const radius = 162; // ORBIT_RADII[2]
+    const angle = (30 * Math.PI) / 180;
+    expect(pos.x).toBeCloseTo(group.x + radius * Math.sin(angle));
+    expect(pos.y).toBeCloseTo(group.y - radius * Math.cos(angle));
   });
 });
 
@@ -179,14 +191,14 @@ describe('getAscendancyNodes', () => {
 });
 
 describe('constants', () => {
-  it('SKILLS_PER_ORBIT has 5 entries', () => {
-    expect(SKILLS_PER_ORBIT).toHaveLength(5);
-    expect(SKILLS_PER_ORBIT[0]).toBe(1);
+  it('SKILLS_PER_ORBIT has 7 entries matching GGG data', () => {
+    expect(SKILLS_PER_ORBIT).toHaveLength(7);
+    expect(SKILLS_PER_ORBIT).toEqual([1, 6, 16, 16, 40, 72, 72]);
   });
 
-  it('ORBIT_RADII has 5 entries', () => {
-    expect(ORBIT_RADII).toHaveLength(5);
-    expect(ORBIT_RADII[0]).toBe(0);
+  it('ORBIT_RADII has 7 entries matching GGG data', () => {
+    expect(ORBIT_RADII).toHaveLength(7);
+    expect(ORBIT_RADII).toEqual([0, 82, 162, 335, 493, 662, 846]);
   });
 
   it('LEAGUE_VERSIONS has entries', () => {
@@ -199,6 +211,46 @@ describe('constants', () => {
     const defaultVariant = TREE_VARIANTS.find(v => v.id === 'default');
     expect(defaultVariant).toBeDefined();
     expect(defaultVariant.file).toBe('data.json');
+  });
+});
+
+describe('getOrbitAngle', () => {
+  it('returns 0 for orbit index 0 in any orbit', () => {
+    expect(getOrbitAngle(0, 0)).toBe(0);
+    expect(getOrbitAngle(1, 0)).toBe(0);
+    expect(getOrbitAngle(2, 0)).toBe(0);
+    expect(getOrbitAngle(5, 0)).toBe(0);
+  });
+
+  it('uses uniform spacing for 6-node orbit', () => {
+    // Orbit 1 has 6 nodes, uniform spacing
+    const angle1 = getOrbitAngle(1, 1);
+    const expected = (2 * Math.PI * 1) / 6;
+    expect(angle1).toBeCloseTo(expected);
+  });
+
+  it('uses non-uniform spacing for 16-node orbit (orbit 2)', () => {
+    // Index 1 should be 30 degrees, not 360/16 = 22.5 degrees
+    const angle = getOrbitAngle(2, 1);
+    expect(angle).toBeCloseTo((30 * Math.PI) / 180);
+    // Index 2 should be 45 degrees
+    const angle2 = getOrbitAngle(2, 2);
+    expect(angle2).toBeCloseTo((45 * Math.PI) / 180);
+  });
+
+  it('uses non-uniform spacing for 40-node orbit (orbit 4)', () => {
+    // Index 5 should be 45 degrees
+    const angle = getOrbitAngle(4, 5);
+    expect(angle).toBeCloseTo((45 * Math.PI) / 180);
+    // Index 10 should be 90 degrees (not 360/40*10 = 90, but verified)
+    const angle2 = getOrbitAngle(4, 10);
+    expect(angle2).toBeCloseTo((90 * Math.PI) / 180);
+  });
+
+  it('uses uniform spacing for 72-node orbit (orbit 5)', () => {
+    const angle = getOrbitAngle(5, 1);
+    const expected = (2 * Math.PI * 1) / 72;
+    expect(angle).toBeCloseTo(expected);
   });
 });
 

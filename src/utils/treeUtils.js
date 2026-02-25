@@ -43,9 +43,34 @@ export function getSpriteUrl(version = 'master', spritePath) {
 // Default tree data URL (latest)
 export const TREE_DATA_URL = getTreeDataUrl('master');
 
-// Orbit configuration - how many nodes can fit in each orbit ring
-export const SKILLS_PER_ORBIT = [1, 6, 16, 16, 40];
-export const ORBIT_RADII = [0, 82, 162, 335, 493];
+// Orbit configuration - how many nodes can fit in each orbit ring (7 orbits per GGG data)
+export const SKILLS_PER_ORBIT = [1, 6, 16, 16, 40, 72, 72];
+export const ORBIT_RADII = [0, 82, 162, 335, 493, 662, 846];
+
+// Non-uniform angle tables for orbits with irregular spacing (degrees)
+// Orbits with 16 and 40 nodes don't use uniform spacing in GGG's tree
+const ORBIT_ANGLES_16 = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
+const ORBIT_ANGLES_40 = [0, 10, 20, 30, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 135, 140, 150, 160, 170, 180, 190, 200, 210, 220, 225, 230, 240, 250, 260, 270, 280, 290, 300, 310, 315, 320, 330, 340, 350];
+
+/**
+ * Get the angle (in radians) for a node at a given orbit index.
+ * Uses non-uniform spacing for 16-node and 40-node orbits, uniform for others.
+ */
+export function getOrbitAngle(orbit, orbitIndex, skillsPerOrbit = SKILLS_PER_ORBIT) {
+  const nodesInOrbit = skillsPerOrbit[orbit] || 1;
+
+  if (nodesInOrbit === 16) {
+    const deg = ORBIT_ANGLES_16[orbitIndex] || 0;
+    return (deg * Math.PI) / 180;
+  }
+  if (nodesInOrbit === 40) {
+    const deg = ORBIT_ANGLES_40[orbitIndex] || 0;
+    return (deg * Math.PI) / 180;
+  }
+
+  // Uniform spacing for all other orbits
+  return (2 * Math.PI * orbitIndex) / nodesInOrbit;
+}
 
 /**
  * Calculate the world position of a node based on its group and orbit
@@ -57,8 +82,7 @@ export function getNodePosition(node, group, constants = { skillsPerOrbit: SKILL
   const orbitIndex = node.orbitIndex ?? node.oi ?? node.oidx ?? 0;
 
   const radius = constants.orbitRadii[orbit] || 0;
-  const nodesInOrbit = constants.skillsPerOrbit[orbit] || 1;
-  const angle = (2 * Math.PI * orbitIndex) / nodesInOrbit;
+  const angle = getOrbitAngle(orbit, orbitIndex, constants.skillsPerOrbit);
 
   return {
     x: group.x + radius * Math.sin(angle),
@@ -271,6 +295,15 @@ export function processTreeData(raw, leagueVersion = 'master') {
     orbitRadii: ORBIT_RADII
   };
 
+  // Precompute orbit angle tables for arc drawing
+  constants.orbitAngles = constants.skillsPerOrbit.map((count, orbit) => {
+    const angles = [];
+    for (let i = 0; i < count; i++) {
+      angles.push(getOrbitAngle(orbit, i, constants.skillsPerOrbit));
+    }
+    return angles;
+  });
+
   // Process sprite information
   // GGG JSON uses 'sprites' with string zoom level keys like '0.3835'
   // Transform to array format expected by renderer
@@ -280,7 +313,7 @@ export function processTreeData(raw, leagueVersion = 'master') {
   const transformSpriteType = (spriteData) => {
     if (!spriteData) return [];
     // Convert from { '0.1246': {...}, '0.3835': {...} } to array indexed by zoom level
-    return zoomLevels.map((zoom, idx) => {
+    return zoomLevels.map((zoom) => {
       const entry = spriteData[zoom.toString()] || spriteData[zoom];
       if (!entry) return null;
       // Extract just the filename from full URL (e.g., "skills-3.jpg" from "https://web.poecdn.com/.../skills-3.jpg?hash")
