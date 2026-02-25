@@ -421,7 +421,7 @@ function getNodeSpriteTexture(node, treeData, isAllocated) {
   }
 }
 
-async function renderTree(
+function renderTree(
   treeData,
   allocatedNodes,
   highlightedKeystones,
