@@ -12,9 +12,11 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const dryRun = process.argv.includes('--dry-run');
+
 function updatePoe1File(results) {
   const poe1Path = path.join(__dirname, '..', 'src', 'data', 'games', 'poe1.js');
-  console.log(`\nUpdating ${poe1Path}...`);
+  console.log(`\nUpdating ${poe1Path}...${dryRun ? ' (DRY RUN)' : ''}`);
 
   let content = fs.readFileSync(poe1Path, 'utf-8');
   let updatedCount = 0;
@@ -81,7 +83,28 @@ function updatePoe1File(results) {
     updatedCount++;
   }
 
+  if (dryRun) {
+    console.log(`\n[DRY RUN] Would update ${updatedCount} builds. No files changed.`);
+    return;
+  }
+
+  // Create backup before writing
+  const bakPath = poe1Path + '.bak';
+  fs.copyFileSync(poe1Path, bakPath);
+  console.log(`  Backup created: ${bakPath}`);
+
   fs.writeFileSync(poe1Path, content);
+
+  // Verify the output is valid JS by attempting a dynamic import check
+  try {
+    // Basic syntax check: ensure the file is parseable
+    new Function(content.replace(/^export /gm, '').replace(/^import .*/gm, ''));
+    console.log(`  Syntax verification passed.`);
+  } catch (err) {
+    console.error(`  WARNING: Output file may have syntax errors: ${err.message}`);
+    console.error(`  Backup available at: ${bakPath}`);
+  }
+
   console.log(`\nFile updated! ${updatedCount} builds modified.`);
 }
 

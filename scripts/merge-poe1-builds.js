@@ -14,6 +14,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const dryRun = process.argv.includes('--dry-run');
+
 // Load the generated poe.ninja builds JSON
 const ninjaBuildsPath = path.join(__dirname, 'poe1-ninja-builds.json');
 const ninjaBuilds = JSON.parse(fs.readFileSync(ninjaBuildsPath, 'utf-8'));
@@ -98,10 +100,29 @@ Object.entries(ninjaBuildsByClass).forEach(([classId, ninjaSkills]) => {
   poe1Content = poe1Content.substring(0, skillsStart) + skillsStr + poe1Content.substring(skillsStart);
 });
 
-// Write the merged content
-fs.writeFileSync(poe1Path, poe1Content);
-console.log(`\nMerged builds saved to: ${poe1Path}`);
-
 // Count total builds
 const totalBuildsMatch = poe1Content.match(/id:\s*['"]/g);
-console.log(`Total builds in file: ~${totalBuildsMatch ? totalBuildsMatch.length / 2 : 'unknown'}`);
+const totalCount = totalBuildsMatch ? totalBuildsMatch.length / 2 : 'unknown';
+
+if (dryRun) {
+  console.log(`\n[DRY RUN] Would save merged builds (~${totalCount} total). No files changed.`);
+} else {
+  // Create backup before writing
+  const bakPath = poe1Path + '.bak';
+  fs.copyFileSync(poe1Path, bakPath);
+  console.log(`\nBackup created: ${bakPath}`);
+
+  fs.writeFileSync(poe1Path, poe1Content);
+
+  // Verify the output is valid JS by attempting basic syntax check
+  try {
+    new Function(poe1Content.replace(/^export /gm, '').replace(/^import .*/gm, ''));
+    console.log(`Syntax verification passed.`);
+  } catch (err) {
+    console.error(`WARNING: Output file may have syntax errors: ${err.message}`);
+    console.error(`Backup available at: ${bakPath}`);
+  }
+
+  console.log(`Merged builds saved to: ${poe1Path}`);
+  console.log(`Total builds in file: ~${totalCount}`);
+}

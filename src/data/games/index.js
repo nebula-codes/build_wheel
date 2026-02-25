@@ -1,6 +1,7 @@
 import { diablo4, getTierColor, getDifficultyColor } from './diablo4';
 import { poe1 as poe1Maxroll, getPoeTierColor, getPoeDifficultyColor } from './poe1';
 import { poe1NinjaBuilds } from './poe1-ninja-builds';
+import { validateGameData } from '../buildSchema';
 
 // Merge poe1 Maxroll builds with poe.ninja builds
 function mergePoe1Builds() {
@@ -40,6 +41,10 @@ function mergePoe1Builds() {
 }
 
 const poe1 = mergePoe1Builds();
+
+// Validate game data in development
+validateGameData(diablo4, 'diablo4');
+validateGameData(poe1, 'poe1');
 
 export const games = {
   diablo4,

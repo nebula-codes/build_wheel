@@ -7,17 +7,67 @@ const POE_NINJA_BUILDS_API = 'https://poe.ninja/api/data/builds';
 const cache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Rate limiting
+const MIN_REQUEST_INTERVAL_MS = 200;
+const MAX_BACKOFF_MS = 30000;
+let lastRequestTime = 0;
+let consecutiveErrors = 0;
+const requestQueue = [];
+let isProcessingQueue = false;
+
 /**
- * Fetch with caching
+ * Wait until rate limit window allows another request
  */
-async function fetchWithCache(url, ttl = CACHE_TTL) {
+function waitForRateLimit() {
+  const now = Date.now();
+  const backoff = consecutiveErrors > 0
+    ? Math.min(MIN_REQUEST_INTERVAL_MS * Math.pow(2, consecutiveErrors), MAX_BACKOFF_MS)
+    : MIN_REQUEST_INTERVAL_MS;
+  const elapsed = now - lastRequestTime;
+  const waitTime = Math.max(0, backoff - elapsed);
+  return waitTime > 0 ? new Promise(resolve => setTimeout(resolve, waitTime)) : Promise.resolve();
+}
+
+/**
+ * Process queued requests sequentially with rate limiting
+ */
+async function processQueue() {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+
+  while (requestQueue.length > 0) {
+    const { url, ttl, resolve, reject } = requestQueue.shift();
+    try {
+      await waitForRateLimit();
+      const result = await fetchDirect(url, ttl);
+      consecutiveErrors = 0;
+      resolve(result);
+    } catch (error) {
+      if (error.message?.includes('429')) {
+        consecutiveErrors++;
+      }
+      reject(error);
+    }
+  }
+
+  isProcessingQueue = false;
+}
+
+/**
+ * Direct fetch with caching (no rate limiting)
+ */
+async function fetchDirect(url, ttl = CACHE_TTL) {
   const cached = cache.get(url);
   if (cached && Date.now() - cached.timestamp < ttl) {
     return cached.data;
   }
 
   try {
+    lastRequestTime = Date.now();
     const response = await fetch(url);
+    if (response.status === 429) {
+      throw new Error(`API error: 429 Too Many Requests`);
+    }
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
@@ -33,6 +83,23 @@ async function fetchWithCache(url, ttl = CACHE_TTL) {
     }
     throw error;
   }
+}
+
+/**
+ * Fetch with caching and rate limiting
+ */
+async function fetchWithCache(url, ttl = CACHE_TTL) {
+  // Return from cache immediately if fresh (no queue needed)
+  const cached = cache.get(url);
+  if (cached && Date.now() - cached.timestamp < ttl) {
+    return cached.data;
+  }
+
+  // Queue the request for rate-limited execution
+  return new Promise((resolve, reject) => {
+    requestQueue.push({ url, ttl, resolve, reject });
+    processQueue();
+  });
 }
 
 /**

@@ -36,6 +36,7 @@ export function useTreeRenderer({
     if (!containerRef.current || !treeData) return;
 
     let destroyed = false;
+    let resizeHandler = null;
 
     async function initApp() {
       // Cleanup previous instance
@@ -66,8 +67,10 @@ export function useTreeRenderer({
           return;
         }
 
-        // Clear container and add canvas
-        container.innerHTML = '';
+        // Remove previous canvas if any, then add new one
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
         container.appendChild(app.canvas);
 
         appRef.current = app;
@@ -131,7 +134,7 @@ export function useTreeRenderer({
         centerViewport(viewport, treeData, allocatedNodes);
 
         // Handle resize
-        const handleResize = () => {
+        resizeHandler = () => {
           if (!appRef.current || !viewportRef.current) return;
           const newWidth = container.clientWidth;
           const newHeight = container.clientHeight;
@@ -139,12 +142,7 @@ export function useTreeRenderer({
           viewport.resize(newWidth, newHeight);
         };
 
-        window.addEventListener('resize', handleResize);
-
-        // Cleanup
-        return () => {
-          window.removeEventListener('resize', handleResize);
-        };
+        window.addEventListener('resize', resizeHandler);
       } catch (err) {
         console.error('Failed to initialize PixiJS:', err);
       }
@@ -154,6 +152,9 @@ export function useTreeRenderer({
 
     return () => {
       destroyed = true;
+      if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler);
+      }
       if (appRef.current) {
         appRef.current.destroy(true);
         appRef.current = null;

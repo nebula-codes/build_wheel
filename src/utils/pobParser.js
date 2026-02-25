@@ -103,15 +103,28 @@ function parseTreeBytes(bytes) {
 /**
  * Decode a Path of Building pastebin/code
  */
+/** Max decompressed size (5MB) to prevent decompression bombs */
+const MAX_DECOMPRESSED_SIZE = 5 * 1024 * 1024;
+
 export function decodePobCode(code) {
   if (!code) return null;
 
   try {
     // Remove pastebin URL if present
-    let encoded = code;
-    if (code.includes('pastebin.com/')) {
-      // Would need to fetch the pastebin content
+    let encoded = code.trim();
+    if (encoded.includes('pastebin.com/')) {
       console.warn('Pastebin URLs require fetching - use raw code instead');
+      return null;
+    }
+
+    // Validate base64 format (standard or URL-safe base64)
+    if (!/^[A-Za-z0-9+/\-_=]+$/.test(encoded)) {
+      console.warn('Invalid PoB code: contains non-base64 characters');
+      return null;
+    }
+
+    if (encoded.length < 10) {
+      console.warn('Invalid PoB code: too short');
       return null;
     }
 
@@ -123,8 +136,13 @@ export function decodePobCode(code) {
       bytes[i] = binaryString.charCodeAt(i);
     }
 
-    // Decompress with zlib
+    // Decompress with zlib (with size limit)
     const decompressed = pako.inflate(bytes, { to: 'string' });
+
+    if (decompressed.length > MAX_DECOMPRESSED_SIZE) {
+      console.warn('PoB code decompressed data exceeds size limit');
+      return null;
+    }
 
     // Parse XML
     return parsePobXml(decompressed);

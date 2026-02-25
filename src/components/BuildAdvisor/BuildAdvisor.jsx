@@ -45,9 +45,17 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
   const [importedBuild, setImportedBuild] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   // The active build is either the imported one or the passed prop
   const activeBuild = importedBuild || build;
+
+  // Abort any in-flight request on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Load API key and league from localStorage on mount
   useEffect(() => {
@@ -327,14 +335,26 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
         }];
       }
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(requestBody)
-      });
+      // Abort any previous request and create new controller
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      let response;
+      try {
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -366,7 +386,11 @@ export default function BuildAdvisor({ build, onClose, onBuildImport, className 
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      setError(err.message);
+      if (err.name === 'AbortError') {
+        setError('Request timed out or was cancelled. Please try again.');
+      } else {
+        setError(err.message);
+      }
       // Remove the user message if there was an error
       setMessages(prev => prev.slice(0, -1));
     } finally {

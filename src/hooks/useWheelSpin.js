@@ -1,5 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+// Spin configuration constants
+const MIN_ROTATIONS = 3;
+const MAX_EXTRA_ROTATIONS = 3;
+const SPIN_DURATION_MS = 4000;
+const BASE_TICK_DELAY_MS = 50;
+const MAX_TICK_DELAY_MS = 300;
+
 export function useWheelSpin(items, onComplete, onTick) {
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -30,8 +37,7 @@ export function useWheelSpin(items, onComplete, onTick) {
     setIsSpinning(true);
     setSelectedItem(null);
 
-    // Random number of full rotations (3-5)
-    const fullRotations = 3 + Math.floor(Math.random() * 3);
+    const fullRotations = MIN_ROTATIONS + Math.floor(Math.random() * MAX_EXTRA_ROTATIONS);
     const randomSegment = Math.floor(Math.random() * currentItems.length);
     const segmentAngle = 360 / currentItems.length;
 
@@ -74,8 +80,7 @@ export function useWheelSpin(items, onComplete, onTick) {
         onTickRef.current();
         tickCount++;
         // Exponentially increase interval (start fast, slow down)
-        const baseDelay = 50;
-        const delay = baseDelay + Math.pow(tickCount / maxTicks, 2) * 300;
+        const delay = BASE_TICK_DELAY_MS + Math.pow(tickCount / maxTicks, 2) * MAX_TICK_DELAY_MS;
         tickIntervalRef.current = setTimeout(tick, delay);
       };
       tickIntervalRef.current = setTimeout(tick, 100);
@@ -93,7 +98,7 @@ export function useWheelSpin(items, onComplete, onTick) {
       if (onCompleteRef.current) {
         onCompleteRef.current(selectedItemForCallback);
       }
-    }, 4000); // Match CSS transition duration
+    }, SPIN_DURATION_MS); // Match CSS transition duration
 
     return randomSegment;
   }, [isSpinning, rotation]);

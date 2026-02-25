@@ -3,6 +3,16 @@
  * Handles: headers, bold, italic, code blocks, inline code, lists, links
  */
 
+function sanitizeUrl(url) {
+  try {
+    const parsed = new URL(url, 'https://placeholder.invalid');
+    const allowed = ['http:', 'https:', 'mailto:'];
+    return allowed.includes(parsed.protocol) ? url : '#';
+  } catch {
+    return '#';
+  }
+}
+
 export default function MarkdownRenderer({ content, className = '' }) {
   if (!content) return null;
 
@@ -175,7 +185,7 @@ export default function MarkdownRenderer({ content, className = '' }) {
         parts.push(
           <a
             key={key++}
-            href={match[3]}
+            href={sanitizeUrl(match[3])}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300 underline"

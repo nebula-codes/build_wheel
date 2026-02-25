@@ -61,6 +61,8 @@ const Wheel = forwardRef(function Wheel({ items, title, onSpinComplete, onTick }
         <svg
           className="w-80 h-80 lg:w-96 lg:h-96"
           viewBox="-150 -150 300 300"
+          role="img"
+          aria-label={`${title} wheel with ${items.length} options${selectedItem ? `. Selected: ${selectedItem.name}` : ''}`}
           style={{
             transform: `rotate(${rotation}deg)`,
             transition: isSpinning ? 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
