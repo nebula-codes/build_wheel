@@ -253,7 +253,7 @@ export default function SkillTree({
       {/* Controls overlay */}
       <div className="absolute bottom-4 left-4 text-xs text-gray-500 bg-black/50 px-2 py-1 rounded">
         Scroll to zoom • Drag to pan
-        <span className="block text-gray-600 mt-1">Using stylized graphics (official sprites blocked by CORS)</span>
+        <span className="block text-gray-600 mt-1">Official sprite atlases and group textures enabled</span>
       </div>
 
       {/* Stats overlay */}

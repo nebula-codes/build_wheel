@@ -331,6 +331,11 @@ export function processTreeData(raw, leagueVersion = 'master') {
   };
 
   const sprites = {
+    // Raw sprite types keyed by GGG sprite name.
+    // Keeps all available atlases so renderer can resolve league-specific icon sheets.
+    byType: Object.fromEntries(
+      Object.entries(rawSprites).map(([key, spriteData]) => [key, transformSpriteType(spriteData)])
+    ),
     skillSprites: {
       normalActive: transformSpriteType(rawSprites.normalActive),
       normalInactive: transformSpriteType(rawSprites.normalInactive),
@@ -339,9 +344,33 @@ export function processTreeData(raw, leagueVersion = 'master') {
       notableActive: transformSpriteType(rawSprites.notableActive),
       notableInactive: transformSpriteType(rawSprites.notableInactive),
       mastery: transformSpriteType(rawSprites.mastery),
+      masteryInactive: transformSpriteType(rawSprites.masteryInactive),
+      masteryActiveSelected: transformSpriteType(rawSprites.masteryActiveSelected),
+      masteryConnected: transformSpriteType(rawSprites.masteryConnected),
       jewelSocketActive: transformSpriteType(rawSprites.jewel),
       jewelSocketNormal: transformSpriteType(rawSprites.jewel),
       ascendancy: transformSpriteType(rawSprites.ascendancy),
+    },
+    uiSprites: {
+      background: transformSpriteType(rawSprites.background),
+      groupBackground: transformSpriteType(rawSprites.groupBackground),
+      frame: transformSpriteType(rawSprites.frame),
+      line: transformSpriteType(rawSprites.line),
+      startNode: transformSpriteType(rawSprites.startNode),
+    },
+    specialIconSprites: {
+      ascendancy: transformSpriteType(rawSprites.ascendancy),
+      aulBloodline: transformSpriteType(rawSprites.aulBloodline),
+      azmeriBloodline: transformSpriteType(rawSprites.azmeriBloodline),
+      breachlordBloodline: transformSpriteType(rawSprites.breachlordBloodline),
+      catarinaBloodline: transformSpriteType(rawSprites.catarinaBloodline),
+      deliriousBloodline: transformSpriteType(rawSprites.deliriousBloodline),
+      farrulBloodline: transformSpriteType(rawSprites.farrulBloodline),
+      kingInTheMistsBloodline: transformSpriteType(rawSprites.kingInTheMistsBloodline),
+      lyciaBloodline: transformSpriteType(rawSprites.lyciaBloodline),
+      olrothBloodline: transformSpriteType(rawSprites.olrothBloodline),
+      oshabiBloodline: transformSpriteType(rawSprites.oshabiBloodline),
+      trialmasterBloodline: transformSpriteType(rawSprites.trialmasterBloodline),
     },
     assets: raw.assets || {},
     imageZoomLevels: zoomLevels

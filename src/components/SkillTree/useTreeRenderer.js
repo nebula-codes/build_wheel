@@ -1,10 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { Application, Graphics, Container, Text, TextStyle, Assets, Sprite, Texture, Rectangle } from 'pixi.js';
+import { Application, Graphics, Container, Assets, Sprite, Texture, Rectangle } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { getNodePosition, getNodeType, getNodeRadius, getNodeColor, getOrbitAngle } from '../../utils/treeUtils';
 
 // Sprite sheet cache
 const spriteCache = new Map();
+const spriteRegionCache = new Map();
+const spriteLoadFailures = new Set();
+const coordLookupCache = new WeakMap();
+const nodeTextureCache = new Map();
+const UI_ZOOM_LEVEL = 3;
 
 // Spatial index for fast node lookups on hover/click
 const SPATIAL_CELL_SIZE = 100;
@@ -160,7 +165,7 @@ export function useTreeRenderer({
         if (destroyed) return;
 
         // Render the tree
-        const renderResult = await renderTree(
+        const renderResult = renderTree(
           treeData,
           allocatedNodes,
           highlightedKeystones,
@@ -182,56 +187,63 @@ export function useTreeRenderer({
         highlightRingRef.current = highlightRing;
 
         // Viewport-level pointer handlers (replaces per-node events)
-        let hoverDebounceTimer = null;
+        let hoverRaf = null;
+        let pendingHoverEvent = null;
 
         viewport.eventMode = 'static';
 
         viewport.on('pointermove', (e) => {
-          if (hoverDebounceTimer) return;
-          hoverDebounceTimer = setTimeout(() => {
-            hoverDebounceTimer = null;
-          }, 16); // ~60fps cap
+          // Skip expensive hover lookups while dragging.
+          if (e.buttons > 0) return;
 
-          const worldPos = viewport.toWorld(e.global.x, e.global.y);
-          const zoom = viewport.scale.x || 0.1;
-          const maxDist = Math.min(60 / zoom, 200); // Scale hit distance by zoom
+          pendingHoverEvent = e;
+          if (hoverRaf) return;
 
-          const hit = spatialIndexRef.current
-            ? findNearestNode(spatialIndexRef.current, worldPos.x, worldPos.y, maxDist)
-            : null;
+          hoverRaf = requestAnimationFrame(() => {
+            hoverRaf = null;
+            const latest = pendingHoverEvent;
+            pendingHoverEvent = null;
+            if (!latest) return;
 
-          if (hit) {
-            if (hoveredNodeIdRef.current !== hit.nodeId) {
-              hoveredNodeIdRef.current = hit.nodeId;
-              onNodeHoverRef.current?.(hit.node, { x: e.global.x, y: e.global.y });
+            const worldPos = viewport.toWorld(latest.global.x, latest.global.y);
+            const zoom = viewport.scale.x || 0.1;
+            const maxDist = Math.min(38 / zoom, 120); // tighter hit radius = fewer false positives
 
-              // Position highlight ring
-              const ring = highlightRingRef.current;
-              if (ring) {
-                const nodeType = getNodeType(hit.node);
-                const radius = getNodeRadius(nodeType) + 6;
-                ring.clear();
-                ring.circle(0, 0, radius);
-                ring.stroke({ width: 2, color: 0xffffff, alpha: 0.6 });
-                ring.position.set(hit.pos.x, hit.pos.y);
-                ring.visible = true;
+            const hit = spatialIndexRef.current
+              ? findNearestNode(spatialIndexRef.current, worldPos.x, worldPos.y, maxDist)
+              : null;
+
+            if (hit) {
+              if (hoveredNodeIdRef.current !== hit.nodeId) {
+                hoveredNodeIdRef.current = hit.nodeId;
+                onNodeHoverRef.current?.(hit.node, { x: latest.global.x, y: latest.global.y });
+
+                // Position highlight ring
+                const ring = highlightRingRef.current;
+                if (ring) {
+                  const nodeType = getNodeType(hit.node);
+                  const radius = getNodeRadius(nodeType) + 6;
+                  ring.clear();
+                  ring.circle(0, 0, radius);
+                  ring.stroke({ width: 2, color: 0xffffff, alpha: 0.6 });
+                  ring.position.set(hit.pos.x, hit.pos.y);
+                  ring.visible = true;
+                }
               }
-            }
-          } else {
-            if (hoveredNodeIdRef.current !== null) {
+            } else if (hoveredNodeIdRef.current !== null) {
               hoveredNodeIdRef.current = null;
               onNodeHoverRef.current?.(null, { x: 0, y: 0 });
               if (highlightRingRef.current) {
                 highlightRingRef.current.visible = false;
               }
             }
-          }
+          });
         });
 
         viewport.on('pointertap', (e) => {
           const worldPos = viewport.toWorld(e.global.x, e.global.y);
           const zoom = viewport.scale.x || 0.1;
-          const maxDist = Math.min(60 / zoom, 200);
+          const maxDist = Math.min(38 / zoom, 120);
 
           const hit = spatialIndexRef.current
             ? findNearestNode(spatialIndexRef.current, worldPos.x, worldPos.y, maxDist)
@@ -320,35 +332,123 @@ export function useTreeRenderer({
  * The tree data references filenames like "skills-3.jpg" which we've downloaded locally
  */
 function mapToLocalSprite(filename, assetsRoot) {
-  // If already using local assets path, just concatenate
-  if (assetsRoot.startsWith('/assets/')) {
-    return assetsRoot + filename;
-  }
-  // Otherwise use the full URL (fallback)
   return assetsRoot + filename;
+}
+
+function getSpriteInfo(spriteType, zoomLevel = UI_ZOOM_LEVEL) {
+  if (!spriteType || spriteType.length === 0) return null;
+  return spriteType[zoomLevel] || spriteType[spriteType.length - 1] || null;
+}
+
+function buildCoordLookup(coords) {
+  if (!coords) return { full: new Map(), basename: new Map() };
+  const cached = coordLookupCache.get(coords);
+  if (cached) return cached;
+
+  const lookup = {
+    full: new Map(),
+    basename: new Map()
+  };
+
+  for (const key of Object.keys(coords)) {
+    const lower = key.toLowerCase();
+    lookup.full.set(lower, key);
+
+    const basename = key.split('/').pop().toLowerCase();
+    if (!lookup.basename.has(basename)) {
+      lookup.basename.set(basename, key);
+    }
+  }
+
+  coordLookupCache.set(coords, lookup);
+  return lookup;
+}
+
+function resolveSpriteCoords(coords, iconKey) {
+  if (!coords || !iconKey) return null;
+  if (coords[iconKey]) return coords[iconKey];
+
+  const lookup = buildCoordLookup(coords);
+  const normalized = iconKey.toLowerCase();
+  const fullKey = lookup.full.get(normalized);
+  if (fullKey && coords[fullKey]) return coords[fullKey];
+
+  const basename = iconKey.split('/').pop().toLowerCase();
+  const basenameKey = lookup.basename.get(basename);
+  if (basenameKey && coords[basenameKey]) return coords[basenameKey];
+
+  return null;
+}
+
+function getTextureRegion(sheetUrl, sheetTexture, coords) {
+  const regionKey = `${sheetUrl}|${coords.x}|${coords.y}|${coords.w}|${coords.h}`;
+  const cached = spriteRegionCache.get(regionKey);
+  if (cached && !cached.destroyed) {
+    return cached;
+  }
+
+  const frame = new Rectangle(coords.x, coords.y, coords.w, coords.h);
+  const regionTexture = new Texture({ source: sheetTexture.source, frame });
+  spriteRegionCache.set(regionKey, regionTexture);
+  return regionTexture;
+}
+
+function getSpriteTextureByType(spriteType, coordKey, treeData) {
+  if (!spriteType || !coordKey) return null;
+
+  const assetsRoot = treeData.assetsRoot || `${import.meta.env.BASE_URL}assets/skill-tree/`;
+  const spriteInfo = getSpriteInfo(spriteType, UI_ZOOM_LEVEL);
+  if (!spriteInfo?.filename || !spriteInfo.coords) return null;
+
+  const sheetUrl = mapToLocalSprite(spriteInfo.filename, assetsRoot);
+  const sheetTexture = spriteCache.get(sheetUrl);
+  if (!sheetTexture) return null;
+
+  const coords = resolveSpriteCoords(spriteInfo.coords, coordKey);
+  if (!coords) return null;
+
+  try {
+    return getTextureRegion(sheetUrl, sheetTexture, coords);
+  } catch {
+    return null;
+  }
+}
+
+function getFallbackTextureByIcon(iconKey, spriteMap, treeData) {
+  if (!iconKey || !spriteMap) return null;
+
+  for (const spriteType of Object.values(spriteMap)) {
+    const texture = getSpriteTextureByType(spriteType, iconKey, treeData);
+    if (texture) return texture;
+  }
+  return null;
 }
 
 /**
  * Load sprite sheets for the tree
  */
 async function loadSprites(treeData) {
-  if (!treeData.sprites?.skillSprites) return;
+  if (!treeData.sprites) return;
 
-  const { skillSprites } = treeData.sprites;
   const assetsRoot = treeData.assetsRoot || `${import.meta.env.BASE_URL}assets/skill-tree/`;
-
-  // Get the highest zoom level sprites (best quality)
-  const zoomLevel = 3; // 0.3835 zoom = highest detail
 
   // Collect unique sprite sheet URLs
   const spriteSheetUrls = new Set();
 
-  for (const spriteType of Object.values(skillSprites)) {
-    const spriteInfo = spriteType[zoomLevel] || spriteType[spriteType.length - 1];
-    if (spriteInfo?.filename) {
-      spriteSheetUrls.add(mapToLocalSprite(spriteInfo.filename, assetsRoot));
+  const addCollection = (collection) => {
+    if (!collection) return;
+    for (const spriteType of Object.values(collection)) {
+      const spriteInfo = getSpriteInfo(spriteType, UI_ZOOM_LEVEL);
+      if (spriteInfo?.filename) {
+        spriteSheetUrls.add(mapToLocalSprite(spriteInfo.filename, assetsRoot));
+      }
     }
-  }
+  };
+
+  addCollection(treeData.sprites.byType);
+  addCollection(treeData.sprites.skillSprites);
+  addCollection(treeData.sprites.uiSprites);
+  addCollection(treeData.sprites.specialIconSprites);
 
   // Load all sprite sheets
   for (const url of spriteSheetUrls) {
@@ -357,7 +457,10 @@ async function loadSprites(treeData) {
         const texture = await Assets.load(url);
         spriteCache.set(url, texture);
       } catch (err) {
-        console.warn('Failed to load sprite sheet:', url, err);
+        if (!spriteLoadFailures.has(url)) {
+          spriteLoadFailures.add(url);
+          console.warn('Failed to load sprite sheet:', url, err);
+        }
       }
     }
   }
@@ -369,55 +472,77 @@ async function loadSprites(treeData) {
 function getNodeSpriteTexture(node, treeData, isAllocated) {
   if (!treeData.sprites?.skillSprites) return null;
 
+  const cacheKey = `${treeData.leagueVersion || 'master'}:${treeData.version}:${node.id}:${isAllocated ? 1 : 0}`;
+  if (nodeTextureCache.has(cacheKey)) {
+    return nodeTextureCache.get(cacheKey);
+  }
+
   const { skillSprites } = treeData.sprites;
-  const assetsRoot = treeData.assetsRoot || `${import.meta.env.BASE_URL}assets/skill-tree/`;
-  const zoomLevel = 3;
+  let texture = null;
 
-  // Mastery nodes: icon keys don't match sprite coords — keep geometric fallback
-  if (node.isMastery) return null;
-
-  // Jewel sockets: icon keys don't match jewel sprite coords — keep geometric fallback
-  if (node.isJewelSocket) return null;
-
-  // Determine which sprite type to use based on node type
-  let spriteType = null;
-  let iconKey = node.icon;
-
-  if (node.isKeystone) {
-    spriteType = isAllocated ? skillSprites.keystoneActive : skillSprites.keystoneInactive;
-  } else if (node.isNotable) {
-    spriteType = isAllocated ? skillSprites.notableActive : skillSprites.notableInactive;
-  } else if (node.ascendancyName && !node.isAscendancyStart) {
-    // Ascendancy passives are regular passives within the ascendancy tree.
-    // The 'ascendancy' sprite sheet only contains class background images, not node icons.
-    // Look them up in the normal sprite sheets based on their actual node type.
-    spriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
+  if (node.isMastery) {
+    const masteryType = isAllocated
+      ? (skillSprites.masteryActiveSelected || skillSprites.masteryConnected || skillSprites.mastery)
+      : (skillSprites.masteryInactive || skillSprites.mastery);
+    const masteryKey = isAllocated ? (node.activeIcon || node.icon) : (node.inactiveIcon || node.icon);
+    texture = getSpriteTextureByType(masteryType, masteryKey, treeData)
+      || getSpriteTextureByType(skillSprites.mastery, node.icon, treeData);
   } else {
-    spriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
+    let baseSpriteType = null;
+    if (node.isKeystone) {
+      baseSpriteType = isAllocated ? skillSprites.keystoneActive : skillSprites.keystoneInactive;
+    } else if (node.isNotable) {
+      baseSpriteType = isAllocated ? skillSprites.notableActive : skillSprites.notableInactive;
+    } else {
+      baseSpriteType = isAllocated ? skillSprites.normalActive : skillSprites.normalInactive;
+    }
+
+    texture = getSpriteTextureByType(baseSpriteType, node.icon, treeData);
+
+    // League-specific nodes (bloodline/atlas ascendancy sets) are in separate sprite atlases.
+    if (!texture && node.icon) {
+      texture = getFallbackTextureByIcon(node.icon, treeData.sprites.specialIconSprites, treeData);
+    }
+
+    // Last-resort lookup across all known sprite types for unexpected icon-sheet changes.
+    if (!texture && node.icon) {
+      texture = getFallbackTextureByIcon(node.icon, treeData.sprites.byType, treeData);
+    }
   }
 
-  if (!spriteType) return null;
+  nodeTextureCache.set(cacheKey, texture || null);
+  return texture;
+}
 
-  const spriteInfo = spriteType[zoomLevel] || spriteType[spriteType.length - 1];
-  if (!spriteInfo?.filename || !spriteInfo.coords) return null;
+function getNodeFrameTexture(nodeType, isAllocated, treeData) {
+  const frameSprites = treeData.sprites?.uiSprites?.frame;
+  if (!frameSprites) return null;
 
-  const sheetUrl = mapToLocalSprite(spriteInfo.filename, assetsRoot);
-  const sheetTexture = spriteCache.get(sheetUrl);
-  if (!sheetTexture) {
-    console.warn('Sprite sheet not in cache:', sheetUrl);
-    return null;
+  let frameKey = null;
+  if (nodeType === 'keystone') {
+    frameKey = isAllocated ? 'KeystoneFrameAllocated' : 'KeystoneFrameUnallocated';
+  } else if (nodeType === 'notable') {
+    frameKey = isAllocated ? 'NotableFrameAllocated' : 'NotableFrameUnallocated';
+  } else if (nodeType === 'jewel') {
+    frameKey = isAllocated ? 'JewelSocketAltActive' : 'JewelSocketAltNormal';
+  } else if (nodeType === 'mastery') {
+    frameKey = isAllocated ? 'JewelFrameAllocated' : 'JewelFrameUnallocated';
   }
 
-  // Find the coordinates for this icon
-  const coords = spriteInfo.coords[iconKey];
-  if (!coords) return null;
+  if (!frameKey) return null;
+  return getSpriteTextureByType(frameSprites, frameKey, treeData);
+}
 
-  // Create texture from sprite sheet region
-  try {
-    const frame = new Rectangle(coords.x, coords.y, coords.w, coords.h);
-    return new Texture({ source: sheetTexture.source, frame });
-  } catch {
-    return null;
+function getNodeVisualDiameter(nodeType) {
+  switch (nodeType) {
+    case 'keystone': return 72;
+    case 'notable': return 52;
+    case 'mastery': return 56;
+    case 'jewel': return 60;
+    case 'classStart': return 82;
+    case 'ascendancy': return 40;
+    case 'small':
+    default: return 30;
   }
 }
 
@@ -451,11 +576,12 @@ function renderTree(
 
   // Render group backgrounds
   if (backgroundContainer) {
-    renderGroupBackgrounds(treeData, groups, backgroundContainer);
+    renderGroupBackgrounds(treeData, groups, nodes, backgroundContainer);
   }
 
   // Render connections (behind nodes)
   const connectionGraphics = new Graphics();
+  const renderedEdges = new Set();
 
   for (const [nodeId, node] of Object.entries(nodes)) {
     const fromPos = nodePositions.get(nodeId);
@@ -464,11 +590,16 @@ function renderTree(
     const isFromAllocated = allocatedSet.has(nodeId);
 
     for (const outId of node.out || []) {
-      const toPos = nodePositions.get(outId.toString());
+      const outKey = outId.toString();
+      const edgeKey = nodeId < outKey ? `${nodeId}-${outKey}` : `${outKey}-${nodeId}`;
+      if (renderedEdges.has(edgeKey)) continue;
+      renderedEdges.add(edgeKey);
+
+      const toPos = nodePositions.get(outKey);
       if (!toPos) continue;
 
-      const targetNode = nodes[outId.toString()];
-      const isToAllocated = allocatedSet.has(outId.toString());
+      const targetNode = nodes[outKey];
+      const isToAllocated = allocatedSet.has(outKey);
       const isBothAllocated = isFromAllocated && isToAllocated;
 
       // Connection style
@@ -492,13 +623,11 @@ function renderTree(
           const toAngle = getOrbitAngle(toOrbit, targetNode.orbitIndex ?? 0, constants.skillsPerOrbit);
 
           // Convert tree angles to PixiJS arc angles (0=right, clockwise)
-          // Tree: 0=up with sin/cos → PixiJS arc: offset by -PI/2
           const arcFromAngle = fromAngle - Math.PI / 2;
           const arcToAngle = toAngle - Math.PI / 2;
 
           // Choose the shorter arc direction
           let diff = arcToAngle - arcFromAngle;
-          // Normalize to [-PI, PI]
           while (diff > Math.PI) diff -= 2 * Math.PI;
           while (diff < -Math.PI) diff += 2 * Math.PI;
           const anticlockwise = diff < 0;
@@ -518,7 +647,7 @@ function renderTree(
 
   connectionsContainer.addChild(connectionGraphics);
 
-  // Render nodes (no per-node event handlers — spatial index handles interaction)
+  // Render nodes (no per-node event handlers; spatial index handles interaction)
   for (const [nodeId, node] of Object.entries(nodes)) {
     const pos = nodePositions.get(nodeId);
     if (!pos) continue;
@@ -527,18 +656,6 @@ function renderTree(
     const isAllocated = allocatedSet.has(nodeId);
     const isHighlighted = node.isKeystone && highlightedSet.has((node.name || '').toLowerCase());
 
-    // Skip small unallocated nodes if we have allocated nodes (focus on the build)
-    if (allocatedNodes.length > 0 && nodeType === 'small' && !isAllocated) {
-      // Draw smaller, dimmer for context
-      const smallNode = new Graphics();
-      smallNode.circle(0, 0, 8);
-      smallNode.fill({ color: 0x2a3a4a, alpha: 0.4 });
-      smallNode.position.set(pos.x, pos.y);
-      nodesContainer.addChild(smallNode);
-      continue;
-    }
-
-    // Try to create sprite-based node, fall back to graphics
     const nodeGraphic = createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData);
     nodeGraphic.position.set(pos.x, pos.y);
     nodesContainer.addChild(nodeGraphic);
@@ -550,241 +667,132 @@ function renderTree(
 /**
  * Render group background images
  */
-function renderGroupBackgrounds(treeData, groups, container) {
-  // For now, render orbit circles for each group
+function renderGroupBackgrounds(treeData, groups, nodes, container) {
+  const backgroundTexture = getSpriteTextureByType(treeData.sprites?.uiSprites?.background, 'Background2', treeData);
+  if (backgroundTexture) {
+    const backdrop = new Sprite(backgroundTexture);
+    backdrop.anchor.set(0.5);
+    backdrop.position.set(
+      (treeData.bounds.minX + treeData.bounds.maxX) / 2,
+      (treeData.bounds.minY + treeData.bounds.maxY) / 2
+    );
+    backdrop.width = treeData.bounds.maxX - treeData.bounds.minX + 1200;
+    backdrop.height = treeData.bounds.maxY - treeData.bounds.minY + 1200;
+    backdrop.alpha = 0.08;
+    container.addChild(backdrop);
+  }
+
   for (const [, group] of Object.entries(groups)) {
     if (!group.orbits || group.orbits.length === 0) continue;
 
-    const bgGraphics = new Graphics();
     const maxOrbit = Math.max(...group.orbits);
+    if (maxOrbit <= 0) continue;
 
-    if (maxOrbit > 0) {
-      const radius = treeData.constants.orbitRadii[maxOrbit] || 200;
+    const radius = treeData.constants.orbitRadii[maxOrbit] || 200;
+    const diameter = radius * 2 + 140;
+    const hasAscendancyNodes = (group.nodes || []).some((id) => {
+      const key = id?.toString?.() || id;
+      const node = nodes[key];
+      return Boolean(node?.ascendancyName);
+    });
 
-      // Draw subtle background circle
-      bgGraphics.circle(group.x, group.y, radius + 30);
-      bgGraphics.fill({ color: 0x1a2030, alpha: 0.15 });
+    const groupBackgroundKey = maxOrbit >= 4
+      ? (hasAscendancyNodes ? 'GroupBackgroundLargeHalfAlt' : 'PSGroupBackground3')
+      : maxOrbit >= 3
+        ? (hasAscendancyNodes ? 'GroupBackgroundMediumAlt' : 'PSGroupBackground2')
+        : (hasAscendancyNodes ? 'GroupBackgroundSmallAlt' : 'PSGroupBackground1');
 
-      // Draw orbit rings
-      for (const orbit of group.orbits) {
-        if (orbit === 0) continue;
-        const orbitRadius = treeData.constants.orbitRadii[orbit];
-        if (orbitRadius) {
-          bgGraphics.circle(group.x, group.y, orbitRadius);
-          bgGraphics.stroke({ width: 1, color: 0x2a3a4a, alpha: 0.3 });
-        }
+    const groupTexture = getSpriteTextureByType(treeData.sprites?.uiSprites?.groupBackground, groupBackgroundKey, treeData);
+    if (groupTexture) {
+      if (maxOrbit >= 4) {
+        // Large atlas backgrounds are provided as half-images.
+        const topHalf = new Sprite(groupTexture);
+        topHalf.anchor.set(0.5, 1);
+        topHalf.position.set(group.x, group.y);
+        topHalf.width = diameter;
+        topHalf.height = diameter / 2;
+        topHalf.alpha = hasAscendancyNodes ? 0.9 : 0.8;
+        container.addChild(topHalf);
+
+        const bottomHalf = new Sprite(groupTexture);
+        bottomHalf.anchor.set(0.5, 1);
+        bottomHalf.position.set(group.x, group.y);
+        bottomHalf.width = diameter;
+        bottomHalf.height = diameter / 2;
+        bottomHalf.alpha = hasAscendancyNodes ? 0.9 : 0.8;
+        bottomHalf.scale.y = -1;
+        container.addChild(bottomHalf);
+      } else {
+        const bgSprite = new Sprite(groupTexture);
+        bgSprite.anchor.set(0.5);
+        bgSprite.position.set(group.x, group.y);
+        bgSprite.width = diameter;
+        bgSprite.height = diameter;
+        bgSprite.alpha = hasAscendancyNodes ? 0.88 : 0.72;
+        container.addChild(bgSprite);
       }
+    } else {
+      const fallbackBg = new Graphics();
+      fallbackBg.circle(group.x, group.y, radius + 30);
+      fallbackBg.fill({ color: 0x1a2030, alpha: 0.2 });
+      container.addChild(fallbackBg);
     }
 
-    container.addChild(bgGraphics);
+    // Keep orbital guides for readability.
+    const orbitGuides = new Graphics();
+    for (const orbit of group.orbits) {
+      if (orbit === 0) continue;
+      const orbitRadius = treeData.constants.orbitRadii[orbit];
+      if (orbitRadius) {
+        orbitGuides.circle(group.x, group.y, orbitRadius);
+        orbitGuides.stroke({ width: 1, color: 0x425162, alpha: 0.22 });
+      }
+    }
+    container.addChild(orbitGuides);
   }
 }
 
 function createNodeGraphic(node, nodeType, isAllocated, isHighlighted, treeData) {
   const container = new Container();
 
-  // Try to use sprite texture
+  const diameter = getNodeVisualDiameter(nodeType);
+  const frameTexture = getNodeFrameTexture(nodeType, isAllocated, treeData);
   const spriteTexture = getNodeSpriteTexture(node, treeData, isAllocated);
 
-  if (spriteTexture) {
-    // Use sprite-based rendering
-    const sprite = new Sprite(spriteTexture);
-    sprite.anchor.set(0.5);
+  if (isHighlighted) {
+    const glow = new Graphics();
+    glow.circle(0, 0, diameter * 0.7);
+    glow.fill({ color: 0xff6b35, alpha: 0.32 });
+    container.addChild(glow);
+  }
 
-    // Scale based on node type
-    const scale = nodeType === 'keystone' ? 0.8 :
-                  nodeType === 'notable' ? 0.7 :
-                  nodeType === 'mastery' ? 0.75 :
-                  nodeType === 'jewel' ? 0.7 : 0.6;
-    sprite.scale.set(scale);
-
-    // Add glow for highlighted nodes
-    if (isHighlighted) {
-      const glow = new Graphics();
-      glow.circle(0, 0, sprite.width * scale / 2 + 15);
-      glow.fill({ color: 0xff6b35, alpha: 0.4 });
-      container.addChild(glow);
+  if (spriteTexture || frameTexture) {
+    if (spriteTexture) {
+      const sprite = new Sprite(spriteTexture);
+      sprite.anchor.set(0.5);
+      sprite.width = diameter;
+      sprite.height = diameter;
+      container.addChild(sprite);
     }
 
-    container.addChild(sprite);
+    if (frameTexture) {
+      const frame = new Sprite(frameTexture);
+      frame.anchor.set(0.5);
+      frame.width = diameter + 8;
+      frame.height = diameter + 8;
+      container.addChild(frame);
+    }
   } else {
-    // Fallback to graphics-based rendering with enhanced visuals
+    // Fallback if icon atlas does not contain this node.
     const graphics = new Graphics();
     const radius = getNodeRadius(nodeType);
     const color = getNodeColor(nodeType, isAllocated);
+    const stroke = isAllocated ? 0xd8e8ff : 0x4a5a6a;
 
-    // Outer glow for allocated/highlighted nodes
-    if (isAllocated || isHighlighted) {
-      const glowColor = isHighlighted ? 0xff6b35 : color;
-      // Multiple layered glows for better effect
-      graphics.circle(0, 0, radius + 15);
-      graphics.fill({ color: glowColor, alpha: 0.15 });
-      graphics.circle(0, 0, radius + 10);
-      graphics.fill({ color: glowColor, alpha: 0.25 });
-      graphics.circle(0, 0, radius + 5);
-      graphics.fill({ color: glowColor, alpha: 0.35 });
-    }
-
-    // Main node shape based on type
-    if (nodeType === 'keystone') {
-      // Diamond shape for keystones with inner detail
-      const r = radius;
-
-      // Outer diamond border
-      graphics.moveTo(0, -r - 4);
-      graphics.lineTo(r + 4, 0);
-      graphics.lineTo(0, r + 4);
-      graphics.lineTo(-r - 4, 0);
-      graphics.closePath();
-      graphics.fill({ color: isAllocated ? 0x2a2000 : 0x1a1510, alpha: 0.9 });
-
-      // Main diamond
-      graphics.moveTo(0, -r);
-      graphics.lineTo(r, 0);
-      graphics.lineTo(0, r);
-      graphics.lineTo(-r, 0);
-      graphics.closePath();
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.75 });
-      graphics.stroke({ width: 3, color: isAllocated ? 0xffd700 : 0x7a6a4a });
-
-      // Inner diamond accent
-      const innerR = r * 0.5;
-      graphics.moveTo(0, -innerR);
-      graphics.lineTo(innerR, 0);
-      graphics.lineTo(0, innerR);
-      graphics.lineTo(-innerR, 0);
-      graphics.closePath();
-      graphics.fill({ color: isAllocated ? 0xffee88 : 0x5a4a3a, alpha: isAllocated ? 0.6 : 0.4 });
-
-    } else if (nodeType === 'notable') {
-      // Octagon for notables with layered effect
-      const sides = 8;
-
-      // Outer ring
-      for (let i = 0; i < sides; i++) {
-        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-        const x = Math.cos(angle) * (radius + 3);
-        const y = Math.sin(angle) * (radius + 3);
-        if (i === 0) graphics.moveTo(x, y);
-        else graphics.lineTo(x, y);
-      }
-      graphics.closePath();
-      graphics.fill({ color: isAllocated ? 0x003040 : 0x1a2028, alpha: 0.9 });
-
-      // Main octagon
-      for (let i = 0; i < sides; i++) {
-        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-        if (i === 0) graphics.moveTo(x, y);
-        else graphics.lineTo(x, y);
-      }
-      graphics.closePath();
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.75 });
-      graphics.stroke({ width: 2, color: isAllocated ? 0x00bfff : 0x5a7088 });
-
-      // Inner circle accent
-      graphics.circle(0, 0, radius * 0.4);
-      graphics.fill({ color: isAllocated ? 0x88ddff : 0x3a4a58, alpha: isAllocated ? 0.5 : 0.3 });
-
-    } else if (nodeType === 'jewel') {
-      // Hexagon for jewel sockets with gem-like appearance
-      const sides = 6;
-
-      // Outer hexagon
-      for (let i = 0; i < sides; i++) {
-        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-        const x = Math.cos(angle) * (radius + 4);
-        const y = Math.sin(angle) * (radius + 4);
-        if (i === 0) graphics.moveTo(x, y);
-        else graphics.lineTo(x, y);
-      }
-      graphics.closePath();
-      graphics.fill({ color: 0x1a1a2e, alpha: 0.95 });
-      graphics.stroke({ width: 3, color: isAllocated ? 0x9932cc : 0x5a4a6a });
-
-      // Inner hexagon
-      for (let i = 0; i < sides; i++) {
-        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-        const x = Math.cos(angle) * (radius * 0.65);
-        const y = Math.sin(angle) * (radius * 0.65);
-        if (i === 0) graphics.moveTo(x, y);
-        else graphics.lineTo(x, y);
-      }
-      graphics.closePath();
-      graphics.fill({ color: isAllocated ? 0x6020a0 : 0x2a2040, alpha: 0.8 });
-      graphics.stroke({ width: 2, color: isAllocated ? 0xcc66ff : 0x5a4a6a });
-
-      // Center circle
-      graphics.circle(0, 0, radius * 0.25);
-      graphics.fill({ color: isAllocated ? 0xee88ff : 0x4a3a5a, alpha: 0.9 });
-
-    } else if (nodeType === 'mastery') {
-      // Star-like shape for masteries
-      // Outer glow ring
-      graphics.circle(0, 0, radius + 3);
-      graphics.fill({ color: isAllocated ? 0x401030 : 0x201020, alpha: 0.8 });
-
-      graphics.circle(0, 0, radius);
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.7 });
-      graphics.stroke({ width: 2, color: isAllocated ? 0xff69b4 : 0x7b5a6e });
-
-      // Inner star pattern
-      const starPoints = 6;
-      const innerRadius = radius * 0.35;
-      const outerStarRadius = radius * 0.6;
-      for (let i = 0; i < starPoints * 2; i++) {
-        const angle = (i * Math.PI) / starPoints - Math.PI / 2;
-        const r = i % 2 === 0 ? outerStarRadius : innerRadius;
-        const x = Math.cos(angle) * r;
-        const y = Math.sin(angle) * r;
-        if (i === 0) graphics.moveTo(x, y);
-        else graphics.lineTo(x, y);
-      }
-      graphics.closePath();
-      graphics.fill({ color: isAllocated ? 0xffaacc : 0x5a4050, alpha: isAllocated ? 0.7 : 0.4 });
-
-    } else {
-      // Circle for small passives with ring
-      graphics.circle(0, 0, radius + 2);
-      graphics.fill({ color: isAllocated ? 0x103010 : 0x151a15, alpha: 0.8 });
-
-      graphics.circle(0, 0, radius);
-      graphics.fill({ color, alpha: isAllocated ? 1 : 0.65 });
-      graphics.stroke({ width: 1.5, color: isAllocated ? 0x90ee90 : 0x4a5a4a });
-
-      // Small center dot for allocated
-      if (isAllocated) {
-        graphics.circle(0, 0, radius * 0.3);
-        graphics.fill({ color: 0xccffcc, alpha: 0.6 });
-      }
-    }
-
+    graphics.circle(0, 0, radius);
+    graphics.fill({ color, alpha: isAllocated ? 0.95 : 0.72 });
+    graphics.stroke({ width: 1.5, color: stroke, alpha: 0.8 });
     container.addChild(graphics);
-  }
-
-  // Add name label for keystones and notables
-  if ((nodeType === 'keystone' || nodeType === 'notable') && node.name) {
-    const style = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: nodeType === 'keystone' ? 14 : 11,
-      fontWeight: nodeType === 'keystone' ? 'bold' : 'normal',
-      fill: isAllocated ? 0xffffff : 0xaaaaaa,
-      align: 'center',
-      wordWrap: true,
-      wordWrapWidth: 120,
-      dropShadow: {
-        color: 0x000000,
-        blur: 4,
-        distance: 1
-      }
-    });
-
-    const radius = getNodeRadius(nodeType);
-    const text = new Text({ text: truncateText(node.name, 25), style });
-    text.anchor.set(0.5, 0);
-    text.position.set(0, radius + 8);
-    container.addChild(text);
   }
 
   return container;
@@ -830,9 +838,4 @@ function centerViewport(viewport, treeData, allocatedNodes) {
     viewport.moveCenter(centerX, centerY);
     viewport.setZoom(0.08); // Start zoomed out to see full tree
   }
-}
-
-function truncateText(text, maxLength) {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 1) + '…';
 }
